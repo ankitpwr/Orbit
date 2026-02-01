@@ -11,4 +11,45 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+   url= env("DATABASE_URL")
+}
+
+
+model User {
+  id            String     @id     @default(uuid())
+  name          String    
+  email         String     @unique
+  createdAt     DateTime   @default(now())
+  monitor       Monitor[]
+}
+
+model Monitor{
+  id             String    @id       @default(uuid())
+  name           String
+  url            String
+  createdAt      DateTime  @default(now())
+  interval       Int       @default(60)
+  status         MonitorStatus
+  lastChecked    DateTime?
+  userId         String
+  user           User    @relation(fields: [userId], references: [id])
+  pinglog        PingLog[]
+}
+
+model PingLog{
+  id             String    @id      @default(uuid())   
+  timestamp      DateTime  @default(now())
+  statusCode     Int?
+  monitorId      String
+  monitor        Monitor   @relation(fields: [monitorId], references: [id])
+  @@index([monitorId, timestamp])
+}
+
+
+
+
+enum MonitorStatus{
+  up
+  DOWN
+  PAUSED
 }
