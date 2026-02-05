@@ -8,6 +8,6 @@ app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 
-app.use("/api/v1/user", authRouter);
+app.use("/api/v1/auth", authRouter);
 
 app.listen(3001);
