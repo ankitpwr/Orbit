@@ -1,12 +1,18 @@
 import type { Request, Response } from "express";
 import type { CustomRequest } from "../lib/middleware.js";
 import { prisma } from "../lib/prisma.js";
-import { MonitorStatus } from "../generated/prisma/enums.js";
 import { Prisma } from "../generated/prisma/client.js";
+import { addMonitorSchema, deleteMonitorSchema } from "../lib/zod-schema.js";
 
 export const addMonitor = async (req: Request, res: Response) => {
   try {
     const { id } = req as CustomRequest;
+    const parsedBody = addMonitorSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      return res.status(400).json({
+        error: parsedBody.error.issues,
+      });
+    }
     const { name, url } = req.body;
     const newMonitor = await prisma.monitor.create({
       data: {
@@ -43,6 +49,12 @@ export const addMonitor = async (req: Request, res: Response) => {
 export const deleteMonitor = async (req: Request, res: Response) => {
   try {
     const { id } = req as CustomRequest;
+    const parsedParam = deleteMonitorSchema.safeParse(req.params);
+    if (!parsedParam.success) {
+      return res.status(400).json({
+        error: parsedParam.error.issues,
+      });
+    }
     const monitorId = String(req.params.monitorId);
     if (!monitorId) {
       return res.status(400).json({
