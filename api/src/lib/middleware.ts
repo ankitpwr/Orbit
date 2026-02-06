@@ -19,7 +19,7 @@ export const authMiddleware = async (
   try {
     const token = req.cookies.token || "";
     const decode = jwt.verify(token, process.env.JWT_SECRET!) as CustomPayload;
-    if (!decode)
+    if (!decode || !decode.email || !decode.id)
       res.status(401).json({
         error: "Please Signup!",
       });
