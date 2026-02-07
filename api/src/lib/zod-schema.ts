@@ -10,3 +10,7 @@ export const addMonitorSchema = z.object({
 export const deleteMonitorSchema = z.object({
   monitorId: z.uuid({ error: "Invalid Monitor ID In Params" }),
 });
+
+export const monitorDetailsSchema = z.object({
+  monitorId: z.uuid({ error: "Invalid Monitor ID In Params" }),
+});
