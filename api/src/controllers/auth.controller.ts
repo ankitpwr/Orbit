@@ -52,6 +52,7 @@ export const googleAuth = async (req: Request, res: Response) => {
     });
     res.status(200).json({
       message: "signup successful",
+      token: token,
     });
   } catch (error) {
     return res.status(500).json({

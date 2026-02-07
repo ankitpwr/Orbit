@@ -89,3 +89,33 @@ export const deleteMonitor = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const findMonitors = async (req: Request, res: Response) => {
+  try {
+    const { id, email } = req as CustomRequest;
+    const monitors = await prisma.monitor.findMany({
+      where: {
+        userId: id,
+      },
+      select: {
+        id: true,
+        name: true,
+        url: true,
+        createdAt: true,
+        status: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+
+    return res.status(400).json({
+      monitors,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+};

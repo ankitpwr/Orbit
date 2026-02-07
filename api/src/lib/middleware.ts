@@ -17,7 +17,13 @@ export const authMiddleware = async (
   next: NextFunction,
 ) => {
   try {
-    const token = req.cookies.token || "";
+    console.log("cookie are ", req.cookies);
+    const token = req.cookies.token;
+    if (!token) {
+      res.status(400).json({
+        error: "Invalid User , Token is not present",
+      });
+    }
     const decode = jwt.verify(token, process.env.JWT_SECRET!) as CustomPayload;
     if (!decode || !decode.email || !decode.id)
       res.status(401).json({

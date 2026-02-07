@@ -1,9 +1,13 @@
 import express, { Router } from "express";
 import { authMiddleware } from "../lib/middleware.js";
-import { addMonitor } from "../controllers/monitor.controller.js";
-import { auth } from "googleapis/build/src/apis/abusiveexperiencereport/index.js";
+import {
+  addMonitor,
+  deleteMonitor,
+  findMonitors,
+} from "../controllers/monitor.controller.js";
 
-const monitorRouter = Router();
+export const monitorRouter = Router();
 
 monitorRouter.post("/add", authMiddleware, addMonitor);
-monitorRouter.delete("/remove/:monitorId", authMiddleware);
+monitorRouter.delete("/remove/:monitorId", authMiddleware, deleteMonitor);
+monitorRouter.get("/", authMiddleware, findMonitors);
