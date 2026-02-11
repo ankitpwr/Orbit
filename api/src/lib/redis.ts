@@ -1,9 +1,11 @@
 import Redis from "ioredis";
 
-const client = new Redis.default();
-
-client.on("error", (error) => {
-  console.log("error occured", error);
+export const producerClient = new Redis.default({
+  host: "localhost",
+  port: 6379,
 });
 
-export default client;
+export const consumerClient = new Redis.default({
+  host: "localhost",
+  port: 6379,
+});

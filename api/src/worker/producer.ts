@@ -1,12 +1,14 @@
 import cron from "node-cron";
 import { prisma } from "../lib/prisma.js";
-import client from "../lib/redis.js";
+import { producerClient } from "../lib/redis.js";
 
 try {
   async function publish() {
-    const monitor = await prisma.monitor.findMany({});
+    const monitor = await prisma.monitor.findMany({
+      select: { id: true, url: true },
+    });
     console.log(monitor);
-    const pipeline = client.pipeline();
+    const pipeline = producerClient.pipeline();
     monitor.forEach((obj) => {
       const entries = Object.entries(obj).flatMap(([k, v]) => [
         k,
@@ -15,9 +17,9 @@ try {
       pipeline.xadd("Orbit:monitors", "*", ...entries);
     });
 
-    const data = await pipeline.exec();
+    await pipeline.exec();
   }
-  cron.schedule("*/10 * * * *", publish);
+  cron.schedule("*/2 * * * *", publish);
 } catch (error) {
   console.log("error !");
   console.log(error);

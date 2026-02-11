@@ -11,5 +11,17 @@ app.use(cookieParser());
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/monitor", monitorRouter);
+app.get("/health-check", async (req, res) => {
+  try {
+    return res.status(200).json({
+      message: "All Good!",
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      message: "Internal Server Error",
+    });
+  }
+});
 
 app.listen(3001);

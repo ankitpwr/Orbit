@@ -7,7 +7,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc -b",
     "dev": "npx tsc -b && node ./dist/index.js",
-    "producer": "npx tsc -b && node ./dist/worker/producer.js"
+    "producer": "npx tsc -b && node ./dist/worker/producer.js",
+    "consumer": "npx tsc -b && node ./dist/worker/consumer.js"
   },
   "keywords": [],
   "author": "",
@@ -23,6 +24,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.1.0",
     "@types/pg": "^8.16.0",
+    "axios": "^1.13.5",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
