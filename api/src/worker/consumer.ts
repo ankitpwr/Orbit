@@ -1,8 +1,42 @@
 import { prisma } from "../lib/prisma.js";
 import { consumerClient } from "../lib/redis.js";
-import cron from "node-cron";
-import axios from "axios";
-import { forEachChild } from "typescript";
+import axios, { AxiosError } from "axios";
+
+interface Response {
+  statuscode: number;
+}
+
+async function sendRequest(url: string): Promise<Response> {
+  try {
+    const response = await axios.get(`${url}/health-check`);
+    return { statuscode: response.status };
+  } catch (error) {
+    if (error instanceof AxiosError) {
+      console.log("error code", error.code);
+      return { statuscode: error.response?.status || 500 };
+    }
+    return { statuscode: 500 };
+  }
+}
+
+async function storeResult(monitorId: string, statusCode: number) {
+  const code = statusCode == 200 ? "UP" : "DOWN";
+  const res = await prisma.$transaction([
+    prisma.pingLog.create({
+      data: {
+        monitorId: monitorId,
+        statusCode: statusCode,
+      },
+    }),
+
+    prisma.monitor.update({
+      where: { id: monitorId },
+      data: {
+        status: code,
+      },
+    }),
+  ]);
+}
 
 async function consumer() {
   console.log("consumer start");
@@ -12,7 +46,7 @@ async function consumer() {
       "monitor-group-1",
       "worker-1",
       "COUNT",
-      "2",
+      "1",
       "BLOCK",
       "10000",
       "STREAMS",
@@ -23,17 +57,18 @@ async function consumer() {
 
     //@ts-ignore
     for (const [stream, entries] of data) {
-      let monitorId: string = "";
-      let url: string = "";
       for (const [id, fields] of entries) {
-        console.log("id is ", id);
+        const monitorData: Record<string, string> = {};
         for (let i = 0; i < fields.length; i += 2) {
-          monitorId = fields[i];
-          url = fields[i + 1];
+          monitorData[fields[i]] = fields[i + 1];
+        }
+        const url = monitorData.url;
+        const monitorId = monitorData.id;
+        if (url && monitorId) {
+          const code = await sendRequest(url);
+          await storeResult(monitorId, code.statuscode);
         }
       }
-      console.log("monitor id is", monitorId);
-      console.log("url is ", url);
     }
   } catch (error) {
     console.log("error !", error);
@@ -41,5 +76,3 @@ async function consumer() {
 }
 
 consumer();
-
-// cron.schedule("*/3 * * * *", consumer);
