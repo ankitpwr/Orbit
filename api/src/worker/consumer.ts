@@ -1,45 +1,69 @@
+import { Prisma } from "../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 import { consumerClient } from "../lib/redis.js";
 import axios, { AxiosError } from "axios";
 
 interface Response {
   statuscode: number;
+  latency: number;
 }
 
-async function sendRequest(url: string): Promise<Response> {
+async function checkStatus(url: string): Promise<Response> {
+  const start = Date.now();
   try {
-    const response = await axios.get(`${url}/health-check`);
-    return { statuscode: response.status };
+    console.log("url is ", url);
+    const response = await axios.get(`${url}`, { timeout: 5000 });
+    return { statuscode: response.status, latency: Date.now() - start };
   } catch (error) {
     if (error instanceof AxiosError) {
       console.log("error code", error.code);
-      return { statuscode: error.response?.status || 500 };
+      return {
+        statuscode: error.response?.status || 500,
+        latency: Date.now() - start,
+      };
     }
-    return { statuscode: 500 };
+    return { statuscode: 500, latency: Date.now() - start };
   }
 }
 
-async function storeResult(monitorId: string, statusCode: number) {
+async function storeResult(
+  monitorId: string,
+  statusCode: number,
+  latency: number,
+) {
   const code = statusCode == 200 ? "UP" : "DOWN";
-  const res = await prisma.$transaction([
-    prisma.pingLog.create({
-      data: {
-        monitorId: monitorId,
-        statusCode: statusCode,
-      },
-    }),
+  try {
+    const res = await prisma.$transaction([
+      prisma.pingLog.create({
+        data: {
+          monitorId: monitorId,
+          statusCode: statusCode,
+          latency: latency,
+        },
+      }),
 
-    prisma.monitor.update({
-      where: { id: monitorId },
-      data: {
-        status: code,
-      },
-    }),
-  ]);
+      prisma.monitor.update({
+        where: { id: monitorId },
+        data: {
+          status: code,
+          lastChecked: new Date(),
+        },
+      }),
+    ]);
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        console.log("Monitor does not exist");
+      } else console.log("database error");
+    }
+
+    console.log("Uable to Store Ping Logs!");
+    console.log(error);
+  }
 }
 
-async function consumer() {
-  console.log("consumer start");
+async function processJobs() {
+  console.log("job processing start");
   try {
     const data = await consumerClient.xreadgroup(
       "GROUP",
@@ -65,8 +89,8 @@ async function consumer() {
         const url = monitorData.url;
         const monitorId = monitorData.id;
         if (url && monitorId) {
-          const code = await sendRequest(url);
-          await storeResult(monitorId, code.statuscode);
+          const res = await checkStatus(url);
+          await storeResult(monitorId, res.statuscode, res.latency);
         }
       }
     }
@@ -75,4 +99,13 @@ async function consumer() {
   }
 }
 
-consumer();
+async function startConsumer() {
+  while (true) {
+    try {
+      await processJobs();
+    } catch (error) {
+      console.log("error !", error);
+    }
+  }
+}
+startConsumer();

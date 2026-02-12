@@ -32,7 +32,7 @@ model Monitor{
   createdAt      DateTime                    @default(now())
   interval       Int                         @default(60)
   status         MonitorStatus               @default(UP)
-  lastChecked    DateTime?
+  lastChecked    DateTime                    @default(now())
   userId         String
   user           User                        @relation(fields: [userId], references: [id])
   pinglog        PingLog[]
@@ -43,7 +43,8 @@ model Monitor{
 model PingLog{
   id             String          @id         @default(uuid())   
   timestamp      DateTime                    @default(now())
-  statusCode     Int?
+  statusCode     Int
+  latency        Int
   monitorId      String
   monitor        Monitor                     @relation(fields: [monitorId], references: [id])
   @@index([monitorId, timestamp])
