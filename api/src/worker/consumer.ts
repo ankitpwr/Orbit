@@ -70,7 +70,7 @@ async function processJobs() {
       "monitor-group-1",
       "worker-1",
       "COUNT",
-      "1",
+      "2",
       "BLOCK",
       "10000",
       "STREAMS",
@@ -81,18 +81,22 @@ async function processJobs() {
 
     //@ts-ignore
     for (const [stream, entries] of data) {
-      for (const [id, fields] of entries) {
-        const monitorData: Record<string, string> = {};
-        for (let i = 0; i < fields.length; i += 2) {
-          monitorData[fields[i]] = fields[i + 1];
-        }
-        const url = monitorData.url;
-        const monitorId = monitorData.id;
-        if (url && monitorId) {
-          const res = await checkStatus(url);
-          await storeResult(monitorId, res.statuscode, res.latency);
-        }
-      }
+      await Promise.all(
+        entries.map(async ([id, fields]: [string, string[]]) => {
+          const monitorData: Record<string, string> = {};
+          for (let i = 0; i < fields.length; i += 2) {
+            monitorData[fields[i]!] = fields[i + 1]!;
+          }
+          console.log("monitordata: ", monitorData);
+          const url = monitorData.url;
+          const monitorId = monitorData.id;
+          if (url && monitorId) {
+            const res = await checkStatus(url);
+            await storeResult(monitorId, res.statuscode, res.latency);
+            await consumerClient.xack("Orbit:monitors", "monitor-group-1", id);
+          }
+        }),
+      );
     }
   } catch (error) {
     console.log("error !", error);
@@ -100,12 +104,10 @@ async function processJobs() {
 }
 
 async function startConsumer() {
-  while (true) {
-    try {
-      await processJobs();
-    } catch (error) {
-      console.log("error !", error);
-    }
+  try {
+    await processJobs();
+  } catch (error) {
+    console.log("error !", error);
   }
 }
 startConsumer();
