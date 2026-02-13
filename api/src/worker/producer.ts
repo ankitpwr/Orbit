@@ -39,7 +39,7 @@ async function publish() {
     console.log(error);
   }
 }
-const task = cron.schedule(
+const publishTask = cron.schedule(
   "*/2 * * * *",
   async () => {
     await publish();
@@ -48,4 +48,22 @@ const task = cron.schedule(
     noOverlap: true,
   },
 );
-task.start();
+publishTask.start();
+
+async function deleteOlderLogs() {
+  const sevenDayAgo = new Date();
+  sevenDayAgo.setDate(sevenDayAgo.getDate() - 7);
+
+  await prisma.pingLog.deleteMany({
+    where: {
+      timestamp: {
+        lt: sevenDayAgo,
+      },
+    },
+  });
+  console.log("data deleted!");
+}
+const deleteTask = cron.schedule("0 0 * * *", async () => {
+  await deleteOlderLogs();
+});
+deleteTask.start();

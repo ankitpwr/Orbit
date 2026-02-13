@@ -104,10 +104,12 @@ async function processJobs() {
 }
 
 async function startConsumer() {
-  try {
-    await processJobs();
-  } catch (error) {
-    console.log("error !", error);
+  while (true) {
+    try {
+      await processJobs();
+    } catch (error) {
+      console.log("error !", error);
+    }
   }
 }
 startConsumer();
