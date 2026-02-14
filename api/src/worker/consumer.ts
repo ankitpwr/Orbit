@@ -7,6 +7,12 @@ interface Response {
   statuscode: number;
   latency: number;
 }
+interface PingResult {
+  monitorId: string;
+  statusCode: number;
+  latency: number;
+  redisId: string;
+}
 
 async function checkStatus(url: string): Promise<Response> {
   const start = Date.now();
@@ -26,26 +32,39 @@ async function checkStatus(url: string): Promise<Response> {
   }
 }
 
-async function storeResult(
-  monitorId: string,
-  statusCode: number,
-  latency: number,
-) {
-  const code = statusCode == 200 ? "UP" : "DOWN";
+async function storeResult(pingResults: PingResult[]) {
+  const upMonitorsId = pingResults
+    .filter((obj) => obj.statusCode >= 200 && obj.statusCode < 300)
+    .map((val) => val.monitorId);
+  const downMonitorsId = pingResults
+    .filter((obj) => obj.statusCode < 200 && obj.statusCode >= 300)
+    .map((val) => val.monitorId);
   try {
     const res = await prisma.$transaction([
-      prisma.pingLog.create({
+      prisma.pingLog.createMany({
+        data: pingResults.map((obj) => ({
+          monitorId: obj.monitorId,
+          statusCode: obj.statusCode,
+          latency: obj.latency,
+        })),
+      }),
+
+      prisma.monitor.updateMany({
+        where: {
+          id: { in: upMonitorsId },
+        },
         data: {
-          monitorId: monitorId,
-          statusCode: statusCode,
-          latency: latency,
+          status: "UP",
+          lastChecked: new Date(),
         },
       }),
 
-      prisma.monitor.update({
-        where: { id: monitorId },
+      prisma.monitor.updateMany({
+        where: {
+          id: { in: downMonitorsId },
+        },
         data: {
-          status: code,
+          status: "DOWN",
           lastChecked: new Date(),
         },
       }),
@@ -81,7 +100,7 @@ async function processJobs() {
 
     //@ts-ignore
     for (const [stream, entries] of data) {
-      await Promise.all(
+      let pingResults: PingResult[] = await Promise.all(
         entries.map(async ([id, fields]: [string, string[]]) => {
           const monitorData: Record<string, string> = {};
           for (let i = 0; i < fields.length; i += 2) {
@@ -92,9 +111,21 @@ async function processJobs() {
           const monitorId = monitorData.id;
           if (url && monitorId) {
             const res = await checkStatus(url);
-            await storeResult(monitorId, res.statuscode, res.latency);
-            await consumerClient.xack("Orbit:monitors", "monitor-group-1", id);
+
+            return {
+              redisId: id,
+              monitorId: monitorId,
+              statusCode: res.statuscode,
+              latency: res.latency,
+            };
           }
+        }),
+      );
+      pingResults = pingResults.filter((r) => r != undefined);
+      await storeResult(pingResults);
+      await Promise.all(
+        pingResults.map(async (obj) => {
+          consumerClient.xack("Orbit:monitors", "monitor-group-1", obj.redisId);
         }),
       );
     }

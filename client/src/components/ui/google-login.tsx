@@ -27,6 +27,15 @@ export default function GoogleLogin() {
     }
   };
 
+  async function checkStatus() {
+    try {
+      const response = await axios.get("https://zod.dev", { timeout: 5000 });
+      console.log(response.status);
+    } catch (error) {
+      console.log(error);
+    }
+  }
+  checkStatus();
   const login = useGoogleLogin({
     onSuccess: responseGoogle,
     onError: responseGoogle,

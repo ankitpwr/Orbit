@@ -40,7 +40,7 @@ async function publish() {
   }
 }
 const publishTask = cron.schedule(
-  "*/2 * * * *",
+  "*/10 * * * *",
   async () => {
     await publish();
   },
