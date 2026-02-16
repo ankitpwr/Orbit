@@ -33,14 +33,19 @@ async function checkStatus(url: string): Promise<Response> {
 }
 
 async function storeResult(pingResults: PingResult[]) {
+  //filter out the url with status up!
   const upMonitorsId = pingResults
     .filter((obj) => obj.statusCode >= 200 && obj.statusCode < 300)
     .map((val) => val.monitorId);
+
+  //filter out the url with status down!
   const downMonitorsId = pingResults
-    .filter((obj) => obj.statusCode < 200 && obj.statusCode >= 300)
+    .filter((obj) => obj.statusCode < 200 || obj.statusCode >= 300)
     .map((val) => val.monitorId);
+
   try {
     const res = await prisma.$transaction([
+      //store all logs in bulk
       prisma.pingLog.createMany({
         data: pingResults.map((obj) => ({
           monitorId: obj.monitorId,
@@ -49,6 +54,7 @@ async function storeResult(pingResults: PingResult[]) {
         })),
       }),
 
+      //update the status of url with UP status
       prisma.monitor.updateMany({
         where: {
           id: { in: upMonitorsId },
@@ -59,6 +65,7 @@ async function storeResult(pingResults: PingResult[]) {
         },
       }),
 
+      //update the status of url with DOWN status
       prisma.monitor.updateMany({
         where: {
           id: { in: downMonitorsId },
@@ -84,25 +91,31 @@ async function storeResult(pingResults: PingResult[]) {
 async function processJobs() {
   console.log("job processing start");
   try {
+    //Bulk reading from consumer group
     const data = await consumerClient.xreadgroup(
       "GROUP",
       "monitor-group-1",
       "worker-1",
       "COUNT",
-      "2",
+      "10",
       "BLOCK",
       "10000",
       "STREAMS",
       "Orbit:monitors",
       ">",
     );
-    if (!data) return;
+    if (!data) {
+      console.log("no data");
+      return;
+    }
 
     //@ts-ignore
     for (const [stream, entries] of data) {
       let pingResults: PingResult[] = await Promise.all(
         entries.map(async ([id, fields]: [string, string[]]) => {
           const monitorData: Record<string, string> = {};
+
+          //get 1 monitor data at a time
           for (let i = 0; i < fields.length; i += 2) {
             monitorData[fields[i]!] = fields[i + 1]!;
           }
@@ -110,8 +123,8 @@ async function processJobs() {
           const url = monitorData.url;
           const monitorId = monitorData.id;
           if (url && monitorId) {
+            // check website status
             const res = await checkStatus(url);
-
             return {
               redisId: id,
               monitorId: monitorId,
@@ -121,8 +134,14 @@ async function processJobs() {
           }
         }),
       );
+
+      // filter out undefined entries
       pingResults = pingResults.filter((r) => r != undefined);
+
+      // store result to logs table
       await storeResult(pingResults);
+
+      // acknowledge
       await Promise.all(
         pingResults.map(async (obj) => {
           consumerClient.xack("Orbit:monitors", "monitor-group-1", obj.redisId);

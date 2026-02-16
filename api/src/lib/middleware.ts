@@ -17,9 +17,9 @@ export const authMiddleware = async (
   next: NextFunction,
 ) => {
   try {
-    console.log("cookie are ", req.cookies);
-    const token = req.cookies.token;
-    if (!token) {
+    console.log("cookie are ", req.cookies.token);
+    const token = req.cookies.token || "";
+    if (!token || token == "") {
       res.status(400).json({
         error: "Invalid User , Token is not present",
       });

@@ -4,7 +4,6 @@ import cors from "cors";
 import authRouter from "./routes/auth.route.js";
 import cookieParser from "cookie-parser";
 import { monitorRouter } from "./routes/monitor.route.js";
-import axios from "axios";
 const app = express();
 
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));

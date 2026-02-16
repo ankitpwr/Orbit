@@ -17,12 +17,13 @@ export const addMonitor = async (req: Request, res: Response) => {
         error: parsedBody.error.issues,
       });
     }
-    const { name, url } = req.body;
+    const { name, url, email } = req.body;
     const newMonitor = await prisma.monitor.create({
       data: {
         userId: id,
         name: name,
         url: url,
+        email: email,
       },
     });
     return res.status(200).json({

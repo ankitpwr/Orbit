@@ -1,7 +1,7 @@
 import cron from "node-cron";
 import { prisma } from "../lib/prisma.js";
 import { producerClient } from "../lib/redis.js";
-const BATCH_SIZE = 2;
+const BATCH_SIZE = 20;
 
 interface MonitorData {
   id: string;
@@ -13,6 +13,7 @@ async function publish() {
     console.log("starting producer! ");
     let cursorId: string | undefined = undefined;
     while (true) {
+      // cursor based pagination for batch import
       const monitors: MonitorData[] = await prisma.monitor.findMany({
         ...(cursorId ? { cursor: { id: cursorId } } : {}),
         skip: cursorId ? 1 : 0,
@@ -22,9 +23,9 @@ async function publish() {
       });
       console.log("monitors are", monitors);
 
-      if (monitors.length == 0) break;
+      if (monitors.length == 0) break; // No more rows available
 
-      const pipeline = producerClient.pipeline();
+      const pipeline = producerClient.pipeline(); // creating redis-pipeline
       monitors.forEach((obj) => {
         const entries = Object.entries(obj).flatMap(([k, v]) => [
           k,
@@ -32,13 +33,15 @@ async function publish() {
         ]);
         pipeline.xadd("Orbit:monitors", "*", ...entries);
       });
-      await pipeline.exec();
-      cursorId = monitors[monitors.length - 1]?.id;
+      await pipeline.exec(); //adding Bulk entries to redis-stream
+      cursorId = monitors[monitors.length - 1]?.id; // updating cursor to last fetched monitor ID
     }
   } catch (error) {
     console.log(error);
   }
 }
+
+// Schedule task for fetching monitors from DB
 const publishTask = cron.schedule(
   "*/10 * * * *",
   async () => {
@@ -63,6 +66,8 @@ async function deleteOlderLogs() {
   });
   console.log("data deleted!");
 }
+
+// Scheduling task to delete older records
 const deleteTask = cron.schedule("0 0 * * *", async () => {
   await deleteOlderLogs();
 });
