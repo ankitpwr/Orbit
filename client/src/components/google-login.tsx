@@ -1,6 +1,6 @@
-import { Button } from "./button";
 import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+import { Button } from "./ui/button";
 
 export default function GoogleLogin() {
   const responseGoogle = async (authResult: any) => {
@@ -9,33 +9,19 @@ export default function GoogleLogin() {
         console.log("not auth code");
         return;
       }
-      console.log(
-        "url is ",
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/google`,
-      );
 
       const result = await axios.post(
-        `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/google`,
+        `${import.meta.env.VITE_BACKEND_URL}/auth/google`,
         {
           code: authResult.code,
         },
+        { withCredentials: true },
       );
-
-      console.log(result);
     } catch (error) {
       console.log(error);
     }
   };
 
-  async function checkStatus() {
-    try {
-      const response = await axios.get("https://zod.dev", { timeout: 5000 });
-      console.log(response.status);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-  checkStatus();
   const login = useGoogleLogin({
     onSuccess: responseGoogle,
     onError: responseGoogle,
@@ -43,7 +29,7 @@ export default function GoogleLogin() {
   });
   return (
     <div className="w-screen h-screen  flex justify-center items-center ">
-      <Button onClick={login}>signup</Button>
+      <Button onClick={() => login()}>signup</Button>
     </div>
   );
 }
