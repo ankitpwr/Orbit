@@ -20,9 +20,12 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
         `${import.meta.env.VITE_BACKEND_URL}/monitor`,
         { withCredentials: true },
       );
-      console.log("user monitors ", response.data);
-      set({ userMonitors: response.data });
+      if (response.status === 200) {
+        console.log("200 status");
+        set({ userMonitors: response.data.monitors });
+      } else console.log("not 200 ", response.status);
     } catch (error) {
+      console.log("error !", error);
     } finally {
       set({ isLoadingMonitors: false });
     }

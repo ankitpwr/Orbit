@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Button } from "../components/ui/button";
 import { Field, FieldDescription, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
@@ -6,15 +6,18 @@ import useAuthStore from "../store/useAuthStore";
 import { toast } from "sonner";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Spinner } from "../components/ui/spinner";
 
 export default function CreateMonitors() {
   const urlRef = useRef<HTMLInputElement | null>(null);
   const emailRef = useRef<HTMLInputElement | null>(null);
   const nameRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const { user } = useAuthStore();
   const createMonitor = async () => {
+    setLoading(true);
     const name = nameRef.current?.value;
     const url = urlRef.current?.value;
     const email = emailRef.current?.value;
@@ -27,11 +30,9 @@ export default function CreateMonitors() {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/monitor/add`,
         {
-          data: {
-            name,
-            url,
-            email,
-          },
+          name,
+          url,
+          email,
         },
         { withCredentials: true },
       );
@@ -44,6 +45,8 @@ export default function CreateMonitors() {
       }
     } catch (error) {
       console.log("error !", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -91,6 +94,7 @@ export default function CreateMonitors() {
         size={"lg"}
         variant="default"
       >
+        {loading && <Spinner data-icon="inline-start" />}
         Create
       </Button>
     </div>

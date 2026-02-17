@@ -17,7 +17,6 @@ export const authMiddleware = async (
   next: NextFunction,
 ) => {
   try {
-    console.log("cookie are ", req.cookies.token);
     const token = req.cookies.token || "";
     if (!token || token == "") {
       res.status(400).json({

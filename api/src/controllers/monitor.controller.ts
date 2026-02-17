@@ -11,6 +11,7 @@ import {
 export const addMonitor = async (req: Request, res: Response) => {
   try {
     const { id } = req as CustomRequest;
+    console.log("req body", req.body);
     const parsedBody = addMonitorSchema.safeParse(req.body);
     if (!parsedBody.success) {
       return res.status(400).json({
@@ -159,7 +160,7 @@ export const findMonitors = async (req: Request, res: Response) => {
       },
     });
 
-    return res.status(400).json({
+    return res.status(200).json({
       monitors,
     });
   } catch (error) {
