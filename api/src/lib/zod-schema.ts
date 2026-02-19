@@ -15,3 +15,8 @@ export const deleteMonitorSchema = z.object({
 export const monitorDetailsSchema = z.object({
   monitorId: z.uuid({ error: "Invalid Monitor ID In Params" }),
 });
+
+export const monitorStatusSchema = z.object({
+  monitorId: z.uuid({ error: "Invalid Monitor ID In Params" }),
+  status: z.enum(["PAUSED", "UP"], { error: "Not a valid status" }),
+});

@@ -6,6 +6,7 @@ import {
   addMonitorSchema,
   deleteMonitorSchema,
   monitorDetailsSchema,
+  monitorStatusSchema,
 } from "../lib/zod-schema.js";
 
 export const addMonitor = async (req: Request, res: Response) => {
@@ -160,6 +161,50 @@ export const findMonitors = async (req: Request, res: Response) => {
   } catch (error) {
     console.log(error);
     return res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+};
+
+export const changeStatus = async (req: Request, res: Response) => {
+  try {
+    console.log("in change status!");
+    const { monitorId, status } = req.body;
+    console.log("data ", monitorId, status);
+    const { id } = req as CustomRequest;
+    const parsedBody = monitorStatusSchema.safeParse(req.body);
+    if (!parsedBody.success) {
+      return res.status(400).json({
+        error: parsedBody.error.issues,
+      });
+    }
+    await prisma.monitor.update({
+      where: {
+        id: monitorId,
+      },
+      data: {
+        status: status,
+      },
+    });
+
+    return res.status(200).json({
+      message: "Successfully updated",
+    });
+  } catch (error) {
+    console.log("error ", error);
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return res.status(400).json({
+          error: "Monitor Does Not Exist",
+        });
+      } else {
+        return res.status(400).json({
+          error: "Failed to Remove the Monitor!",
+        });
+      }
+    }
+
+    return res.status(400).json({
       error: "Internal Server Error",
     });
   }

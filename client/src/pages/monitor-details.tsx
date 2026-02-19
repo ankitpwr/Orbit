@@ -11,7 +11,6 @@ import {
   Play,
   Radio,
   Trash,
-  TriangleAlert,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import StatsCard from "../components/stats-card";
@@ -22,15 +21,19 @@ export default function MonitorDetails() {
   const navigate = useNavigate();
   const { id } = useParams();
 
-  const { fetchCurrentMonitor, isLoadingCurrentMonitor, currentMonitor } =
-    useMonitorStore();
+  const {
+    fetchCurrentMonitor,
+    isLoadingCurrentMonitor,
+    currentMonitor,
+    changeStatus,
+  } = useMonitorStore();
 
   useEffect(() => {
     if (!id) {
       toast.error("Not a valid route", { position: "bottom-right" });
       return;
     } else fetchCurrentMonitor(id);
-  }, []);
+  }, [fetchCurrentMonitor, changeStatus]);
 
   if (isLoadingCurrentMonitor) {
     return (
@@ -63,15 +66,24 @@ export default function MonitorDetails() {
           </div>
         </div>
         <div className="flex gap-3">
-          <Button variant={"outline"} className="">
+          <Button
+            onClick={() => {
+              currentMonitor.status == "PAUSED"
+                ? changeStatus(currentMonitor.id, "UP")
+                : changeStatus(currentMonitor.id, "PAUSED");
+            }}
+            variant={"outline"}
+            className=""
+          >
             {currentMonitor?.status != "PAUSED" ? (
               <div className="flex  items-center gap-2 justify-center">
-                <Pause /> <span>Pause</span>
+                <Pause />
+                <span>Pause</span>
               </div>
             ) : (
               <div className="flex items-center gap-2 justify-center">
                 <Play />
-                <span>Play</span>
+                <span>Start</span>
               </div>
             )}
           </Button>

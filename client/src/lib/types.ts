@@ -36,6 +36,7 @@ export interface MonitorState {
   isCreateMonitor: boolean;
   isLoadingMonitors: boolean;
   isLoadingCurrentMonitor: boolean;
+  isChangingStatus: boolean;
   userMonitors: UserMonitors[];
   currentMonitor: CurrentMonitor | null;
 }
@@ -43,4 +44,5 @@ export interface MonitorAction {
   setIsCreateMonitor: (newIsCreateMonitor: boolean) => void;
   fetchUserMonitors: () => Promise<void>;
   fetchCurrentMonitor: (id: string) => Promise<void>;
+  changeStatus: (id: string, status: MonitorStatus) => Promise<void>;
 }
