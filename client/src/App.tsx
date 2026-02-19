@@ -5,6 +5,7 @@ import Dashboard from "./pages/dashboard";
 import Monitors from "./pages/monitors";
 import RequireAuth from "./components/require-auth";
 import CreateMonitor from "./pages/create-monitor";
+import MonitorDetails from "./pages/monitor-details";
 
 function App() {
   return (
@@ -18,6 +19,10 @@ function App() {
               <Route
                 path="/dashboard/monitors/new"
                 element={<CreateMonitor />}
+              />
+              <Route
+                path="/dashboard/monitors/:id"
+                element={<MonitorDetails />}
               />
             </Route>
           </Route>

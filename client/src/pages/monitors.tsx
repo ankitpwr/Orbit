@@ -39,7 +39,6 @@ export default function Monitors() {
             id={data.id}
             name={data.name}
             url={data.url}
-            createdAt={data.createdAt}
             status={data.status}
           />
         ))

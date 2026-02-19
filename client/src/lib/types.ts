@@ -15,20 +15,32 @@ export interface AuthAction {
 }
 
 //monitors types
-export interface MonitorState {
-  isCreateMonitor: boolean;
-  isLoadingMonitors: boolean;
-  userMonitors: UserMonitors[];
-}
-export type MonitorStatus = "UP" | "DOWN";
+export type MonitorStatus = "UP" | "DOWN" | "PAUSED";
 export interface UserMonitors {
   url: string;
   id: string;
   name: string;
+  status: MonitorStatus;
+}
+export interface CurrentMonitor {
+  id: string;
+  name: string;
+  url: string;
+  email: string;
   createdAt: Date;
   status: MonitorStatus;
+  lastChecked: Date;
+  lastlatency: number;
+}
+export interface MonitorState {
+  isCreateMonitor: boolean;
+  isLoadingMonitors: boolean;
+  isLoadingCurrentMonitor: boolean;
+  userMonitors: UserMonitors[];
+  currentMonitor: CurrentMonitor | null;
 }
 export interface MonitorAction {
   setIsCreateMonitor: (newIsCreateMonitor: boolean) => void;
   fetchUserMonitors: () => Promise<void>;
+  fetchCurrentMonitor: (id: string) => Promise<void>;
 }

@@ -111,15 +111,10 @@ export const monitorDetails = async (req: Request, res: Response) => {
         id: monitorId,
         userId: id,
       },
-      select: {
-        id: true,
-        name: true,
-        url: true,
-        createdAt: true,
-        status: true,
+      omit: {
+        userId: true,
       },
     });
-
     return res.status(200).json({
       details: details,
     });
@@ -152,7 +147,6 @@ export const findMonitors = async (req: Request, res: Response) => {
         id: true,
         name: true,
         url: true,
-        createdAt: true,
         status: true,
       },
       orderBy: {

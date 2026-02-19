@@ -15,6 +15,11 @@ async function publish() {
     while (true) {
       // cursor based pagination for batch import
       const monitors: MonitorData[] = await prisma.monitor.findMany({
+        where: {
+          status: {
+            not: "PAUSED",
+          },
+        },
         ...(cursorId ? { cursor: { id: cursorId } } : {}),
         skip: cursorId ? 1 : 0,
         take: BATCH_SIZE,
@@ -43,7 +48,7 @@ async function publish() {
 
 // Schedule task for fetching monitors from DB
 const publishTask = cron.schedule(
-  "*/10 * * * *",
+  "*/2 * * * *",
   async () => {
     await publish();
   },

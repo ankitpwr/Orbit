@@ -33,6 +33,7 @@ model Monitor{
   createdAt      DateTime                    @default(now())
   status         MonitorStatus               @default(UP)
   lastChecked    DateTime                    @default(now())
+  lastlatency    Int                         @default(50)                         
   userId         String
   user           User                        @relation(fields: [userId], references: [id])
   pinglog        PingLog[]
@@ -56,4 +57,5 @@ model PingLog{
 enum MonitorStatus{
   UP
   DOWN
+  PAUSED
 }
