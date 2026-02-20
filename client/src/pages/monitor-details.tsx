@@ -11,11 +11,14 @@ import {
   Play,
   Radio,
   Trash,
+  TrendingDown,
+  TrendingUp,
 } from "lucide-react";
 import { Button } from "../components/ui/button";
 import StatsCard from "../components/stats-card";
 import { formatDistanceToNow } from "date-fns";
 import StatusBadge from "../components/status-badge";
+import LatencyGraph from "../components/latency-graph";
 
 export default function MonitorDetails() {
   const navigate = useNavigate();
@@ -41,13 +44,6 @@ export default function MonitorDetails() {
         <Spinner className="size-12" />
       </div>
     );
-  }
-
-  let lc = "";
-  if (currentMonitor?.lastChecked) {
-    lc = formatDistanceToNow(currentMonitor!.lastChecked, {
-      addSuffix: true,
-    });
   }
 
   if (!currentMonitor) return;
@@ -97,23 +93,34 @@ export default function MonitorDetails() {
       </div>
       <div className="flex items-center gap-8 ">
         <StatsCard
-          icon={<Activity color="green" size={30} />}
-          title="Currently up for"
-          details={`${formatDistanceToNow(currentMonitor!.createdAt, {
+          icon={
+            currentMonitor.status == "UP" ? (
+              <TrendingUp color="green" size={30} />
+            ) : currentMonitor.status == "DOWN" ? (
+              <TrendingDown color="red" size={30} />
+            ) : (
+              <Activity color="orange" size={30} />
+            )
+          }
+          title={`${currentMonitor.status == "UP" ? "Currently up for" : currentMonitor.status == "DOWN" ? "Currently down for" : "Currently paused for"}`}
+          details={`${formatDistanceToNow(currentMonitor!.statusChangedAt, {
             addSuffix: true,
           })}`}
         />
         <StatsCard
-          icon={<CircleCheck size={30} color="orange" />}
+          icon={<CircleCheck size={30} />}
           title="Last checked"
-          details={`${lc}`}
+          details={`${formatDistanceToNow(currentMonitor!.lastChecked, {
+            addSuffix: true,
+          })}`}
         />
         <StatsCard
           icon={<Radio color="blue" size={30} />}
           title="Averge Latency"
-          details={`${currentMonitor?.lastlatency}ms`}
+          details={`50ms`}
         />
       </div>
+      <LatencyGraph />
     </div>
   );
 }

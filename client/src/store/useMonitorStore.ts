@@ -10,9 +10,10 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
   isCreateMonitor: false,
   isLoadingMonitors: false,
   isLoadingCurrentMonitor: false,
-  isChangingStatus: false,
+  isLoadingPingData: false,
   userMonitors: [],
   currentMonitor: null,
+  pingData: null,
 
   setIsCreateMonitor: (newIsCreateMonitor: boolean) =>
     set({ isCreateMonitor: newIsCreateMonitor }),
@@ -65,12 +66,34 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
         { withCredentials: true },
       );
       if (response.status != 200) {
+        console.log(response.data.error);
         toast.error("error", { position: "bottom-right" });
       }
     } catch (error) {
       console.log("error!", error);
     } finally {
       set({ isLoadingCurrentMonitor: false });
+    }
+  },
+
+  fetchPingData: async (id: string, days: number) => {
+    set({ isLoadingPingData: true });
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/monitor/ping-data/${id}?days=${days}`,
+        { withCredentials: true },
+      );
+
+      if (response.status != 200) {
+        console.log("error ", response.data.error);
+        toast.error("error", { position: "bottom-right" });
+      }
+
+      set({ pingData: response.data.pingData });
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      set({ isLoadingPingData: false });
     }
   },
 });

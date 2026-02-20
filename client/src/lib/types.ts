@@ -22,6 +22,12 @@ export interface UserMonitors {
   name: string;
   status: MonitorStatus;
 }
+export interface ping {
+  id: string;
+  timestamp: Date;
+  statusCode: number;
+  latency: number;
+}
 export interface CurrentMonitor {
   id: string;
   name: string;
@@ -30,19 +36,21 @@ export interface CurrentMonitor {
   createdAt: Date;
   status: MonitorStatus;
   lastChecked: Date;
-  lastlatency: number;
+  statusChangedAt: Date;
 }
 export interface MonitorState {
   isCreateMonitor: boolean;
   isLoadingMonitors: boolean;
   isLoadingCurrentMonitor: boolean;
-  isChangingStatus: boolean;
+  isLoadingPingData: boolean;
   userMonitors: UserMonitors[];
   currentMonitor: CurrentMonitor | null;
+  pingData: ping[] | null;
 }
 export interface MonitorAction {
   setIsCreateMonitor: (newIsCreateMonitor: boolean) => void;
   fetchUserMonitors: () => Promise<void>;
   fetchCurrentMonitor: (id: string) => Promise<void>;
   changeStatus: (id: string, status: MonitorStatus) => Promise<void>;
+  fetchPingData: (id: string, days: number) => Promise<void>;
 }
