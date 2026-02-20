@@ -1,7 +1,7 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import useMonitorStore from "../store/useMonitorStore";
 import { Spinner } from "./ui/spinner";
-import { Area, AreaChart, CartesianGrid, XAxis } from "recharts";
+import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
 import { TrendingUp } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
@@ -11,11 +11,14 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "./ui/chart";
+import { Button } from "./ui/button";
 //
 
 export default function LatencyGraph() {
   const { fetchPingData, currentMonitor, isLoadingPingData, pingData } =
     useMonitorStore();
+
+  const [timeRange, setTimeRange] = useState<1 | 7>(1);
 
   useEffect(() => {
     fetchPingData(currentMonitor!.id, 7);
@@ -32,12 +35,20 @@ export default function LatencyGraph() {
     return <div className="flex items-center justify-center">Nothing</div>;
   }
 
-  const data = pingData.map((obj, index) => {
-    let latency = obj.latency;
-    let date = obj.timestamp;
-    return { date: date, latency: latency };
-  });
-  console.log("data is ", data);
+  const daysOld = new Date();
+  daysOld.setDate(daysOld.getDate() - timeRange);
+
+  const data = pingData
+    .filter((obj) => {
+      const itemDate = new Date(obj.timestamp);
+      console.log("days old ", daysOld, "timestamp ", itemDate);
+      return itemDate > daysOld;
+    })
+    .map((obj, index) => {
+      let latency = obj.latency;
+      let date = obj.timestamp;
+      return { date: date, latency: latency };
+    });
 
   const chartConfig = {
     latency: {
@@ -47,12 +58,28 @@ export default function LatencyGraph() {
   } satisfies ChartConfig;
 
   return (
-    <div className="bg-[#f8f9fc] border-[#dfe3ea]">
-      <Card>
-        <CardHeader>
-          <CardTitle>Response Time</CardTitle>
-        </CardHeader>
-        <CardContent>
+    <Card>
+      <CardHeader className="flex items-center justify-between">
+        <CardTitle>Response Time</CardTitle>
+        <div className="flex gap-2">
+          <Button
+            onClick={() => setTimeRange(1)}
+            variant={"outline"}
+            className={`${timeRange == 1 ? "bg-[#eaecf1]" : ""}`}
+          >
+            Day
+          </Button>
+          <Button
+            onClick={() => setTimeRange(7)}
+            variant={"outline"}
+            className={`${timeRange == 7 ? "bg-[#eaecf1]" : ""}`}
+          >
+            Week
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent>
+        {data.length != 0 ? (
           <ChartContainer config={chartConfig}>
             <AreaChart
               accessibilityLayer
@@ -69,12 +96,24 @@ export default function LatencyGraph() {
                 axisLine={true}
                 tickMargin={10}
                 tickFormatter={(value) => {
-                  console.log("value is ", value);
                   const date = new Date(value);
-                  return date.toLocaleDateString("en-US", {
-                    hour: "numeric",
-                  });
+                  if (timeRange === 1) {
+                    return date.toLocaleTimeString("en-US", {
+                      hour: "numeric",
+                    });
+                  } else {
+                    return date.toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                    });
+                  }
                 }}
+              />
+              <YAxis
+                domain={[0, 1000]}
+                tickLine={true}
+                axisLine={true}
+                tickMargin={10}
               />
               <ChartTooltip
                 cursor={false}
@@ -89,8 +128,10 @@ export default function LatencyGraph() {
               />
             </AreaChart>
           </ChartContainer>
-        </CardContent>
-      </Card>
-    </div>
+        ) : (
+          <div className="flex items-center justify-center">Nothing</div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
