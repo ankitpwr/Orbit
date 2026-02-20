@@ -58,10 +58,12 @@ async function storeResult(pingResults: PingResult[]) {
       prisma.monitor.updateMany({
         where: {
           id: { in: upMonitorsId },
+          status: "DOWN",
         },
         data: {
           status: "UP",
           lastChecked: new Date(),
+          statusChangedAt: new Date(),
         },
       }),
 
@@ -69,10 +71,12 @@ async function storeResult(pingResults: PingResult[]) {
       prisma.monitor.updateMany({
         where: {
           id: { in: downMonitorsId },
+          status: "UP",
         },
         data: {
           status: "DOWN",
           lastChecked: new Date(),
+          statusChangedAt: new Date(),
         },
       }),
     ]);

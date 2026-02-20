@@ -8,15 +8,13 @@ export const addMonitorSchema = z.object({
   email: z.email(),
 });
 
-export const deleteMonitorSchema = z.object({
+export const paramsSchema = z.object({
   monitorId: z.uuid({ error: "Invalid Monitor ID In Params" }),
 });
-
-export const monitorDetailsSchema = z.object({
-  monitorId: z.uuid({ error: "Invalid Monitor ID In Params" }),
-});
-
 export const monitorStatusSchema = z.object({
   monitorId: z.uuid({ error: "Invalid Monitor ID In Params" }),
   status: z.enum(["PAUSED", "UP"], { error: "Not a valid status" }),
+});
+export const pingDataQuerySchema = z.object({
+  days: z.coerce.number().min(1).max(7).default(1),
 });

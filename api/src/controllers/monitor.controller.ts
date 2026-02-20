@@ -4,9 +4,9 @@ import { prisma } from "../lib/prisma.js";
 import { Prisma } from "../generated/prisma/client.js";
 import {
   addMonitorSchema,
-  deleteMonitorSchema,
-  monitorDetailsSchema,
   monitorStatusSchema,
+  paramsSchema,
+  pingDataQuerySchema,
 } from "../lib/zod-schema.js";
 
 export const addMonitor = async (req: Request, res: Response) => {
@@ -56,7 +56,7 @@ export const addMonitor = async (req: Request, res: Response) => {
 export const deleteMonitor = async (req: Request, res: Response) => {
   try {
     const { id } = req as CustomRequest;
-    const parsedParam = deleteMonitorSchema.safeParse(req.params);
+    const parsedParam = paramsSchema.safeParse(req.params);
     if (!parsedParam.success) {
       return res.status(400).json({
         error: parsedParam.error.issues,
@@ -100,7 +100,7 @@ export const deleteMonitor = async (req: Request, res: Response) => {
 export const monitorDetails = async (req: Request, res: Response) => {
   try {
     const { id } = req as CustomRequest;
-    const parsedParam = monitorDetailsSchema.safeParse(req.params);
+    const parsedParam = paramsSchema.safeParse(req.params);
     if (!parsedParam.success) {
       res.status(400).json({
         error: parsedParam.error.issues,
@@ -112,6 +112,7 @@ export const monitorDetails = async (req: Request, res: Response) => {
         id: monitorId,
         userId: id,
       },
+
       omit: {
         userId: true,
       },
@@ -184,6 +185,7 @@ export const changeStatus = async (req: Request, res: Response) => {
       },
       data: {
         status: status,
+        statusChangedAt: new Date(),
       },
     });
 
@@ -207,5 +209,39 @@ export const changeStatus = async (req: Request, res: Response) => {
     return res.status(400).json({
       error: "Internal Server Error",
     });
+  }
+};
+
+export const pingData = async (req: Request, res: Response) => {
+  try {
+    const parsedParam = paramsSchema.safeParse(req.params);
+    const parsedQuery = pingDataQuerySchema.safeParse(req.query);
+    if (!parsedParam.success) {
+      return res.status(400).json({
+        error: parsedParam.error.issues,
+      });
+    }
+    if (!parsedQuery.success) {
+      return res.status(400).json({ error: parsedQuery.error.issues });
+    }
+
+    const monitorId = String(req.params.monitorId);
+    const { days } = parsedQuery.data;
+    const date = new Date();
+    date.setDate(date.getDate() - days);
+    const data = await prisma.pingLog.findMany({
+      where: {
+        monitorId: monitorId,
+        timestamp: {
+          gte: date,
+        },
+      },
+    });
+    return res.status(200).json({
+      pingData: data,
+    });
+  } catch (error) {
+    console.log("error");
+    return res.status(500).json({ error: "Internal Server Error" });
   }
 };

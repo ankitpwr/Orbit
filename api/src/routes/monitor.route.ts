@@ -6,6 +6,7 @@ import {
   deleteMonitor,
   findMonitors,
   monitorDetails,
+  pingData,
 } from "../controllers/monitor.controller.js";
 
 export const monitorRouter = Router();
@@ -14,4 +15,5 @@ monitorRouter.post("/add", authMiddleware, addMonitor);
 monitorRouter.delete("/remove/:monitorId", authMiddleware, deleteMonitor);
 monitorRouter.get("/details/:monitorId", authMiddleware, monitorDetails);
 monitorRouter.patch("/change-status", authMiddleware, changeStatus);
+monitorRouter.get("/ping-data/:monitorId", authMiddleware, pingData);
 monitorRouter.get("/", authMiddleware, findMonitors);

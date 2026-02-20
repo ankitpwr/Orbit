@@ -26,17 +26,17 @@ model User {
 }
 
 model Monitor{
-  id             String          @id         @default(uuid())
-  name           String
-  url            String
-  email          String
-  createdAt      DateTime                    @default(now())
-  status         MonitorStatus               @default(UP)
-  lastChecked    DateTime                    @default(now())
-  lastlatency    Int                         @default(50)                         
-  userId         String
-  user           User                        @relation(fields: [userId], references: [id])
-  pinglog        PingLog[]
+  id                 String          @id         @default(uuid())
+  name               String
+  url                String
+  email              String
+  createdAt          DateTime                    @default(now())
+  status             MonitorStatus               @default(UP)
+  lastChecked        DateTime                    @default(now())
+  statusChangedAt    DateTime                    @default(now())
+  userId             String
+  user               User                        @relation(fields: [userId], references: [id])
+  pinglog            PingLog[]
 
   @@unique([userId, url])
 }
