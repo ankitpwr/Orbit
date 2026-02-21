@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import useMonitorStore from "../store/useMonitorStore";
 import { Spinner } from "./ui/spinner";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
-import { TrendingUp } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import {
@@ -41,7 +40,6 @@ export default function LatencyGraph() {
   const data = pingData
     .filter((obj) => {
       const itemDate = new Date(obj.timestamp);
-      console.log("days old ", daysOld, "timestamp ", itemDate);
       return itemDate > daysOld;
     })
     .map((obj, index) => {

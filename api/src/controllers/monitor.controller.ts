@@ -179,7 +179,7 @@ export const changeStatus = async (req: Request, res: Response) => {
         error: parsedBody.error.issues,
       });
     }
-    await prisma.monitor.update({
+    const updatedData = await prisma.monitor.update({
       where: {
         id: monitorId,
       },
@@ -187,10 +187,13 @@ export const changeStatus = async (req: Request, res: Response) => {
         status: status,
         statusChangedAt: new Date(),
       },
+      omit: {
+        userId: true,
+      },
     });
 
     return res.status(200).json({
-      message: "Successfully updated",
+      updatedData,
     });
   } catch (error) {
     console.log("error ", error);

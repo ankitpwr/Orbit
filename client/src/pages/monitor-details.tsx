@@ -32,9 +32,9 @@ export default function MonitorDetails() {
   } = useMonitorStore();
 
   useEffect(() => {
+    console.log("useEffect ran!");
     if (!id) {
       toast.error("Not a valid route", { position: "bottom-right" });
-      return;
     } else fetchCurrentMonitor(id);
   }, [fetchCurrentMonitor, changeStatus]);
 
@@ -56,9 +56,12 @@ export default function MonitorDetails() {
             <h1 className="text-3xl font-bold">{currentMonitor?.name}</h1>
             <StatusBadge status={`${currentMonitor.status}`} />
           </div>
-          <div className=" flex items-center gap-2 cursor-pointer ">
+          <div
+            onClick={() => window.open(currentMonitor.url, "_blank")}
+            className=" flex items-center gap-2 cursor-pointer "
+          >
             <Link size={16} />
-            <span>{currentMonitor?.url}</span>
+            <span>{currentMonitor.url}</span>
           </div>
         </div>
         <div className="flex gap-3">
@@ -71,7 +74,7 @@ export default function MonitorDetails() {
             variant={"outline"}
             className=""
           >
-            {currentMonitor?.status != "PAUSED" ? (
+            {currentMonitor.status != "PAUSED" ? (
               <div className="flex  items-center gap-2 justify-center">
                 <Pause />
                 <span>Pause</span>
@@ -104,7 +107,7 @@ export default function MonitorDetails() {
           }
           title={`${currentMonitor.status == "UP" ? "Currently up for" : currentMonitor.status == "DOWN" ? "Currently down for" : "Currently paused for"}`}
           details={`${formatDistanceToNow(currentMonitor!.statusChangedAt, {
-            addSuffix: true,
+            addSuffix: false,
           })}`}
         />
         <StatsCard

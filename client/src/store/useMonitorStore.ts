@@ -65,7 +65,9 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
         },
         { withCredentials: true },
       );
-      if (response.status != 200) {
+      if (response.status == 200) {
+        set({ currentMonitor: response.data.updatedData });
+      } else if (response.status != 200) {
         console.log(response.data.error);
         toast.error("error", { position: "bottom-right" });
       }

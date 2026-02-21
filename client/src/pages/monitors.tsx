@@ -10,7 +10,6 @@ export default function Monitors() {
   const navigate = useNavigate();
   const { userMonitors, fetchUserMonitors, isLoadingMonitors } =
     useMonitorStore();
-  console.log("usermonitors ", userMonitors);
 
   useEffect(() => {
     fetchUserMonitors();
