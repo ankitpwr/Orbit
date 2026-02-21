@@ -53,7 +53,7 @@ export default function LatencyGraph() {
   const chartConfig = {
     latency: {
       label: "latency",
-      color: "green",
+      color: "blue",
     },
   } satisfies ChartConfig;
 
@@ -85,8 +85,8 @@ export default function LatencyGraph() {
               accessibilityLayer
               data={data}
               margin={{
-                left: 12,
-                right: 12,
+                left: 10,
+                right: 20,
               }}
             >
               <CartesianGrid vertical={false} />
@@ -94,7 +94,8 @@ export default function LatencyGraph() {
                 dataKey="date"
                 tickLine={true}
                 axisLine={true}
-                tickMargin={10}
+                tickMargin={8}
+                minTickGap={40}
                 tickFormatter={(value) => {
                   const date = new Date(value);
                   if (timeRange === 1) {
@@ -110,14 +111,29 @@ export default function LatencyGraph() {
                 }}
               />
               <YAxis
-                domain={[0, 1000]}
+                domain={["auto", "auto"]}
                 tickLine={true}
                 axisLine={true}
                 tickMargin={10}
+                tickFormatter={(value) => `${value}ms`}
               />
               <ChartTooltip
                 cursor={false}
-                content={<ChartTooltipContent indicator="dot" hideLabel />}
+                content={
+                  <ChartTooltipContent
+                    indicator="dot"
+                    labelFormatter={(label) => {
+                      const date = new Date(label);
+                      return date.toLocaleString("en-US", {
+                        month: "short",
+                        day: "numeric",
+                        hour: "numeric",
+                        minute: "numeric",
+                      });
+                    }}
+                    formatter={(value) => `${value}ms`}
+                  />
+                }
               />
               <Area
                 dataKey="latency"

@@ -17,12 +17,12 @@ interface PingResult {
 async function checkStatus(url: string): Promise<Response> {
   const start = Date.now();
   try {
-    console.log("url is ", url);
     const response = await axios.get(`${url}`, { timeout: 5000 });
+    console.log("url is ", url, "status is ", response.status);
     return { statuscode: response.status, latency: Date.now() - start };
   } catch (error) {
+    console.log("url is ", url, "error occured ");
     if (error instanceof AxiosError) {
-      console.log("error code", error.code);
       return {
         statuscode: error.response?.status || 500,
         latency: Date.now() - start,
@@ -93,7 +93,6 @@ async function storeResult(pingResults: PingResult[]) {
 }
 
 async function processJobs() {
-  console.log("job processing start");
   try {
     //Bulk reading from consumer group
     const data = await consumerClient.xreadgroup(
@@ -109,7 +108,6 @@ async function processJobs() {
       ">",
     );
     if (!data) {
-      console.log("no data");
       return;
     }
 

@@ -26,7 +26,6 @@ async function publish() {
         orderBy: [{ createdAt: "asc" }, { id: "asc" }],
         select: { id: true, url: true },
       });
-      console.log("monitors are", monitors);
 
       if (monitors.length == 0) break; // No more rows available
 
@@ -69,7 +68,6 @@ async function deleteOlderLogs() {
       },
     },
   });
-  console.log("data deleted!");
 }
 
 // Scheduling task to delete older records
