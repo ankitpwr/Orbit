@@ -11,17 +11,26 @@ import {
   type ChartConfig,
 } from "./ui/chart";
 import { Button } from "./ui/button";
+import {
+  Empty,
+  EmptyContent,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "./ui/empty";
+import { CircleSlash, Icon } from "lucide-react";
 //
 
 export default function LatencyGraph() {
   const { fetchPingData, currentMonitor, isLoadingPingData, pingData } =
     useMonitorStore();
 
-  const [timeRange, setTimeRange] = useState<1 | 7>(1);
+  const [timeRange, setTimeRange] = useState<1 | 7>(7);
 
   useEffect(() => {
     fetchPingData(currentMonitor!.id, 7);
-  }, [fetchPingData]);
+  }, [fetchPingData, currentMonitor?.id]);
 
   if (isLoadingPingData) {
     return (
@@ -143,7 +152,20 @@ export default function LatencyGraph() {
             </AreaChart>
           </ChartContainer>
         ) : (
-          <div className="flex items-center justify-center">Nothing</div>
+          <div className="flex items-center justify-center">
+            <Empty>
+              <EmptyHeader>
+                <EmptyMedia variant="icon">
+                  <CircleSlash />
+                </EmptyMedia>
+                <EmptyTitle>Empty</EmptyTitle>
+                <EmptyDescription>
+                  No response times data available
+                </EmptyDescription>
+              </EmptyHeader>
+              <EmptyContent></EmptyContent>
+            </Empty>
+          </div>
         )}
       </CardContent>
     </Card>

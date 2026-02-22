@@ -30,16 +30,19 @@ export default function MonitorDetails() {
     currentMonitor,
     changeStatus,
     averageLatency,
+    deleteMonitor,
   } = useMonitorStore();
 
   useEffect(() => {
     console.log("useEffect ran!");
     if (!id) {
       toast.error("Not a valid route", { position: "bottom-right" });
-    } else fetchCurrentMonitor(id);
-  }, [fetchCurrentMonitor, changeStatus]);
+    } else {
+      fetchCurrentMonitor(id);
+    }
+  }, [id, fetchCurrentMonitor]);
 
-  if (isLoadingCurrentMonitor) {
+  if (isLoadingCurrentMonitor || currentMonitor?.id !== id) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <Spinner className="size-12" />
@@ -88,6 +91,12 @@ export default function MonitorDetails() {
             )}
           </Button>
           <Button
+            onClick={() => {
+              try {
+                deleteMonitor(currentMonitor.id);
+                navigate("/dashboard/monitors");
+              } catch (error) {}
+            }}
             variant={"destructive"}
             className="bg-red-100 text-red-500 hover:bg-red-200"
           >

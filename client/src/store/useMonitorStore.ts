@@ -37,7 +37,13 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
   },
 
   fetchCurrentMonitor: async (id) => {
-    set({ isLoadingCurrentMonitor: true });
+    set({
+      isLoadingCurrentMonitor: true,
+      currentMonitor: null,
+      averageLatency: 0,
+      pingData: [],
+    });
+
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/monitor/details/${id}`,
@@ -92,16 +98,37 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
         toast.error("error", { position: "bottom-right" });
       }
 
-      set({ pingData: response.data.pingData });
-      set({ averageLatency: response.data.avgLatency });
+      set({
+        pingData: response.data.pingData,
+        averageLatency: response.data.avgLatency,
+      });
     } catch (error) {
       console.log("error", error);
     } finally {
       set({ isLoadingPingData: false });
     }
   },
+
+  deleteMonitor: async (id: string) => {
+    set({ isLoadingCurrentMonitor: true });
+    try {
+      const response = await axios.delete(
+        `${import.meta.env.VITE_BACKEND_URL}/monitor/remove/${id}`,
+        { withCredentials: true },
+      );
+      if (response.status == 200) {
+        toast.success(response.data.message);
+      } else {
+        toast.success(response.data.error);
+        throw new Error(response.data.error);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      set({ isCreateMonitor: false });
+    }
+  },
 });
 
 const useMonitorStore = create<MonitorStoreType>(MonitorStore);
-
 export default useMonitorStore;

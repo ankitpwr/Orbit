@@ -6,6 +6,7 @@ import Monitors from "./pages/monitors";
 import RequireAuth from "./components/require-auth";
 import CreateMonitor from "./pages/create-monitor";
 import MonitorDetails from "./pages/monitor-details";
+import NotFound from "./pages/not-fount";
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
         <Routes>
           <Route path="/auth" element={<GoogleAuthWrapper />} />
           <Route element={<RequireAuth />}>
-            <Route path="/dashboard" element={<Dashboard />}>
+            <Route element={<Dashboard />}>
               <Route path="/dashboard/monitors" element={<Monitors />} />
               <Route
                 path="/dashboard/monitors/new"
@@ -26,6 +27,7 @@ function App() {
               />
             </Route>
           </Route>
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </>

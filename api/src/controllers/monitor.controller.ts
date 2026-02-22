@@ -232,16 +232,30 @@ export const pingData = async (req: Request, res: Response) => {
     const { days } = parsedQuery.data;
     const date = new Date();
     date.setDate(date.getDate() - days);
-    const data = await prisma.pingLog.findMany({
-      where: {
-        monitorId: monitorId,
-        timestamp: {
-          gte: date,
+    const [data, aggregate] = await prisma.$transaction([
+      prisma.pingLog.findMany({
+        where: {
+          monitorId: monitorId,
+          timestamp: {
+            gte: date,
+          },
         },
-      },
-    });
+      }),
+
+      prisma.pingLog.aggregate({
+        where: {
+          monitorId: monitorId,
+          timestamp: { gte: date },
+        },
+        _avg: {
+          latency: true,
+        },
+      }),
+    ]);
+
     return res.status(200).json({
       pingData: data,
+      avgLatency: aggregate._avg.latency ?? 0,
     });
   } catch (error) {
     console.log("error");

@@ -54,4 +54,5 @@ export interface MonitorAction {
   fetchCurrentMonitor: (id: string) => Promise<void>;
   changeStatus: (id: string, status: MonitorStatus) => Promise<void>;
   fetchPingData: (id: string, days: number) => Promise<void>;
+  deleteMonitor: (id: string) => Promise<void>;
 }
