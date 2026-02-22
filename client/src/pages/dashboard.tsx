@@ -8,7 +8,7 @@ import {
 
 export default function Dashboard() {
   return (
-    <div className=" flex ">
+    <div className=" flex overflow-hidden">
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>

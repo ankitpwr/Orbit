@@ -29,6 +29,7 @@ export default function MonitorDetails() {
     isLoadingCurrentMonitor,
     currentMonitor,
     changeStatus,
+    averageLatency,
   } = useMonitorStore();
 
   useEffect(() => {
@@ -120,7 +121,7 @@ export default function MonitorDetails() {
         <StatsCard
           icon={<Radio color="blue" size={30} />}
           title="Averge Latency"
-          details={`50ms`}
+          details={`${Math.round(averageLatency)}ms`}
         />
       </div>
       <LatencyGraph />

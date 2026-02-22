@@ -14,6 +14,7 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
   userMonitors: [],
   currentMonitor: null,
   pingData: null,
+  averageLatency: 0,
 
   setIsCreateMonitor: (newIsCreateMonitor: boolean) =>
     set({ isCreateMonitor: newIsCreateMonitor }),
@@ -92,6 +93,7 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
       }
 
       set({ pingData: response.data.pingData });
+      set({ averageLatency: response.data.avgLatency });
     } catch (error) {
       console.log("error", error);
     } finally {

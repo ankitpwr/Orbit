@@ -46,6 +46,7 @@ export interface MonitorState {
   userMonitors: UserMonitors[];
   currentMonitor: CurrentMonitor | null;
   pingData: ping[] | null;
+  averageLatency: number;
 }
 export interface MonitorAction {
   setIsCreateMonitor: (newIsCreateMonitor: boolean) => void;

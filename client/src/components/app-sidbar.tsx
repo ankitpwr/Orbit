@@ -11,10 +11,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
-import { Globe, Orbit } from "lucide-react";
+import { Globe, LogOut, Orbit, User2 } from "lucide-react";
+import useAuthStore from "../store/useAuthStore";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import { Button } from "./ui/button";
 
 export default function AppSidebar() {
   const navigate = useNavigate();
+  const { user } = useAuthStore();
   return (
     <div>
       <Sidebar collapsible="icon" className="font-montserrat">
@@ -48,7 +52,19 @@ export default function AppSidebar() {
           </SidebarGroup>
           {/*group-2 */}
         </SidebarContent>
-        <SidebarFooter />
+        <SidebarFooter>
+          <SidebarMenu>
+            <SidebarMenuItem>
+              <SidebarMenuButton>
+                <Avatar>
+                  <AvatarImage src={user?.picture} />
+                  <AvatarFallback>{user?.name[0]}</AvatarFallback>
+                </Avatar>{" "}
+                {user?.name}
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        </SidebarFooter>
       </Sidebar>
     </div>
   );
