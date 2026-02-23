@@ -56,7 +56,7 @@ export default function AppSidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton>
-                <Avatar>
+                <Avatar size="sm">
                   <AvatarImage src={user?.picture} />
                   <AvatarFallback>{user?.name[0]}</AvatarFallback>
                 </Avatar>{" "}

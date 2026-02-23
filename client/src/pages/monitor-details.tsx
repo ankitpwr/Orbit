@@ -19,6 +19,7 @@ import StatsCard from "../components/stats-card";
 import { formatDistanceToNow } from "date-fns";
 import StatusBadge from "../components/status-badge";
 import LatencyGraph from "../components/latency-graph";
+import StatusHeatmap from "../components/status-heatmap";
 
 export default function MonitorDetails() {
   const navigate = useNavigate();
@@ -53,7 +54,7 @@ export default function MonitorDetails() {
   if (!currentMonitor) return;
 
   return (
-    <div className=" w-full h-full flex flex-col pl-30 pr-51 pt-20 font-montserrat gap-10 overflow-hidden">
+    <div className=" w-full h-full flex flex-col pl-30 pr-51 pt-20 pb-30 font-montserrat gap-10 overflow-hidden">
       <div className="flex w-full justify-between ">
         <div className="flex flex-col ">
           <div className="flex items-center gap-4 ">
@@ -134,6 +135,10 @@ export default function MonitorDetails() {
         />
       </div>
       <LatencyGraph />
+      <div className="flex flex-col w-full ">
+        <h1 className="font-semibold">Uptime in Last 30 days</h1>
+        <StatusHeatmap />
+      </div>
     </div>
   );
 }

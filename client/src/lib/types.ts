@@ -16,6 +16,12 @@ export interface AuthAction {
 
 //monitors types
 export type MonitorStatus = "UP" | "DOWN" | "PAUSED";
+export const TimeRange = {
+  Day: 1,
+  Week: 7,
+  Month: 30,
+} as const;
+export type TimeRange = (typeof TimeRange)[keyof typeof TimeRange];
 export interface UserMonitors {
   url: string;
   id: string;

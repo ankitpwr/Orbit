@@ -62,7 +62,6 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
 
   changeStatus: async (id: string, status: MonitorStatus) => {
     set({ isLoadingCurrentMonitor: true });
-    console.log("id is", id, "status is", status);
     try {
       const response = await axios.patch(
         `${import.meta.env.VITE_BACKEND_URL}/monitor/change-status`,
@@ -86,7 +85,7 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
   },
 
   fetchPingData: async (id: string, days: number) => {
-    set({ isLoadingPingData: true });
+    set({ isLoadingPingData: true, pingData: [], averageLatency: 0 });
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/monitor/ping-data/${id}?days=${days}`,

@@ -16,5 +16,5 @@ export const monitorStatusSchema = z.object({
   status: z.enum(["PAUSED", "UP"], { error: "Not a valid status" }),
 });
 export const pingDataQuerySchema = z.object({
-  days: z.coerce.number().min(1).max(7).default(1),
+  days: z.coerce.number().min(1).max(30).default(1),
 });

@@ -19,43 +19,32 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "./ui/empty";
-import { CircleSlash, Icon } from "lucide-react";
+import { CircleSlash } from "lucide-react";
+import { TimeRange } from "../lib/types";
 //
 
 export default function LatencyGraph() {
   const { fetchPingData, currentMonitor, isLoadingPingData, pingData } =
     useMonitorStore();
 
-  const [timeRange, setTimeRange] = useState<1 | 7>(7);
+  const [timeRange, setTimeRange] = useState<TimeRange>(TimeRange.Week);
 
   useEffect(() => {
-    fetchPingData(currentMonitor!.id, 7);
-  }, [fetchPingData, currentMonitor?.id]);
+    fetchPingData(currentMonitor!.id, timeRange);
+  }, [fetchPingData, timeRange]);
 
-  if (isLoadingPingData) {
-    return (
-      <div className="flex items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
-  if (!pingData || pingData.length == 0) {
+  if (!pingData) {
     return <div className="flex items-center justify-center">Nothing</div>;
   }
 
   const daysOld = new Date();
   daysOld.setDate(daysOld.getDate() - timeRange);
 
-  const data = pingData
-    .filter((obj) => {
-      const itemDate = new Date(obj.timestamp);
-      return itemDate > daysOld;
-    })
-    .map((obj, index) => {
-      let latency = obj.latency;
-      let date = obj.timestamp;
-      return { date: date, latency: latency };
-    });
+  const data = pingData.map((obj, index) => {
+    let latency = obj.latency;
+    let date = obj.timestamp;
+    return { date: date, latency: latency };
+  });
 
   const chartConfig = {
     latency: {
@@ -65,23 +54,30 @@ export default function LatencyGraph() {
   } satisfies ChartConfig;
 
   return (
-    <Card>
+    <Card className="min-h-96">
       <CardHeader className="flex items-center justify-between">
         <CardTitle>Response Time</CardTitle>
         <div className="flex gap-2">
           <Button
-            onClick={() => setTimeRange(1)}
+            onClick={() => setTimeRange(TimeRange.Day)}
             variant={"outline"}
-            className={`${timeRange == 1 ? "bg-[#eaecf1]" : ""}`}
+            className={`${timeRange == TimeRange.Day ? "bg-[#eaecf1]" : ""}`}
           >
             Day
           </Button>
           <Button
-            onClick={() => setTimeRange(7)}
+            onClick={() => setTimeRange(TimeRange.Week)}
             variant={"outline"}
-            className={`${timeRange == 7 ? "bg-[#eaecf1]" : ""}`}
+            className={`${timeRange == TimeRange.Week ? "bg-[#eaecf1]" : ""}`}
           >
             Week
+          </Button>
+          <Button
+            onClick={() => setTimeRange(TimeRange.Month)}
+            variant={"outline"}
+            className={`${timeRange == TimeRange.Month ? "bg-[#eaecf1]" : ""}`}
+          >
+            Month
           </Button>
         </div>
       </CardHeader>
@@ -151,6 +147,10 @@ export default function LatencyGraph() {
               />
             </AreaChart>
           </ChartContainer>
+        ) : isLoadingPingData == true ? (
+          <div className="flex items-center justify-center">
+            <Spinner />
+          </div>
         ) : (
           <div className="flex items-center justify-center">
             <Empty>
