@@ -9,3 +9,8 @@ export const consumerClient = new Redis.default({
   host: "localhost",
   port: 6379,
 });
+
+export const notificationClient = new Redis.default({
+  host: "localhost",
+  port: 6379,
+});

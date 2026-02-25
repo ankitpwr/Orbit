@@ -9,7 +9,11 @@ export function uptimePercentage(pingData: ping[]): ReturnType[] {
 
   pingData?.forEach((val, index) => {
     const date = new Date(val.timestamp);
-    const normalize: string = date.toISOString().split("T")[0];
+    const normalize: string = date.toLocaleDateString("en-IN", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
 
     if (val.statusCode >= 200 && val.statusCode <= 300) {
       statusUpMap.set(normalize, (statusUpMap.get(normalize) || 0) + 1);
@@ -18,9 +22,8 @@ export function uptimePercentage(pingData: ping[]): ReturnType[] {
   });
 
   const array: ReturnType[] = [];
-  for (const [key, value] of statusUpMap) {
-    const upCount = statusUpMap.get(key);
-    const totalCount = daysWiseCount.get(key);
+  for (const [key, totalCount] of daysWiseCount) {
+    const upCount = statusUpMap.get(key) || 0;
     if (upCount != undefined && totalCount != undefined) {
       const data = {
         date: key,

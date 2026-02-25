@@ -56,7 +56,7 @@ export default function LatencyGraph() {
   return (
     <Card className="min-h-96">
       <CardHeader className="flex items-center justify-between">
-        <CardTitle>Response Time</CardTitle>
+        <CardTitle className="text-lg">Response Time</CardTitle>
         <div className="flex gap-2">
           <Button
             onClick={() => setTimeRange(TimeRange.Day)}
@@ -102,11 +102,11 @@ export default function LatencyGraph() {
                 tickFormatter={(value) => {
                   const date = new Date(value);
                   if (timeRange === 1) {
-                    return date.toLocaleTimeString("en-US", {
+                    return date.toLocaleTimeString("en-IN", {
                       hour: "numeric",
                     });
                   } else {
-                    return date.toLocaleDateString("en-US", {
+                    return date.toLocaleDateString("en-IN", {
                       month: "short",
                       day: "numeric",
                     });
@@ -127,7 +127,7 @@ export default function LatencyGraph() {
                     indicator="dot"
                     labelFormatter={(label) => {
                       const date = new Date(label);
-                      return date.toLocaleString("en-US", {
+                      return date.toLocaleString("en-IN", {
                         month: "short",
                         day: "numeric",
                         hour: "numeric",

@@ -1,4 +1,8 @@
-import { Prisma } from "../generated/prisma/client.js";
+import {
+  AlertState,
+  MonitorStatus,
+  Prisma,
+} from "../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 import { consumerClient } from "../lib/redis.js";
 import axios, { AxiosError } from "axios";
@@ -14,14 +18,31 @@ interface PingResult {
   redisId: string;
 }
 
+interface DownMonitor {
+  id: string;
+  url: string;
+  email: string;
+}
+
+async function emitNoticationEvent(downMonitors: DownMonitor[]) {
+  const pipeline = consumerClient.pipeline();
+  downMonitors.forEach((obj) => {
+    const entries = Object.entries(obj).flatMap(([k, v]) => [
+      k,
+      v == null ? "" : String(v),
+    ]);
+
+    pipeline.xadd("Orbit:notification", "*", ...entries);
+  });
+  await pipeline.exec();
+}
+
 async function checkStatus(url: string): Promise<Response> {
   const start = Date.now();
   try {
     const response = await axios.get(`${url}`, { timeout: 5000 });
-    console.log("url is ", url, "status is ", response.status);
     return { statuscode: response.status, latency: Date.now() - start };
   } catch (error) {
-    console.log("url is ", url, "error occured ");
     if (error instanceof AxiosError) {
       return {
         statuscode: error.response?.status || 500,
@@ -42,9 +63,17 @@ async function storeResult(pingResults: PingResult[]) {
   const downMonitorsId = pingResults
     .filter((obj) => obj.statusCode < 200 || obj.statusCode >= 300)
     .map((val) => val.monitorId);
+  console.log("down monitors ids ", downMonitorsId);
 
   try {
-    const res = await prisma.$transaction([
+    const [
+      newLogs,
+      upReset,
+      upTransition,
+      downIncrement,
+      downTransition,
+      monitorsToAlert,
+    ] = await prisma.$transaction([
       //store all logs in bulk
       prisma.pingLog.createMany({
         data: pingResults.map((obj) => ({
@@ -54,7 +83,19 @@ async function storeResult(pingResults: PingResult[]) {
         })),
       }),
 
-      //update the status of url with UP status
+      //update the consecutiveFailure and last check for UP monitors
+      prisma.monitor.updateMany({
+        where: {
+          id: { in: upMonitorsId },
+        },
+        data: {
+          lastChecked: new Date(),
+          consecutiveFailure: 0,
+          alertState: "OK",
+        },
+      }),
+
+      //update the status for UP monitors which where previously DOWN
       prisma.monitor.updateMany({
         where: {
           id: { in: upMonitorsId },
@@ -62,7 +103,6 @@ async function storeResult(pingResults: PingResult[]) {
         },
         data: {
           status: "UP",
-          lastChecked: new Date(),
           statusChangedAt: new Date(),
         },
       }),
@@ -71,15 +111,48 @@ async function storeResult(pingResults: PingResult[]) {
       prisma.monitor.updateMany({
         where: {
           id: { in: downMonitorsId },
+        },
+        data: {
+          lastChecked: new Date(),
+          consecutiveFailure: { increment: 1 },
+        },
+      }),
+
+      //update the status for DOWN monitors which where previously UP
+      prisma.monitor.updateMany({
+        where: {
+          id: { in: downMonitorsId },
           status: "UP",
         },
         data: {
           status: "DOWN",
-          lastChecked: new Date(),
           statusChangedAt: new Date(),
         },
       }),
+
+      //find monitors which are DOWN for consecutive 3 times
+      prisma.monitor.findMany({
+        where: {
+          id: { in: downMonitorsId },
+          consecutiveFailure: { gte: 3 },
+          alertState: "OK",
+        },
+        select: {
+          id: true,
+          url: true,
+          email: true,
+          name: true,
+          statusChangedAt: true,
+        },
+      }),
     ]);
+    if (monitorsToAlert.length > 0) {
+      await prisma.monitor.updateMany({
+        where: { id: { in: monitorsToAlert.map((val) => val.id) } },
+        data: { alertState: "ALERTING" },
+      });
+      await emitNoticationEvent(monitorsToAlert);
+    }
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {
@@ -100,7 +173,7 @@ async function processJobs() {
       "monitor-group-1",
       "worker-1",
       "COUNT",
-      "10",
+      "2",
       "BLOCK",
       "10000",
       "STREAMS",
@@ -121,7 +194,6 @@ async function processJobs() {
           for (let i = 0; i < fields.length; i += 2) {
             monitorData[fields[i]!] = fields[i + 1]!;
           }
-          console.log("monitordata: ", monitorData);
           const url = monitorData.url;
           const monitorId = monitorData.id;
           if (url && monitorId) {

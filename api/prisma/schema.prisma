@@ -34,6 +34,8 @@ model Monitor{
   status             MonitorStatus               @default(UP)
   lastChecked        DateTime                    @default(now())
   statusChangedAt    DateTime                    @default(now())
+  consecutiveFailure Int                         @default(0)
+  alertState         AlertState                  @default(OK)
   userId             String
   user               User                        @relation(fields: [userId], references: [id])
   pinglog            PingLog[]
@@ -58,4 +60,9 @@ enum MonitorStatus{
   UP
   DOWN
   PAUSED
+}
+
+enum AlertState{
+  OK
+  ALERTING
 }

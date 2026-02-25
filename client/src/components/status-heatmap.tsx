@@ -40,7 +40,7 @@ export default function StatusHeatmap() {
               className={`h-10 w-3 rounded-sm flex-1 cursor-pointer ${day.uptimepercent > 97 ? "bg-green-500" : "bg-red-500"}`}
             ></div>
           </TooltipTrigger>
-          <TooltipContent>
+          <TooltipContent className="text-sm">
             <p>Date:- {day.date}</p>
             <p>uptime:- {Math.floor(day.uptimepercent)}%</p>
           </TooltipContent>

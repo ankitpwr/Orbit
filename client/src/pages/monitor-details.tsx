@@ -135,8 +135,8 @@ export default function MonitorDetails() {
         />
       </div>
       <LatencyGraph />
-      <div className="flex flex-col w-full ">
-        <h1 className="font-semibold">Uptime in Last 30 days</h1>
+      <div className="flex flex-col w-full text-lg ">
+        <h1 className="font-semibold">Uptime in last 30 days</h1>
         <StatusHeatmap />
       </div>
     </div>
