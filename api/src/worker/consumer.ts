@@ -63,7 +63,8 @@ async function storeResult(pingResults: PingResult[]) {
   const downMonitorsId = pingResults
     .filter((obj) => obj.statusCode < 200 || obj.statusCode >= 300)
     .map((val) => val.monitorId);
-  console.log("down monitors ids ", downMonitorsId);
+
+  console.log("downmonitorid ", downMonitorsId);
 
   try {
     const [
@@ -71,8 +72,8 @@ async function storeResult(pingResults: PingResult[]) {
       upReset,
       upTransition,
       downIncrement,
-      downTransition,
       monitorsToAlert,
+      downTransition,
     ] = await prisma.$transaction([
       //store all logs in bulk
       prisma.pingLog.createMany({
@@ -91,7 +92,6 @@ async function storeResult(pingResults: PingResult[]) {
         data: {
           lastChecked: new Date(),
           consecutiveFailure: 0,
-          alertState: "OK",
         },
       }),
 
@@ -118,10 +118,26 @@ async function storeResult(pingResults: PingResult[]) {
         },
       }),
 
+      prisma.monitor.findMany({
+        where: {
+          id: { in: downMonitorsId },
+          status: "UP",
+          consecutiveFailure: { gte: 3 },
+        },
+        select: {
+          id: true,
+          url: true,
+          email: true,
+          lastChecked: true,
+          name: true,
+        },
+      }),
+
       //update the status for DOWN monitors which where previously UP
       prisma.monitor.updateMany({
         where: {
           id: { in: downMonitorsId },
+          consecutiveFailure: { gte: 3 },
           status: "UP",
         },
         data: {
@@ -129,28 +145,10 @@ async function storeResult(pingResults: PingResult[]) {
           statusChangedAt: new Date(),
         },
       }),
-
-      //find monitors which are DOWN for consecutive 3 times
-      prisma.monitor.findMany({
-        where: {
-          id: { in: downMonitorsId },
-          consecutiveFailure: { gte: 3 },
-          alertState: "OK",
-        },
-        select: {
-          id: true,
-          url: true,
-          email: true,
-          name: true,
-          statusChangedAt: true,
-        },
-      }),
     ]);
+
+    console.log("monitor to alert ", monitorsToAlert);
     if (monitorsToAlert.length > 0) {
-      await prisma.monitor.updateMany({
-        where: { id: { in: monitorsToAlert.map((val) => val.id) } },
-        data: { alertState: "ALERTING" },
-      });
       await emitNoticationEvent(monitorsToAlert);
     }
   } catch (error) {
@@ -159,7 +157,6 @@ async function storeResult(pingResults: PingResult[]) {
         console.log("Monitor does not exist");
       } else console.log("database error");
     }
-
     console.log("Uable to Store Ping Logs!");
     console.log(error);
   }

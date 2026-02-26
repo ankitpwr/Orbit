@@ -53,6 +53,15 @@ model PingLog{
   @@index([monitorId, timestamp])
 }
 
+model Alert{
+  id             String          @id
+  monitorId      String
+  createdAt      DateTime        @default(now())
+  monitor        Monitor         @relation(fields: [monitorId], references: [id])
+  processed      Boolean         @default(false)
+  retryCount     Int             @default(0)
+}
+
 
 
 

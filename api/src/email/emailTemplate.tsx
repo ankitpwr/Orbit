@@ -15,13 +15,13 @@ import {
 interface MonitorDownEmailProps {
   monitorName: string;
   monitorUrl: string;
-  downSince: string;
+  checkedAt: string;
 }
 
 export function Email({
   monitorName,
   monitorUrl,
-  downSince,
+  checkedAt,
 }: MonitorDownEmailProps) {
   return (
     <Html>
@@ -41,8 +41,8 @@ export function Email({
             <Text style={label}>URL</Text>
             <Text style={value}>{monitorUrl}</Text>
 
-            <Text style={label}>Down Since</Text>
-            <Text style={value}>{String(downSince)}</Text>
+            <Text style={label}>Checked At</Text>
+            <Text style={value}>{String(checkedAt)}</Text>
           </Section>
 
           <Hr style={divider} />

@@ -32,7 +32,7 @@ async function sendNotification() {
         }
         const monitorName = monitor.name;
         const monitorUrl = monitor.url;
-        const downSince = monitor.statusChangedAt;
+        const checkedAt = monitor.lastChecked;
         const email = monitor.email;
         const monitorId = monitor.id;
 
@@ -42,10 +42,10 @@ async function sendNotification() {
           "monitorUrl",
           monitorUrl,
           "downSince",
-          downSince,
+          checkedAt,
         );
-        if (monitorName && monitorUrl && downSince && email && monitorId) {
-          await sendEmail(email, monitorName, monitorUrl, downSince);
+        if (monitorName && monitorUrl && checkedAt && email && monitorId) {
+          await sendEmail(email, monitorName, monitorUrl, checkedAt);
         }
       });
     }

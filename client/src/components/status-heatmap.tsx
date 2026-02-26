@@ -29,8 +29,6 @@ export default function StatusHeatmap() {
     return <Skeleton className="h-4 w-full" />;
   }
 
-  console.log("heatmap data", heatmapData);
-
   return (
     <div className="flex gap-[6px] h-fit w-full bg-[#f8f9fc] border border-[#dfe3ea] px-4  py-2 rounded-lg">
       {heatmapData.map((day, i) => (

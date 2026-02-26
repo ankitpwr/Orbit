@@ -18,11 +18,11 @@ export const sendEmail = async (
   email: string,
   monitorName: string,
   monitorUrl: string,
-  downSince: string,
+  checkedAt: string,
 ) => {
   try {
     const emailHtml = await render(
-      Email({ monitorName, monitorUrl, downSince }),
+      Email({ monitorName, monitorUrl, checkedAt }),
     );
     const info = await transporter.sendMail({
       from: `"Orbit" <${process.env.EMAIL_FROM}>`,
