@@ -34,8 +34,8 @@ model Monitor{
   status             MonitorStatus               @default(UP)
   lastChecked        DateTime                    @default(now())
   statusChangedAt    DateTime                    @default(now())
+  lastAlertSentAt    DateTime?                   
   consecutiveFailure Int                         @default(0)
-  alertState         AlertState                  @default(OK)
   userId             String
   user               User                        @relation(fields: [userId], references: [id])
   pinglog            PingLog[]
@@ -49,19 +49,9 @@ model PingLog{
   statusCode     Int
   latency        Int
   monitorId      String
-  monitor        Monitor                     @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  monitor        Monitor                    @relation(fields: [monitorId], references: [id], onDelete: Cascade)
   @@index([monitorId, timestamp])
 }
-
-model Alert{
-  id             String          @id
-  monitorId      String
-  createdAt      DateTime        @default(now())
-  monitor        Monitor         @relation(fields: [monitorId], references: [id])
-  processed      Boolean         @default(false)
-  retryCount     Int             @default(0)
-}
-
 
 
 
@@ -71,7 +61,4 @@ enum MonitorStatus{
   PAUSED
 }
 
-enum AlertState{
-  OK
-  ALERTING
-}
+

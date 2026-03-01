@@ -1,8 +1,5 @@
-import {
-  AlertState,
-  MonitorStatus,
-  Prisma,
-} from "../generated/prisma/client.js";
+import { gte } from "zod";
+import { MonitorStatus, Prisma } from "../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 import { consumerClient } from "../lib/redis.js";
 import axios, { AxiosError } from "axios";
@@ -32,7 +29,7 @@ async function emitNoticationEvent(downMonitors: DownMonitor[]) {
       v == null ? "" : String(v),
     ]);
 
-    pipeline.xadd("Orbit:notification", "*", ...entries);
+    pipeline.xadd("Orbit:notification", "MAXLEN", "~", "1000", "*", ...entries);
   });
   await pipeline.exec();
 }
@@ -67,85 +64,98 @@ async function storeResult(pingResults: PingResult[]) {
   console.log("downmonitorid ", downMonitorsId);
 
   try {
-    const [
-      newLogs,
-      upReset,
-      upTransition,
-      downIncrement,
-      monitorsToAlert,
-      downTransition,
-    ] = await prisma.$transaction([
+    const monitorsToAlert = await prisma.$transaction(async (tx) => {
       //store all logs in bulk
-      prisma.pingLog.createMany({
+      await tx.pingLog.createMany({
         data: pingResults.map((obj) => ({
           monitorId: obj.monitorId,
           statusCode: obj.statusCode,
           latency: obj.latency,
         })),
-      }),
+      });
 
       //update the consecutiveFailure and last check for UP monitors
-      prisma.monitor.updateMany({
-        where: {
-          id: { in: upMonitorsId },
-        },
-        data: {
-          lastChecked: new Date(),
-          consecutiveFailure: 0,
-        },
-      }),
-
-      //update the status for UP monitors which where previously DOWN
-      prisma.monitor.updateMany({
-        where: {
-          id: { in: upMonitorsId },
-          status: "DOWN",
-        },
-        data: {
-          status: "UP",
-          statusChangedAt: new Date(),
-        },
-      }),
+      if (upMonitorsId.length > 0) {
+        await tx.monitor.updateMany({
+          where: {
+            id: { in: upMonitorsId },
+            status: "UP",
+          },
+          data: {
+            lastChecked: new Date(),
+            consecutiveFailure: 0,
+            lastAlertSentAt: null,
+          },
+        });
+        await tx.monitor.updateMany({
+          where: { id: { in: upMonitorsId }, status: "DOWN" },
+          data: {
+            lastChecked: new Date(),
+            consecutiveFailure: 0,
+            lastAlertSentAt: null,
+            status: "UP",
+            statusChangedAt: new Date(),
+          },
+        });
+      }
 
       //update the status of url with DOWN status
-      prisma.monitor.updateMany({
-        where: {
-          id: { in: downMonitorsId },
-        },
-        data: {
-          lastChecked: new Date(),
-          consecutiveFailure: { increment: 1 },
-        },
-      }),
+      if (downMonitorsId.length > 0) {
+        await tx.monitor.updateMany({
+          where: { id: { in: downMonitorsId }, status: "DOWN" },
+          data: {
+            lastChecked: new Date(),
+            consecutiveFailure: { increment: 1 },
+          },
+        });
+        await tx.monitor.updateMany({
+          where: { id: { in: downMonitorsId }, status: "UP" },
+          data: {
+            lastChecked: new Date(),
+            consecutiveFailure: { increment: 1 },
+            status: "DOWN",
+            statusChangedAt: new Date(),
+          },
+        });
 
-      prisma.monitor.findMany({
-        where: {
-          id: { in: downMonitorsId },
-          status: "UP",
-          consecutiveFailure: { gte: 3 },
-        },
-        select: {
-          id: true,
-          url: true,
-          email: true,
-          lastChecked: true,
-          name: true,
-        },
-      }),
+        // fetch the monitor for which alert to send
+        const monitorToAlert = await tx.monitor.findMany({
+          where: {
+            id: { in: downMonitorsId },
+            status: "DOWN",
+            consecutiveFailure: { gte: 3 },
+            OR: [
+              { lastAlertSentAt: null },
+              {
+                lastAlertSentAt: {
+                  lt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                },
+              },
+            ],
+          },
+          select: {
+            id: true,
+            url: true,
+            email: true,
+            lastChecked: true,
+            name: true,
+          },
+        });
 
-      //update the status for DOWN monitors which where previously UP
-      prisma.monitor.updateMany({
-        where: {
-          id: { in: downMonitorsId },
-          consecutiveFailure: { gte: 3 },
-          status: "UP",
-        },
-        data: {
-          status: "DOWN",
-          statusChangedAt: new Date(),
-        },
-      }),
-    ]);
+        if (monitorToAlert.length > 0) {
+          await tx.monitor.updateMany({
+            where: { id: { in: monitorToAlert.map((obj) => obj.id) } },
+            data: {
+              lastAlertSentAt: new Date(),
+            },
+          });
+
+          return monitorToAlert;
+        }
+      }
+
+      return [];
+    });
 
     console.log("monitor to alert ", monitorsToAlert);
     if (monitorsToAlert.length > 0) {
@@ -215,7 +225,11 @@ async function processJobs() {
       // acknowledge
       await Promise.all(
         pingResults.map(async (obj) => {
-          consumerClient.xack("Orbit:monitors", "monitor-group-1", obj.redisId);
+          await consumerClient.xack(
+            "Orbit:monitors",
+            "monitor-group-1",
+            obj.redisId,
+          );
         }),
       );
     }

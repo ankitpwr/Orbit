@@ -35,7 +35,7 @@ async function publish() {
           k,
           v == null ? "" : String(v),
         ]);
-        pipeline.xadd("Orbit:monitors", "*", ...entries);
+        pipeline.xadd("Orbit:monitors", "MAXLEN", "~", "1000", "*", ...entries);
       });
       await pipeline.exec(); //adding Bulk entries to redis-stream
       cursorId = monitors[monitors.length - 1]?.id; // updating cursor to last fetched monitor ID

@@ -24,7 +24,7 @@ async function sendNotification() {
 
     //@ts-ignore
     for (const [stream, entries] of data) {
-      entries.map(async ([id, fields]: [string, string[]]) => {
+      for (const [id, fields] of entries) {
         const monitor: Record<string, string> = {};
 
         for (let i = 0; i < fields.length; i += 2) {
@@ -46,8 +46,13 @@ async function sendNotification() {
         );
         if (monitorName && monitorUrl && checkedAt && email && monitorId) {
           await sendEmail(email, monitorName, monitorUrl, checkedAt);
+          await notificationClient.xack(
+            "Orbit:notification",
+            "notification-group-1",
+            id,
+          );
         }
-      });
+      }
     }
   } catch (error) {
     console.log(error);
