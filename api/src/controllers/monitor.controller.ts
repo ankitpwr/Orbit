@@ -240,6 +240,14 @@ export const pingData = async (req: Request, res: Response) => {
             gte: date,
           },
         },
+        select: {
+          timestamp: true,
+          latency: true,
+          statusCode: true,
+        },
+        orderBy: {
+          timestamp: "asc",
+        },
       }),
 
       prisma.pingLog.aggregate({

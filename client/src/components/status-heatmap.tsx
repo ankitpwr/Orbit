@@ -6,26 +6,30 @@ import { Skeleton } from "./ui/skeleton";
 import { uptimePercentage, type ReturnType } from "../lib/uptimepercent";
 
 export default function StatusHeatmap() {
-  const { fetchPingData, currentMonitor, isLoadingPingData, pingData } =
-    useMonitorStore();
+  const {
+    fetchHeatMapData,
+    currentMonitor,
+    isLoadingHeatMapData,
+    heatMapData,
+  } = useMonitorStore();
 
   const [heatmapData, setHeatMapData] = useState<ReturnType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    fetchPingData(currentMonitor!.id, TimeRange.Month);
-  }, [fetchPingData]);
+    fetchHeatMapData(currentMonitor!.id, TimeRange.Month);
+  }, [fetchHeatMapData]);
 
   useEffect(() => {
     setLoading(true);
-    if (pingData) {
-      const data = uptimePercentage(pingData);
+    if (heatMapData) {
+      const data = uptimePercentage(heatMapData);
       setHeatMapData(data);
     }
     setLoading(false);
-  }, [pingData]);
+  }, [heatMapData]);
 
-  if (isLoadingPingData || loading) {
+  if (isLoadingHeatMapData || loading) {
     return <Skeleton className="h-4 w-full" />;
   }
 
@@ -35,7 +39,7 @@ export default function StatusHeatmap() {
         <Tooltip key={i}>
           <TooltipTrigger>
             <div
-              className={`h-10 w-3 rounded-sm flex-1 cursor-pointer ${day.uptimepercent > 97 ? "bg-green-500" : "bg-red-500"}`}
+              className={`h-10 w-3 rounded-sm flex-1 cursor-pointer ${day.uptimepercent > 95 ? "bg-green-500" : "bg-red-500"}`}
             ></div>
           </TooltipTrigger>
           <TooltipContent className="text-sm">

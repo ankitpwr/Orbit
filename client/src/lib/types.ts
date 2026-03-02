@@ -29,7 +29,6 @@ export interface UserMonitors {
   status: MonitorStatus;
 }
 export interface ping {
-  id: string;
   timestamp: Date;
   statusCode: number;
   latency: number;
@@ -49,9 +48,11 @@ export interface MonitorState {
   isLoadingMonitors: boolean;
   isLoadingCurrentMonitor: boolean;
   isLoadingPingData: boolean;
+  isLoadingHeatMapData: boolean;
   userMonitors: UserMonitors[];
   currentMonitor: CurrentMonitor | null;
   pingData: ping[] | null;
+  heatMapData: ping[] | null;
   averageLatency: number;
 }
 export interface MonitorAction {
@@ -60,5 +61,6 @@ export interface MonitorAction {
   fetchCurrentMonitor: (id: string) => Promise<void>;
   changeStatus: (id: string, status: MonitorStatus) => Promise<void>;
   fetchPingData: (id: string, days: number) => Promise<void>;
+  fetchHeatMapData: (id: string, days: number) => Promise<void>;
   deleteMonitor: (id: string) => Promise<void>;
 }

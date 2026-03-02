@@ -11,9 +11,11 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
   isLoadingMonitors: false,
   isLoadingCurrentMonitor: false,
   isLoadingPingData: false,
+  isLoadingHeatMapData: false,
   userMonitors: [],
   currentMonitor: null,
   pingData: null,
+  heatMapData: null,
   averageLatency: 0,
 
   setIsCreateMonitor: (newIsCreateMonitor: boolean) =>
@@ -125,6 +127,29 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
       console.log(error);
     } finally {
       set({ isCreateMonitor: false });
+    }
+  },
+
+  fetchHeatMapData: async (id: string, days: number) => {
+    set({ isLoadingHeatMapData: true, heatMapData: null });
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/monitor/ping-data/${id}?days=${days}`,
+        { withCredentials: true },
+      );
+
+      if (response.status != 200) {
+        console.log("error ", response.data.error);
+        toast.error("error", { position: "bottom-right" });
+      }
+
+      set({
+        heatMapData: response.data.pingData,
+      });
+    } catch (error) {
+      console.log("error", error);
+    } finally {
+      set({ isLoadingHeatMapData: false });
     }
   },
 });

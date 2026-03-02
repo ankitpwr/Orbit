@@ -37,7 +37,9 @@ async function emitNoticationEvent(downMonitors: DownMonitor[]) {
 async function checkStatus(url: string): Promise<Response> {
   const start = Date.now();
   try {
-    const response = await axios.get(`${url}`, { timeout: 5000 });
+    const response = await axios.get(`${url}`, {
+      timeout: 5000,
+    });
     return { statuscode: response.status, latency: Date.now() - start };
   } catch (error) {
     if (error instanceof AxiosError) {
@@ -64,98 +66,101 @@ async function storeResult(pingResults: PingResult[]) {
   console.log("downmonitorid ", downMonitorsId);
 
   try {
-    const monitorsToAlert = await prisma.$transaction(async (tx) => {
-      //store all logs in bulk
-      await tx.pingLog.createMany({
-        data: pingResults.map((obj) => ({
-          monitorId: obj.monitorId,
-          statusCode: obj.statusCode,
-          latency: obj.latency,
-        })),
-      });
-
-      //update the consecutiveFailure and last check for UP monitors
-      if (upMonitorsId.length > 0) {
-        await tx.monitor.updateMany({
-          where: {
-            id: { in: upMonitorsId },
-            status: "UP",
-          },
-          data: {
-            lastChecked: new Date(),
-            consecutiveFailure: 0,
-            lastAlertSentAt: null,
-          },
-        });
-        await tx.monitor.updateMany({
-          where: { id: { in: upMonitorsId }, status: "DOWN" },
-          data: {
-            lastChecked: new Date(),
-            consecutiveFailure: 0,
-            lastAlertSentAt: null,
-            status: "UP",
-            statusChangedAt: new Date(),
-          },
-        });
-      }
-
-      //update the status of url with DOWN status
-      if (downMonitorsId.length > 0) {
-        await tx.monitor.updateMany({
-          where: { id: { in: downMonitorsId }, status: "DOWN" },
-          data: {
-            lastChecked: new Date(),
-            consecutiveFailure: { increment: 1 },
-          },
-        });
-        await tx.monitor.updateMany({
-          where: { id: { in: downMonitorsId }, status: "UP" },
-          data: {
-            lastChecked: new Date(),
-            consecutiveFailure: { increment: 1 },
-            status: "DOWN",
-            statusChangedAt: new Date(),
-          },
+    const monitorsToAlert = await prisma.$transaction(
+      async (tx) => {
+        //store all logs in bulk
+        await tx.pingLog.createMany({
+          data: pingResults.map((obj) => ({
+            monitorId: obj.monitorId,
+            statusCode: obj.statusCode,
+            latency: obj.latency,
+          })),
         });
 
-        // fetch the monitor for which alert to send
-        const monitorToAlert = await tx.monitor.findMany({
-          where: {
-            id: { in: downMonitorsId },
-            status: "DOWN",
-            consecutiveFailure: { gte: 3 },
-            OR: [
-              { lastAlertSentAt: null },
-              {
-                lastAlertSentAt: {
-                  lt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-                },
-              },
-            ],
-          },
-          select: {
-            id: true,
-            url: true,
-            email: true,
-            lastChecked: true,
-            name: true,
-          },
-        });
-
-        if (monitorToAlert.length > 0) {
+        //update the consecutiveFailure and last check for UP monitors
+        if (upMonitorsId.length > 0) {
           await tx.monitor.updateMany({
-            where: { id: { in: monitorToAlert.map((obj) => obj.id) } },
+            where: {
+              id: { in: upMonitorsId },
+              status: "UP",
+            },
             data: {
-              lastAlertSentAt: new Date(),
+              lastChecked: new Date(),
+              consecutiveFailure: 0,
+              lastAlertSentAt: null,
+            },
+          });
+          await tx.monitor.updateMany({
+            where: { id: { in: upMonitorsId }, status: "DOWN" },
+            data: {
+              lastChecked: new Date(),
+              consecutiveFailure: 0,
+              lastAlertSentAt: null,
+              status: "UP",
+              statusChangedAt: new Date(),
+            },
+          });
+        }
+
+        //update the status of url with DOWN status
+        if (downMonitorsId.length > 0) {
+          await tx.monitor.updateMany({
+            where: { id: { in: downMonitorsId }, status: "DOWN" },
+            data: {
+              lastChecked: new Date(),
+              consecutiveFailure: { increment: 1 },
+            },
+          });
+          await tx.monitor.updateMany({
+            where: { id: { in: downMonitorsId }, status: "UP" },
+            data: {
+              lastChecked: new Date(),
+              consecutiveFailure: { increment: 1 },
+              status: "DOWN",
+              statusChangedAt: new Date(),
             },
           });
 
-          return monitorToAlert;
-        }
-      }
+          // fetch the monitor for which alert to send
+          const monitorToAlert = await tx.monitor.findMany({
+            where: {
+              id: { in: downMonitorsId },
+              status: "DOWN",
+              consecutiveFailure: { gte: 3 },
+              OR: [
+                { lastAlertSentAt: null },
+                {
+                  lastAlertSentAt: {
+                    lt: new Date(Date.now() - 24 * 60 * 60 * 1000),
+                  },
+                },
+              ],
+            },
+            select: {
+              id: true,
+              url: true,
+              email: true,
+              lastChecked: true,
+              name: true,
+            },
+          });
 
-      return [];
-    });
+          if (monitorToAlert.length > 0) {
+            await tx.monitor.updateMany({
+              where: { id: { in: monitorToAlert.map((obj) => obj.id) } },
+              data: {
+                lastAlertSentAt: new Date(),
+              },
+            });
+
+            return monitorToAlert;
+          }
+        }
+
+        return [];
+      },
+      { timeout: 10000 },
+    );
 
     console.log("monitor to alert ", monitorsToAlert);
     if (monitorsToAlert.length > 0) {
