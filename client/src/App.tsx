@@ -7,8 +7,16 @@ import RequireAuth from "./components/require-auth";
 import CreateMonitor from "./pages/create-monitor";
 import MonitorDetails from "./pages/monitor-details";
 import NotFound from "./pages/not-fount";
+import { useEffect } from "react";
+import useAuthStore from "./store/useAuthStore";
 
 function App() {
+  const { checkAuth } = useAuthStore();
+
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
   return (
     <>
       <BrowserRouter>

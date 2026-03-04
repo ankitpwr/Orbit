@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import useMonitorStore from "../store/useMonitorStore";
 import { Spinner } from "./ui/spinner";
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from "recharts";
@@ -21,7 +21,6 @@ import {
 } from "./ui/empty";
 import { CircleSlash } from "lucide-react";
 import { TimeRange } from "../lib/types";
-//
 
 export default function LatencyGraph() {
   const { fetchPingData, currentMonitor, isLoadingPingData, pingData } =
