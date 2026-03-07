@@ -17,8 +17,9 @@ export default function StatusHeatmap() {
   const [loading, setLoading] = useState<boolean>(false);
 
   useEffect(() => {
-    fetchHeatMapData(currentMonitor!.id, TimeRange.Month);
-  }, [fetchHeatMapData]);
+    if (!currentMonitor) return;
+    fetchHeatMapData(currentMonitor.id, TimeRange.Month);
+  }, [fetchHeatMapData, currentMonitor]);
 
   useEffect(() => {
     setLoading(true);

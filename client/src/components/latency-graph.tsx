@@ -29,8 +29,9 @@ export default function LatencyGraph() {
   const [timeRange, setTimeRange] = useState<TimeRange>(TimeRange.Week);
 
   useEffect(() => {
-    fetchPingData(currentMonitor!.id, timeRange);
-  }, [fetchPingData, timeRange]);
+    if (!currentMonitor) return;
+    fetchPingData(currentMonitor.id, timeRange);
+  }, [fetchPingData, timeRange, currentMonitor]);
 
   if (!pingData) {
     return <div className="flex items-center justify-center">Nothing</div>;

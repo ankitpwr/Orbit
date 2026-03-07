@@ -16,7 +16,6 @@ const AuthStore: StateCreator<AuthStoreType> = (set) => ({
         `${import.meta.env.VITE_BACKEND_URL}/auth/me`,
         { withCredentials: true },
       );
-      console.log("data", response.data);
       if (response.status === 200) {
         set({ isAuthenticated: true, user: response.data });
       } else {

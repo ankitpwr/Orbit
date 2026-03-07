@@ -35,7 +35,6 @@ export default function MonitorDetails() {
   } = useMonitorStore();
 
   useEffect(() => {
-    console.log("useEffect ran!");
     if (!id) {
       toast.error("Not a valid route", { position: "bottom-right" });
     } else {
@@ -43,7 +42,7 @@ export default function MonitorDetails() {
     }
   }, [id, fetchCurrentMonitor]);
 
-  if (isLoadingCurrentMonitor || currentMonitor?.id !== id) {
+  if (isLoadingCurrentMonitor || !currentMonitor || currentMonitor?.id !== id) {
     return (
       <div className="w-full h-full flex items-center justify-center">
         <Spinner className="size-12" />

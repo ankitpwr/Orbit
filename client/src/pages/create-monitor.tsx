@@ -38,13 +38,11 @@ export default function CreateMonitors() {
       );
 
       if (response.status === 200) {
-        console.log("added response", response.data);
         navigate("/dashboard/monitors");
       } else {
         toast.error(response.data.error);
       }
     } catch (error) {
-      console.log("error !", error);
     } finally {
       setLoading(false);
     }

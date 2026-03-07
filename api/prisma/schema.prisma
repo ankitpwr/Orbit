@@ -26,20 +26,21 @@ model User {
 }
 
 model Monitor{
-  id                 String          @id         @default(uuid())
-  name               String
-  url                String
-  email              String
-  createdAt          DateTime                    @default(now())
-  status             MonitorStatus               @default(UP)
-  lastChecked        DateTime                    @default(now())
-  statusChangedAt    DateTime                    @default(now())
-  lastAlertSentAt    DateTime?                   
-  consecutiveFailure Int                         @default(0)
-  userId             String
-  user               User                        @relation(fields: [userId], references: [id])
-  pinglog            PingLog[]
-
+  id                    String          @id         @default(uuid())
+  name                  String
+  url                   String
+  email                 String
+  createdAt             DateTime                    @default(now())
+  status                MonitorStatus               @default(UP)
+  lastChecked           DateTime                    @default(now())
+  statusChangedAt       DateTime                    @default(now())
+  consecutiveFailure    Int                         @default(0)
+  processed             Boolean                     @default(false)
+  userId                String
+  user                  User                        @relation(fields: [userId], references: [id])
+  pinglog               PingLog[]
+  incident              Incident[]
+  notificationChannel   NotificationChannel[]
   @@unique([userId, url])
 }
 
@@ -53,7 +54,34 @@ model PingLog{
   @@index([monitorId, timestamp])
 }
 
+model Incident{
+  id             String          @id         @default(uuid())
+  monitorId      String          
+  monitor        Monitor                     @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  startedAt      DateTime                    @default(now())
+  resolvedAt     DateTime?
+  currentStatus  IncidentStatus              @default(OPEN)   
+  alertCount     Int                         @default(0)
+  @@index([monitorId, currentStatus])
+}
 
+model NotificationChannel{
+  id             String         @id          @default(uuid())
+  monitorId      String
+  monitor        Monitor                     @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  ChannelType    ChannelType
+  ChannelValue   String     
+}
+
+enum ChannelType{
+  EMAIL
+}
+
+enum IncidentStatus{
+  OPEN
+  RESOLVED
+  ACKNOWLEDGED
+}
 
 enum MonitorStatus{
   UP

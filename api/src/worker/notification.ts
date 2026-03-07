@@ -18,7 +18,6 @@ async function sendNotification() {
     );
 
     if (!data) {
-      console.log("empty data");
       return;
     }
 

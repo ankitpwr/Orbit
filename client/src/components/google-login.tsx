@@ -6,7 +6,6 @@ export default function GoogleLogin() {
   const responseGoogle = async (authResult: any) => {
     try {
       if (!authResult.code) {
-        console.log("not auth code");
         return;
       }
 

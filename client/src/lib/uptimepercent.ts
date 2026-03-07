@@ -33,7 +33,5 @@ export function uptimePercentage(pingData: ping[]): ReturnType[] {
     }
   }
 
-  console.log("return ", array);
-
   return array;
 }
