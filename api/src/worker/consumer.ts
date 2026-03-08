@@ -77,95 +77,15 @@ async function storeResult(pingResults: PingResult[]) {
           })),
         });
 
-        //update the consecutiveFailure and last check for UP monitors
-        if (upMonitorsId.length > 0) {
-          await tx.monitor.updateMany({
-            where: {
-              id: { in: upMonitorsId },
-              status: "UP",
-            },
-            data: {
-              lastChecked: new Date(),
-              consecutiveFailure: 0,
-              lastAlertSentAt: null,
-            },
-          });
-          await tx.monitor.updateMany({
-            where: { id: { in: upMonitorsId }, status: "DOWN" },
-            data: {
-              lastChecked: new Date(),
-              consecutiveFailure: 0,
-              lastAlertSentAt: null,
-              status: "UP",
-              statusChangedAt: new Date(),
-            },
-          });
-        }
-
-        //update the status of url with DOWN status
-        if (downMonitorsId.length > 0) {
-          await tx.monitor.updateMany({
-            where: { id: { in: downMonitorsId }, status: "DOWN" },
-            data: {
-              lastChecked: new Date(),
-              consecutiveFailure: { increment: 1 },
-            },
-          });
-          await tx.monitor.updateMany({
-            where: { id: { in: downMonitorsId }, status: "UP" },
-            data: {
-              lastChecked: new Date(),
-              consecutiveFailure: { increment: 1 },
-              status: "DOWN",
-              statusChangedAt: new Date(),
-            },
-          });
-
-          // fetch the monitor for which alert to send
-          const monitorToAlert = await tx.monitor.findMany({
-            where: {
-              id: { in: downMonitorsId },
-              status: "DOWN",
-              consecutiveFailure: { gte: 3 },
-              OR: [
-                { lastAlertSentAt: null },
-                {
-                  lastAlertSentAt: {
-                    lt: new Date(Date.now() - 24 * 60 * 60 * 1000),
-                  },
-                },
-              ],
-            },
-            select: {
-              id: true,
-              url: true,
-              email: true,
-              lastChecked: true,
-              name: true,
-            },
-          });
-
-          if (monitorToAlert.length > 0) {
-            await tx.monitor.updateMany({
-              where: { id: { in: monitorToAlert.map((obj) => obj.id) } },
-              data: {
-                lastAlertSentAt: new Date(),
-              },
-            });
-
-            return monitorToAlert;
-          }
-        }
-
         return [];
       },
       { timeout: 10000 },
     );
 
-    console.log("monitor to alert ", monitorsToAlert);
-    if (monitorsToAlert.length > 0) {
-      await emitNoticationEvent(monitorsToAlert);
-    }
+    // console.log("monitor to alert ", monitorsToAlert);
+    // // if (monitorsToAlert.length > 0) {
+    // //   await emitNoticationEvent(monitorsToAlert);
+    // // }
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {

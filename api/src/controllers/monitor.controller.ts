@@ -1,7 +1,7 @@
 import type { Request, Response } from "express";
 import type { CustomRequest } from "../lib/middleware.js";
 import { prisma } from "../lib/prisma.js";
-import { Prisma } from "../generated/prisma/client.js";
+import { ChannelType, Prisma } from "../generated/prisma/client.js";
 import {
   addMonitorSchema,
   monitorStatusSchema,
@@ -12,7 +12,6 @@ import {
 export const addMonitor = async (req: Request, res: Response) => {
   try {
     const { id } = req as CustomRequest;
-    console.log("req body", req.body);
     const parsedBody = addMonitorSchema.safeParse(req.body);
     if (!parsedBody.success) {
       return res.status(400).json({
@@ -20,20 +19,31 @@ export const addMonitor = async (req: Request, res: Response) => {
       });
     }
     const { name, url, email } = req.body;
-    const newMonitor = await prisma.monitor.create({
-      data: {
-        userId: id,
-        name: name,
-        url: url,
-        email: email,
-      },
+    const newMonitor = await prisma.$transaction(async () => {
+      const data = await prisma.monitor.create({
+        data: {
+          userId: id,
+          name: name,
+          url: url,
+        },
+        select: {
+          id: true,
+          name: true,
+          url: true,
+          status: true,
+        },
+      });
+
+      await prisma.notificationChannel.create({
+        data: {
+          monitorId: data.id,
+          ChannelType: "EMAIL",
+          ChannelValue: email,
+        },
+      });
     });
     return res.status(200).json({
-      id: newMonitor.id,
-      name: newMonitor.name,
-      url: newMonitor.url,
-      createdAt: newMonitor.createdAt,
-      status: newMonitor.status,
+      message: "Monitor Successfully Added",
     });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {

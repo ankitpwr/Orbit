@@ -29,7 +29,7 @@ model Monitor{
   id                    String          @id         @default(uuid())
   name                  String
   url                   String
-  email                 String
+ 
   createdAt             DateTime                    @default(now())
   status                MonitorStatus               @default(UP)
   lastChecked           DateTime                    @default(now())
