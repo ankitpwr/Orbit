@@ -9,7 +9,8 @@
     "dev": "npx tsc -b && node ./dist/index.js",
     "producer": "npx tsc -b && node ./dist/worker/producer.js",
     "consumer": "npx tsc -b && node ./dist/worker/consumer.js",
-    "notification": "npx tsc -b && node ./dist/worker/notification.js"
+    "notification": "npx tsc -b && node ./dist/worker/notification.js",
+    "outbox": "npx tsc -b && node ./dist/worker/outbox.js"
   },
   "keywords": [],
   "author": "",

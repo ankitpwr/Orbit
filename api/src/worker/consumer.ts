@@ -15,25 +15,6 @@ interface PingResult {
   redisId: string;
 }
 
-interface DownMonitor {
-  id: string;
-  url: string;
-  email: string;
-}
-
-async function emitNoticationEvent(downMonitors: DownMonitor[]) {
-  const pipeline = consumerClient.pipeline();
-  downMonitors.forEach((obj) => {
-    const entries = Object.entries(obj).flatMap(([k, v]) => [
-      k,
-      v == null ? "" : String(v),
-    ]);
-
-    pipeline.xadd("Orbit:notification", "MAXLEN", "~", "1000", "*", ...entries);
-  });
-  await pipeline.exec();
-}
-
 async function checkStatus(url: string): Promise<Response> {
   const start = Date.now();
   try {
@@ -77,15 +58,74 @@ async function storeResult(pingResults: PingResult[]) {
           })),
         });
 
+        if (upMonitorsId.length > 0) {
+          await tx.monitor.updateMany({
+            where: {
+              id: { in: upMonitorsId },
+              status: "UP",
+            },
+            data: {
+              lastChecked: new Date(),
+              consecutiveFailure: 0,
+              processed: false,
+            },
+          });
+          await tx.monitor.updateMany({
+            where: { id: { in: upMonitorsId }, status: "DOWN" },
+            data: {
+              consecutiveFailure: 0,
+              status: "UP",
+              statusChangedAt: new Date(),
+              processed: false,
+            },
+          });
+        }
+
+        if (downMonitorsId.length > 0) {
+          await tx.monitor.updateMany({
+            where: { id: { in: downMonitorsId }, status: "DOWN" },
+            data: {
+              consecutiveFailure: { increment: 1 },
+            },
+          });
+          await tx.monitor.updateMany({
+            where: { id: { in: downMonitorsId }, status: "UP" },
+            data: {
+              consecutiveFailure: { increment: 1 },
+              status: "DOWN",
+              statusChangedAt: new Date(),
+            },
+          });
+
+          const monitorToAlert = await tx.monitor.findMany({
+            where: {
+              id: { in: downMonitorsId },
+              status: "DOWN",
+              consecutiveFailure: { gte: 3 },
+              processed: false,
+            },
+            select: {
+              id: true,
+            },
+          });
+
+          if (monitorToAlert.length > 0) {
+            await tx.incident.createMany({
+              data: monitorToAlert.map((obj) => ({ monitorId: obj.id })),
+            });
+
+            await tx.monitor.updateMany({
+              where: { id: { in: monitorToAlert.map((obj) => obj.id) } },
+              data: {
+                processed: true,
+              },
+            });
+          }
+        }
         return [];
       },
       { timeout: 10000 },
     );
-
-    // console.log("monitor to alert ", monitorsToAlert);
-    // // if (monitorsToAlert.length > 0) {
-    // //   await emitNoticationEvent(monitorsToAlert);
-    // // }
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {

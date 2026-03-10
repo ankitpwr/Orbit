@@ -1,6 +1,8 @@
 import { sendEmail } from "../email/email.js";
+import { ChannelType } from "../generated/prisma/enums.js";
 import { prisma } from "../lib/prisma.js";
 import { notificationClient } from "../lib/redis.js";
+import cron from "node-cron";
 
 async function sendNotification() {
   try {
@@ -32,10 +34,14 @@ async function sendNotification() {
         const monitorName = monitor.name;
         const monitorUrl = monitor.url;
         const checkedAt = monitor.lastChecked;
-        const email = monitor.email;
-        const monitorId = monitor.id;
+        const channelType = monitor.channelType;
+        const channelValue = monitor.channelValue;
 
         console.log(
+          "channelType",
+          channelType,
+          "channelValue",
+          channelValue,
           "monitorName ",
           monitorName,
           "monitorUrl",
@@ -43,8 +49,15 @@ async function sendNotification() {
           "downSince",
           checkedAt,
         );
-        if (monitorName && monitorUrl && checkedAt && email && monitorId) {
-          await sendEmail(email, monitorName, monitorUrl, checkedAt);
+        if (
+          monitorName &&
+          monitorUrl &&
+          checkedAt &&
+          channelType &&
+          channelValue &&
+          channelType == "EMAIL"
+        ) {
+          await sendEmail(channelValue, monitorName, monitorUrl, checkedAt);
           await notificationClient.xack(
             "Orbit:notification",
             "notification-group-1",

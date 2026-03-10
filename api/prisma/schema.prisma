@@ -29,7 +29,6 @@ model Monitor{
   id                    String          @id         @default(uuid())
   name                  String
   url                   String
- 
   createdAt             DateTime                    @default(now())
   status                MonitorStatus               @default(UP)
   lastChecked           DateTime                    @default(now())
@@ -53,7 +52,7 @@ model PingLog{
   monitor        Monitor                    @relation(fields: [monitorId], references: [id], onDelete: Cascade)
   @@index([monitorId, timestamp])
 }
-
+        
 model Incident{
   id             String          @id         @default(uuid())
   monitorId      String          
