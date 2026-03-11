@@ -59,8 +59,8 @@ model Incident{
   monitor        Monitor                     @relation(fields: [monitorId], references: [id], onDelete: Cascade)
   startedAt      DateTime                    @default(now())
   resolvedAt     DateTime?
-  currentStatus  IncidentStatus              @default(OPEN)   
-  alertCount     Int                         @default(0)
+  currentStatus  IncidentStatus              @default(OPEN)          
+  alertCount     Int                         @default(0)           
   @@index([monitorId, currentStatus])
 }
 

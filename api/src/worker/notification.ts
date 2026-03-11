@@ -2,7 +2,6 @@ import { sendEmail } from "../email/email.js";
 import { ChannelType } from "../generated/prisma/enums.js";
 import { prisma } from "../lib/prisma.js";
 import { notificationClient } from "../lib/redis.js";
-import cron from "node-cron";
 
 async function sendNotification() {
   try {

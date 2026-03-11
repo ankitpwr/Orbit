@@ -18,12 +18,25 @@ interface PingResult {
 async function checkStatus(url: string): Promise<Response> {
   const start = Date.now();
   try {
-    const response = await axios.get(`${url}`, {
+    const response = await axios.head(`${url}`, {
       timeout: 5000,
+      maxRedirects: 3,
     });
     return { statuscode: response.status, latency: Date.now() - start };
   } catch (error) {
     if (error instanceof AxiosError) {
+      if (error.response?.status === 405) {
+        const fallbackStart = Date.now();
+        const response = await axios.get(url, {
+          timeout: 5000,
+          responseType: "stream",
+        });
+        response.data.destroy();
+        return {
+          statuscode: response.status,
+          latency: Date.now() - fallbackStart,
+        };
+      }
       return {
         statuscode: error.response?.status || 500,
         latency: Date.now() - start,
@@ -47,7 +60,7 @@ async function storeResult(pingResults: PingResult[]) {
   console.log("downmonitorid ", downMonitorsId);
 
   try {
-    const monitorsToAlert = await prisma.$transaction(
+    await prisma.$transaction(
       async (tx) => {
         //store all logs in bulk
         await tx.pingLog.createMany({
@@ -73,6 +86,7 @@ async function storeResult(pingResults: PingResult[]) {
           await tx.monitor.updateMany({
             where: { id: { in: upMonitorsId }, status: "DOWN" },
             data: {
+              lastChecked: new Date(),
               consecutiveFailure: 0,
               status: "UP",
               statusChangedAt: new Date(),
@@ -147,7 +161,7 @@ async function processJobs() {
       "COUNT",
       "2",
       "BLOCK",
-      "10000",
+      "10",
       "STREAMS",
       "Orbit:monitors",
       ">",

@@ -27,4 +27,6 @@ app.get("/health-check", async (req, res) => {
   }
 });
 
-app.listen(3001);
+app.listen(3001, () => {
+  console.log("up and running");
+});

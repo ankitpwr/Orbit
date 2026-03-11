@@ -1,4 +1,5 @@
 import type { ChannelType } from "../generated/prisma/enums.js";
+import cron from "node-cron";
 import { prisma } from "../lib/prisma.js";
 import { outboxClient } from "../lib/redis.js";
 
@@ -55,16 +56,15 @@ async function findMonitorsToAlert() {
             },
           },
         });
-        // await tx.incident.updateMany({
-        //   where: {
-        //     id: { in: alertMonitor.map((obj) => obj.monitorId) },
-        //     currentStatus: { not: "RESOLVED" },
-        //   },
-        //   data: {
-        //     currentStatus: "ACKNOWLEDGED",
-        //     alertCount: { increment: 1 },
-        //   },
-        // });
+        await tx.incident.updateMany({
+          where: {
+            monitorId: { in: alertMonitor.map((obj) => obj.monitorId) },
+          },
+          data: {
+            currentStatus: "ACKNOWLEDGED",
+            alertCount: { increment: 1 },
+          },
+        });
 
         let alertMonitorData: DownMonitor[] = [];
         notificationChannel.forEach((obj) => {
@@ -80,13 +80,13 @@ async function findMonitorsToAlert() {
         await emitNoticationEvent(alertMonitorData);
       }
     });
-  } catch (error) {}
+  } catch (error) {
+    console.log("error !", error);
+  }
 }
 
-findMonitorsToAlert();
+const alert = cron.schedule("*/2 * * * *", async () => {
+  findMonitorsToAlert();
+});
 
-// const deleteTask = cron.schedule("*/5 * * * *", async () => {
-//   findMonitorsToAlert();
-// });
-
-// deleteTask.start();
+alert.start();
