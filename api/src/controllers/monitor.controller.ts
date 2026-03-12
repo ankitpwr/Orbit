@@ -37,8 +37,8 @@ export const addMonitor = async (req: Request, res: Response) => {
       await prisma.notificationChannel.create({
         data: {
           monitorId: data.id,
-          ChannelType: "EMAIL",
-          ChannelValue: email,
+          channelType: "EMAIL",
+          channelValue: email,
         },
       });
     });

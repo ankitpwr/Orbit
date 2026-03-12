@@ -11,6 +11,12 @@ interface DownMonitor {
   lastChecked: Date;
 }
 
+function getEscalationLevel(alertCount: number): number {
+  if (alertCount < 1) return 1;
+  if (alertCount < 2) return 2;
+  return 3;
+}
+
 //outbox poller worker
 async function emitNoticationEvent(downMonitors: DownMonitor[]) {
   console.log("DownMonitor are ", downMonitors);
@@ -28,57 +34,74 @@ async function emitNoticationEvent(downMonitors: DownMonitor[]) {
 
 async function findMonitorsToAlert() {
   try {
+    const thirtyMinutesAgo = new Date();
+    thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 30);
+
     await prisma.$transaction(async (tx) => {
-      const alertMonitor = await tx.incident.findMany({
+      const alertIncident = await tx.incident.findMany({
         where: {
           OR: [
             { currentStatus: "OPEN" },
-            { currentStatus: "ACKNOWLEDGED", alertCount: { lte: 3 } },
+            {
+              currentStatus: "ACKNOWLEDGED",
+              alertCount: { lt: 3 },
+              lastAlertSentAt: { lt: thirtyMinutesAgo },
+            },
           ],
         },
-        select: { monitorId: true },
+        select: { monitorId: true, alertCount: true, id: true },
       });
 
-      if (alertMonitor.length > 0) {
-        const notificationChannel = await tx.notificationChannel.findMany({
-          where: {
-            monitorId: { in: alertMonitor.map((obj) => obj.monitorId) },
-          },
-          select: {
-            ChannelType: true,
-            ChannelValue: true,
-            monitor: {
-              select: {
-                name: true,
-                url: true,
-                lastChecked: true,
-              },
-            },
-          },
-        });
-        await tx.incident.updateMany({
-          where: {
-            monitorId: { in: alertMonitor.map((obj) => obj.monitorId) },
-          },
-          data: {
-            currentStatus: "ACKNOWLEDGED",
-            alertCount: { increment: 1 },
-          },
-        });
+      if (alertIncident.length === 0) return;
+      const escalationMap = new Map<string, number>(
+        alertIncident.map((inc) => [
+          inc.monitorId,
+          getEscalationLevel(inc.alertCount),
+        ]),
+      );
 
-        let alertMonitorData: DownMonitor[] = [];
-        notificationChannel.forEach((obj) => {
-          let notificationData: DownMonitor = {
-            channelType: obj.ChannelType,
-            channelValue: obj.ChannelValue,
-            name: obj.monitor.name,
-            url: obj.monitor.url,
-            lastChecked: obj.monitor.lastChecked,
-          };
-          alertMonitorData.push(notificationData);
-        });
-        await emitNoticationEvent(alertMonitorData);
-      }
+      const allChannels = await tx.notificationChannel.findMany({
+        where: { monitorId: { in: alertIncident.map((obj) => obj.monitorId) } },
+        select: {
+          monitorId: true,
+          channelType: true,
+          channelValue: true,
+          priority: true,
+          monitor: {
+            select: { name: true, url: true, lastChecked: true },
+          },
+        },
+      });
+
+      const channelMap = new Map<string, (typeof allChannels)[0]>();
+      allChannels.forEach((ch) => {
+        const targetPriority = escalationMap.get(ch.monitorId);
+        if (ch.priority == targetPriority) {
+          channelMap.set(ch.monitorId, ch);
+        }
+      });
+
+      await tx.incident.updateMany({
+        where: { id: { in: alertIncident.map((obj) => obj.id) } },
+        data: {
+          lastAlertSentAt: new Date(),
+          alertCount: { increment: 1 },
+          currentStatus: "ACKNOWLEDGED",
+        },
+      });
+
+      let alertMonitorData: DownMonitor[] = [];
+      channelMap.forEach((obj) => {
+        let notificationData: DownMonitor = {
+          channelType: obj.channelType,
+          channelValue: obj.channelValue,
+          name: obj.monitor.name,
+          url: obj.monitor.url,
+          lastChecked: obj.monitor.lastChecked,
+        };
+        alertMonitorData.push(notificationData);
+      });
+      await emitNoticationEvent(alertMonitorData);
     });
   } catch (error) {
     console.log("error !", error);

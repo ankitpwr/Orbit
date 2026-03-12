@@ -54,13 +54,14 @@ model PingLog{
 }
         
 model Incident{
-  id             String          @id         @default(uuid())
-  monitorId      String          
-  monitor        Monitor                     @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-  startedAt      DateTime                    @default(now())
-  resolvedAt     DateTime?
-  currentStatus  IncidentStatus              @default(OPEN)          
-  alertCount     Int                         @default(0)           
+  id                String          @id         @default(uuid())
+  monitorId         String          
+  monitor           Monitor                     @relation(fields: [monitorId], references: [id], onDelete: Cascade)
+  startedAt         DateTime                    @default(now())
+  resolvedAt        DateTime?
+  currentStatus     IncidentStatus              @default(OPEN)          
+  alertCount        Int                         @default(0)    
+  lastAlertSentAt   DateTime                    @default(now())    
   @@index([monitorId, currentStatus])
 }
 
@@ -68,10 +69,11 @@ model NotificationChannel{
   id             String         @id          @default(uuid())
   monitorId      String
   monitor        Monitor                     @relation(fields: [monitorId], references: [id], onDelete: Cascade)
-  ChannelType    ChannelType
-  ChannelValue   String     
+  channelType    ChannelType  
+  priority       Int                         @default(1)
+  channelValue   String      
 }
-
+ 
 enum ChannelType{
   EMAIL
 }
