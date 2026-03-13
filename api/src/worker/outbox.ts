@@ -36,7 +36,7 @@ async function findMonitorsToAlert() {
   try {
     const thirtyMinutesAgo = new Date();
     thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 30);
-
+    let alertMonitorData: DownMonitor[] = [];
     await prisma.$transaction(async (tx) => {
       const alertIncident = await tx.incident.findMany({
         where: {
@@ -90,7 +90,6 @@ async function findMonitorsToAlert() {
         },
       });
 
-      let alertMonitorData: DownMonitor[] = [];
       channelMap.forEach((obj) => {
         let notificationData: DownMonitor = {
           channelType: obj.channelType,
@@ -101,8 +100,10 @@ async function findMonitorsToAlert() {
         };
         alertMonitorData.push(notificationData);
       });
-      await emitNoticationEvent(alertMonitorData);
     });
+    if (alertMonitorData.length > 0) {
+      await emitNoticationEvent(alertMonitorData);
+    }
   } catch (error) {
     console.log("error !", error);
   }

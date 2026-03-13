@@ -10,30 +10,48 @@ import { Spinner } from "../components/ui/spinner";
 
 export default function CreateMonitors() {
   const urlRef = useRef<HTMLInputElement | null>(null);
-  const emailRef = useRef<HTMLInputElement | null>(null);
+  const primaryEmailRef = useRef<HTMLInputElement | null>(null);
+  const esacalationEmail1 = useRef<HTMLInputElement | null>(null);
+  const esacalationEmail2 = useRef<HTMLInputElement | null>(null);
+
   const nameRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
-
   const { user } = useAuthStore();
+  interface Data {
+    name: string;
+    url: string;
+    primaryEmail: string;
+    esacalationEmail1?: string;
+    esacalationEmail2?: string;
+  }
   const createMonitor = async () => {
     setLoading(true);
     const name = nameRef.current?.value;
     const url = urlRef.current?.value;
-    const email = emailRef.current?.value;
+    const primaryEmail = primaryEmailRef.current?.value;
 
-    if (!name || !url || !email) {
+    if (!name || !url || !primaryEmail) {
       console.log("all field are required");
       toast.error("All fields are required!", { position: "bottom-right" });
+      return;
+    }
+    const data: Data = {
+      name: name,
+      url: url,
+      primaryEmail: primaryEmail,
+    };
+
+    if (esacalationEmail1.current?.value) {
+      data.esacalationEmail1 = esacalationEmail1.current.value;
+    }
+    if (esacalationEmail2.current?.value) {
+      data.esacalationEmail2 = esacalationEmail2.current.value;
     }
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/monitor/add`,
-        {
-          name,
-          url,
-          email,
-        },
+        data,
         { withCredentials: true },
       );
 
@@ -73,17 +91,51 @@ export default function CreateMonitors() {
       </Field>
 
       <Field className="w-2xl">
-        <FieldLabel htmlFor="input-field-username">Email</FieldLabel>
-        <Input
-          id="input-field-username"
-          type="email"
-          defaultValue={user?.email}
-          className="w-44 "
-          ref={emailRef}
-        />
-        <FieldDescription>
-          who's going to be notified and how when an incident occurs.
-        </FieldDescription>
+        <FieldLabel
+          className="flex flex-col items-start gap-2"
+          htmlFor="input-field-username"
+        >
+          <h1 className="">Alerting & Escalation</h1>
+        </FieldLabel>
+
+        <div className="flex flex-col gap-6">
+          <Field className="flex flex-col gap-1">
+            <Input
+              id="input-field-username"
+              type="email"
+              defaultValue={user?.email}
+              className="w-44 "
+              ref={primaryEmailRef}
+            />
+            <FieldDescription>Email for Immediate Alert </FieldDescription>
+          </Field>
+
+          <Field className="flex flex-col gap-1">
+            <Input
+              id="input-field-username"
+              type="email"
+              className="w-44 "
+              placeholder="Email"
+              ref={esacalationEmail1}
+            />
+            <FieldDescription>
+              Email for Escalation 1 (After 30 minutes of downtime){" "}
+            </FieldDescription>
+          </Field>
+
+          <Field className="flex flex-col gap-1">
+            <Input
+              id="input-field-username"
+              type="email"
+              placeholder="Email"
+              className="w-44 "
+              ref={esacalationEmail2}
+            />
+            <FieldDescription>
+              Escalation 2 (After 60 minutes of downtime){" "}
+            </FieldDescription>
+          </Field>
+        </div>
       </Field>
 
       <Button

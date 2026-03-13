@@ -18,7 +18,7 @@ export const addMonitor = async (req: Request, res: Response) => {
         error: parsedBody.error.issues,
       });
     }
-    const { name, url, email } = req.body;
+    const { name, url, primaryEmail } = req.body;
     const newMonitor = await prisma.$transaction(async () => {
       const data = await prisma.monitor.create({
         data: {
@@ -38,9 +38,29 @@ export const addMonitor = async (req: Request, res: Response) => {
         data: {
           monitorId: data.id,
           channelType: "EMAIL",
-          channelValue: email,
+          channelValue: primaryEmail,
         },
       });
+
+      if (req.body.esacalationEmail1) {
+        await prisma.notificationChannel.create({
+          data: {
+            monitorId: data.id,
+            channelType: "EMAIL",
+            channelValue: req.body.esacalationEmail1,
+          },
+        });
+
+        if (req.body.esacalationEmail2) {
+          await prisma.notificationChannel.create({
+            data: {
+              monitorId: data.id,
+              channelType: "EMAIL",
+              channelValue: req.body.esacalationEmail2,
+            },
+          });
+        }
+      }
     });
     return res.status(200).json({
       message: "Monitor Successfully Added",

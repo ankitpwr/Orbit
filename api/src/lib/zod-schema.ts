@@ -5,7 +5,9 @@ export const addMonitorSchema = z.object({
     .string({ error: "Name Must Be Valid String" })
     .max(100, { error: "Monitor Name Is Too Long" }),
   url: z.url({ error: "Invalid URL" }),
-  email: z.email(),
+  primaryEmail: z.email(),
+  esacalationEmail1: z.email().optional(),
+  esacalationEmail2: z.email().optional(),
 });
 
 export const paramsSchema = z.object({
