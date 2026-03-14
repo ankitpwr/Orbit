@@ -11,7 +11,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
-import { Globe, LogOut, Orbit, User2 } from "lucide-react";
+import { Globe, LogOut, Orbit, ShieldAlert, User2 } from "lucide-react";
 import useAuthStore from "../store/useAuthStore";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -26,8 +26,8 @@ export default function AppSidebar() {
           <SidebarMenu>
             <SidebarMenuItem>
               <SidebarMenuButton>
-                <Orbit size={32} />
-                <span className="font-montserrat text-2xl font-semibold">
+                <Orbit />
+                <span className="font-montserrat text-3xl font-semibold">
                   Orbit
                 </span>
               </SidebarMenuButton>
@@ -37,14 +37,30 @@ export default function AppSidebar() {
         <SidebarContent>
           {/*group-1 */}
 
-          <SidebarGroup>
-            <SidebarGroupLabel>Platform</SidebarGroupLabel>
+          <SidebarGroup className="gap-3">
             <SidebarGroupContent>
               <SidebarMenu onClick={() => navigate("/dashboard/monitors")}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton tooltip={"Monitors"}>
+                  <SidebarMenuButton
+                    className="cursor-pointer"
+                    tooltip={"Monitors"}
+                  >
                     <Globe />
-                    <span>Monitors</span>
+                    <span className="text-[16px]">Monitors</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+
+            <SidebarGroupContent>
+              <SidebarMenu onClick={() => navigate("/dashboard/incidents")}>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    className="cursor-pointer"
+                    tooltip={"Incident"}
+                  >
+                    <ShieldAlert />
+                    <span className="text-[16px]">Incident</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>

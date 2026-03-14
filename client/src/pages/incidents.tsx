@@ -1,0 +1,41 @@
+import { useEffect } from "react";
+import useIncidentStore from "../store/useIncidentStore";
+import useAuthStore from "../store/useAuthStore";
+import { Spinner } from "../components/ui/spinner";
+import IncidentCard from "../components/incident-card";
+
+export default function Incidents() {
+  const { isLoadingIncidents, fetchIncidents, incidents } = useIncidentStore();
+  const { user } = useAuthStore();
+
+  useEffect(() => {
+    fetchIncidents();
+  }, []);
+
+  if (isLoadingIncidents) {
+    <div className="w-full h-full flex items-center justify-center">
+      <Spinner className="size-12" />
+    </div>;
+  }
+
+  return (
+    <div className="w-full h-full flex flex-col px-30 pt-20 font-montserrat gap-10">
+      <div className="flex">
+        <h1 className="text-3xl font-bold">Incidents</h1>
+      </div>
+
+      <div>
+        {incidents.map((i, index) => (
+          <IncidentCard
+            key={index}
+            monitorName={i.monitorName}
+            url={i.url}
+            startedAt={i.startedAt}
+            currentStatus={i.currentStatus}
+            resolvedAt={i.resolvedAt}
+          />
+        ))}
+      </div>
+    </div>
+  );
+}

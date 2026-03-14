@@ -300,3 +300,33 @@ export const pingData = async (req: Request, res: Response) => {
     return res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+export const findIncidents = async (req: Request, res: Response) => {
+  try {
+    const { id } = req as CustomRequest;
+    const incidents = await prisma.incident.findMany({
+      where: {
+        monitor: {
+          userId: id,
+        },
+      },
+      select: {
+        startedAt: true,
+        resolvedAt: true,
+        currentStatus: true,
+        monitor: {
+          select: { name: true, url: true },
+        },
+      },
+    });
+
+    return res.status(200).json({
+      incidents,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+};

@@ -32,8 +32,15 @@ export default function CreateMonitors() {
     const primaryEmail = primaryEmailRef.current?.value;
 
     if (!name || !url || !primaryEmail) {
-      console.log("all field are required");
-      toast.error("All fields are required!", { position: "bottom-right" });
+      if (!name)
+        toast.error("Monitor name is required", { position: "bottom-right" });
+      else if (!url)
+        toast.error("Url is required", { position: "bottom-right" });
+      else if (!primaryEmail)
+        toast.error("Escalation 1 email is required", {
+          position: "bottom-right",
+        });
+      setLoading(false);
       return;
     }
     const data: Data = {
@@ -42,12 +49,22 @@ export default function CreateMonitors() {
       primaryEmail: primaryEmail,
     };
 
+    if (
+      esacalationEmail2.current?.value != "" &&
+      !esacalationEmail1.current?.value
+    ) {
+      toast.error("Escalation email 1 is required before esacalation email 2");
+      setLoading(false);
+      return;
+    }
+
     if (esacalationEmail1.current?.value) {
       data.esacalationEmail1 = esacalationEmail1.current.value;
+      if (esacalationEmail2.current?.value) {
+        data.esacalationEmail2 = esacalationEmail2.current.value;
+      }
     }
-    if (esacalationEmail2.current?.value) {
-      data.esacalationEmail2 = esacalationEmail2.current.value;
-    }
+
     try {
       const response = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/monitor/add`,
@@ -71,7 +88,9 @@ export default function CreateMonitors() {
       <h1 className="text-3xl font-bold">Create Monitor</h1>
 
       <Field className="w-2xl">
-        <FieldLabel htmlFor="input-field-username">Name of Monitor</FieldLabel>
+        <FieldLabel htmlFor="input-field-username">
+          Name of Monitor <span className="text-destructive">*</span>
+        </FieldLabel>
         <Input
           id="input-field-username"
           type="text"
@@ -81,7 +100,9 @@ export default function CreateMonitors() {
       </Field>
 
       <Field className="w-2xl">
-        <FieldLabel htmlFor="input-field-username">URL to monitor</FieldLabel>
+        <FieldLabel htmlFor="input-field-username">
+          URL to monitor <span className="text-destructive">*</span>
+        </FieldLabel>
         <Input
           id="input-field-username"
           type="url"
@@ -107,7 +128,11 @@ export default function CreateMonitors() {
               className="w-44 "
               ref={primaryEmailRef}
             />
-            <FieldDescription>Email for Immediate Alert </FieldDescription>
+            <FieldDescription>
+              {" "}
+              Email escalation 1 (Immediately){" "}
+              <span className="text-destructive">*</span>
+            </FieldDescription>
           </Field>
 
           <Field className="flex flex-col gap-1">
@@ -119,7 +144,7 @@ export default function CreateMonitors() {
               ref={esacalationEmail1}
             />
             <FieldDescription>
-              Email for Escalation 1 (After 30 minutes of downtime){" "}
+              Email escalation 2 (After 30 minutes of downtime){" "}
             </FieldDescription>
           </Field>
 
@@ -132,7 +157,7 @@ export default function CreateMonitors() {
               ref={esacalationEmail2}
             />
             <FieldDescription>
-              Escalation 2 (After 60 minutes of downtime){" "}
+              Email escalation 2 (After 60 minutes of downtime){" "}
             </FieldDescription>
           </Field>
         </div>

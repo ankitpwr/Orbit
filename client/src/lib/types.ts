@@ -14,7 +14,7 @@ export interface AuthAction {
   checkAuth: () => Promise<void>;
 }
 
-//monitors types
+//monitors  types
 export type MonitorStatus = "UP" | "DOWN" | "PAUSED";
 export const TimeRange = {
   Day: 1,
@@ -22,6 +22,7 @@ export const TimeRange = {
   Month: 30,
 } as const;
 export type TimeRange = (typeof TimeRange)[keyof typeof TimeRange];
+
 export interface UserMonitors {
   url: string;
   id: string;
@@ -63,4 +64,22 @@ export interface MonitorAction {
   fetchPingData: (id: string, days: number) => Promise<void>;
   fetchHeatMapData: (id: string, days: number) => Promise<void>;
   deleteMonitor: (id: string) => Promise<void>;
+}
+
+//incident types
+export type IncidentStatus = "OPEN" | " RESOLVED" | "ACKNOWLEDGED";
+export interface Incident {
+  monitorName: string;
+  url: string;
+  startedAt: Date;
+  resolvedAt?: Date;
+  currentStatus: IncidentStatus;
+}
+export interface IncidentState {
+  isLoadingIncidents: boolean;
+  incidents: Incident[];
+}
+
+export interface IncidentAction {
+  fetchIncidents: () => Promise<void>;
 }

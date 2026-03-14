@@ -9,6 +9,7 @@ import MonitorDetails from "./pages/monitor-details";
 import NotFound from "./pages/not-fount";
 import { useEffect } from "react";
 import useAuthStore from "./store/useAuthStore";
+import Incidents from "./pages/incidents";
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -25,6 +26,8 @@ function App() {
           <Route element={<RequireAuth />}>
             <Route element={<Dashboard />}>
               <Route path="/dashboard/monitors" element={<Monitors />} />
+              <Route path="/dashboard/incidents" element={<Incidents />} />
+
               <Route
                 path="/dashboard/monitors/new"
                 element={<CreateMonitor />}
