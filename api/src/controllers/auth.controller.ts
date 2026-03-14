@@ -81,30 +81,3 @@ export const logout = async (req: Request, res: Response) => {
     });
   }
 };
-
-export const userDetails = async (req: Request, res: Response) => {
-  try {
-    const { id, email } = req as CustomRequest;
-    const user = await prisma.user.findFirst({
-      where: {
-        id: id,
-      },
-    });
-    if (!user)
-      return res.status(400).json({
-        error: "failed to get the user details",
-      });
-
-    return res.status(200).json({
-      email: user.email,
-      name: user.name,
-      createdAt: user.createdAt,
-      picture: user.picture,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      error: "Internal server error",
-    });
-  }
-};

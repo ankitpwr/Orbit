@@ -83,3 +83,11 @@ export interface IncidentState {
 export interface IncidentAction {
   fetchIncidents: () => Promise<void>;
 }
+
+//setting
+export interface SettingState {
+  updating: boolean;
+}
+export interface SettingActions {
+  updateUserSetting: (name: string) => Promise<void>;
+}

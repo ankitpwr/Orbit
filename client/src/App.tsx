@@ -10,6 +10,7 @@ import NotFound from "./pages/not-fount";
 import { useEffect } from "react";
 import useAuthStore from "./store/useAuthStore";
 import Incidents from "./pages/incidents";
+import Settings from "./pages/settings";
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -27,6 +28,7 @@ function App() {
             <Route element={<Dashboard />}>
               <Route path="/dashboard/monitors" element={<Monitors />} />
               <Route path="/dashboard/incidents" element={<Incidents />} />
+              <Route path="/dashboard/settings" element={<Settings />} />
 
               <Route
                 path="/dashboard/monitors/new"

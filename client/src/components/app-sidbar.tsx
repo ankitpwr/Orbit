@@ -11,7 +11,14 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "./ui/sidebar";
-import { Globe, LogOut, Orbit, ShieldAlert, User2 } from "lucide-react";
+import {
+  Globe,
+  LogOut,
+  Orbit,
+  Settings,
+  ShieldAlert,
+  User2,
+} from "lucide-react";
 import useAuthStore from "../store/useAuthStore";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
@@ -60,13 +67,26 @@ export default function AppSidebar() {
                     tooltip={"Incident"}
                   >
                     <ShieldAlert />
-                    <span className="text-[16px]">Incident</span>
+                    <span className="text-[16px]">Incidents</span>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+
+            <SidebarGroupContent>
+              <SidebarMenu onClick={() => navigate("/dashboard/settings")}>
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    className="cursor-pointer"
+                    tooltip={"Incident"}
+                  >
+                    <Settings />
+                    <span className="text-[16px]">Settings</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
-          {/*group-2 */}
         </SidebarContent>
         <SidebarFooter>
           <SidebarMenu>

@@ -13,7 +13,7 @@ const AuthStore: StateCreator<AuthStoreType> = (set) => ({
     set({ isLoading: true });
     try {
       const response = await axios.get(
-        `${import.meta.env.VITE_BACKEND_URL}/auth/me`,
+        `${import.meta.env.VITE_BACKEND_URL}/user/me`,
         { withCredentials: true },
       );
       if (response.status === 200) {
