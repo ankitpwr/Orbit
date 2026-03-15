@@ -25,4 +25,5 @@ export const updateUserDetailsSchema = z.object({
   name: z
     .string({ error: "Name must be valid string" })
     .max(100, { error: "Name can be of maximum 100 characters" }),
+  timezone: z.string({ error: "Not a valid timezone" }),
 });

@@ -11,6 +11,9 @@ export const userDetails = async (req: Request, res: Response) => {
       where: {
         id: id,
       },
+      omit: {
+        id: true,
+      },
     });
     if (!user)
       return res.status(400).json({
@@ -18,10 +21,7 @@ export const userDetails = async (req: Request, res: Response) => {
       });
 
     return res.status(200).json({
-      email: user.email,
-      name: user.name,
-      createdAt: user.createdAt,
-      picture: user.picture,
+      user,
     });
   } catch (error) {
     console.log(error);
@@ -39,12 +39,13 @@ export const updateUserDetails = async (req: Request, res: Response) => {
         error: parsedData.error.issues,
       });
     }
-    const { name } = req.body;
+    const { name, timezone } = req.body;
     const { id } = req as CustomRequest;
     await prisma.user.update({
       where: { id: id },
       data: {
         name: name,
+        timezone: timezone,
       },
     });
 
