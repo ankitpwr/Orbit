@@ -35,72 +35,77 @@ async function emitNoticationEvent(downMonitors: DownMonitor[]) {
 async function findMonitorsToAlert() {
   try {
     const thirtyMinutesAgo = new Date();
-    thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 30);
+    thirtyMinutesAgo.setMinutes(thirtyMinutesAgo.getMinutes() - 6);
     let alertMonitorData: DownMonitor[] = [];
-    await prisma.$transaction(async (tx) => {
-      const alertIncident = await tx.incident.findMany({
-        where: {
-          OR: [
-            { currentStatus: "OPEN" },
-            {
-              currentStatus: "ACKNOWLEDGED",
-              alertCount: { lt: 3 },
-              lastAlertSentAt: { lt: thirtyMinutesAgo },
-            },
-          ],
-        },
-        select: { monitorId: true, alertCount: true, id: true },
-      });
-
-      if (alertIncident.length === 0) return;
-      const escalationMap = new Map<string, number>(
-        alertIncident.map((inc) => [
-          inc.monitorId,
-          getEscalationLevel(inc.alertCount),
-        ]),
-      );
-
-      const allChannels = await tx.notificationChannel.findMany({
-        where: { monitorId: { in: alertIncident.map((obj) => obj.monitorId) } },
-        select: {
-          monitorId: true,
-          channelType: true,
-          channelValue: true,
-          priority: true,
-          monitor: {
-            select: { name: true, url: true, lastChecked: true },
+    await prisma.$transaction(
+      async (tx) => {
+        const alertIncident = await tx.incident.findMany({
+          where: {
+            OR: [
+              { currentStatus: "OPEN" },
+              {
+                currentStatus: "ACKNOWLEDGED",
+                alertCount: { lt: 3 },
+                lastAlertSentAt: { lt: thirtyMinutesAgo },
+              },
+            ],
           },
-        },
-      });
+          select: { monitorId: true, alertCount: true, id: true },
+        });
 
-      const channelMap = new Map<string, (typeof allChannels)[0]>();
-      allChannels.forEach((ch) => {
-        const targetPriority = escalationMap.get(ch.monitorId);
-        if (ch.priority == targetPriority) {
-          channelMap.set(ch.monitorId, ch);
-        }
-      });
+        if (alertIncident.length === 0) return;
+        const escalationMap = new Map<string, number>(
+          alertIncident.map((inc) => [
+            inc.monitorId,
+            getEscalationLevel(inc.alertCount),
+          ]),
+        );
 
-      await tx.incident.updateMany({
-        where: { id: { in: alertIncident.map((obj) => obj.id) } },
-        data: {
-          lastAlertSentAt: new Date(),
-          alertCount: { increment: 1 },
-          currentStatus: "ACKNOWLEDGED",
-        },
-      });
+        const allChannels = await tx.notificationChannel.findMany({
+          where: {
+            monitorId: { in: alertIncident.map((obj) => obj.monitorId) },
+          },
+          select: {
+            monitorId: true,
+            channelType: true,
+            channelValue: true,
+            priority: true,
+            monitor: {
+              select: { name: true, url: true, lastChecked: true },
+            },
+          },
+        });
 
-      channelMap.forEach((obj) => {
-        let notificationData: DownMonitor = {
-          channelType: obj.channelType,
-          channelValue: obj.channelValue,
-          name: obj.monitor.name,
-          url: obj.monitor.url,
-          lastChecked: obj.monitor.lastChecked,
-        };
-        alertMonitorData.push(notificationData);
-      });
-    });
+        const channelMap = new Map<string, (typeof allChannels)[0]>();
+        allChannels.forEach((ch) => {
+          const targetPriority = escalationMap.get(ch.monitorId);
+          if (ch.priority == targetPriority) {
+            channelMap.set(ch.monitorId, ch);
+          }
+        });
+
+        await tx.incident.updateMany({
+          where: { id: { in: alertIncident.map((obj) => obj.id) } },
+          data: {
+            lastAlertSentAt: new Date(),
+            alertCount: { increment: 1 },
+            currentStatus: "ACKNOWLEDGED",
+          },
+        });
+
+        channelMap.forEach((obj) => {
+          let notificationData: DownMonitor = {
+            channelType: obj.channelType,
+            channelValue: obj.channelValue,
+            name: obj.monitor.name,
+            url: obj.monitor.url,
+            lastChecked: obj.monitor.lastChecked,
+          };
+          alertMonitorData.push(notificationData);
+        });
+      },
+      { timeout: 10000 },
+    );
     if (alertMonitorData.length > 0) {
       await emitNoticationEvent(alertMonitorData);
     }

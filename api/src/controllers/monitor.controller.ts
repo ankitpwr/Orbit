@@ -39,6 +39,7 @@ export const addMonitor = async (req: Request, res: Response) => {
           monitorId: data.id,
           channelType: "EMAIL",
           channelValue: primaryEmail,
+          priority: 1,
         },
       });
 
@@ -48,6 +49,7 @@ export const addMonitor = async (req: Request, res: Response) => {
             monitorId: data.id,
             channelType: "EMAIL",
             channelValue: req.body.esacalationEmail1,
+            priority: 2,
           },
         });
 
@@ -57,6 +59,7 @@ export const addMonitor = async (req: Request, res: Response) => {
               monitorId: data.id,
               channelType: "EMAIL",
               channelValue: req.body.esacalationEmail2,
+              priority: 3,
             },
           });
         }
@@ -318,6 +321,7 @@ export const findIncidents = async (req: Request, res: Response) => {
           select: { name: true, url: true },
         },
       },
+      orderBy: { startedAt: "asc" },
     });
 
     return res.status(200).json({

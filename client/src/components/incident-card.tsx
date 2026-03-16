@@ -1,5 +1,3 @@
-import { ShieldCheckIcon } from "lucide-react";
-import React from "react";
 import IncidentBadge from "./incident-badge";
 import type { Incident } from "../lib/types";
 import useAuthStore from "../store/useAuthStore";
