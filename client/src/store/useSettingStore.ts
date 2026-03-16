@@ -7,13 +7,14 @@ type SettingStoreType = SettingActions & SettingState;
 
 const SettingStore: StateCreator<SettingStoreType> = (set) => ({
   updating: false,
-  updateUserSetting: async (name: string) => {
+  updateUserSetting: async (name: string, timezone: string) => {
     set({ updating: true });
     try {
       const response = await axios.put(
         `${import.meta.env.VITE_BACKEND_URL}/user/update-user-details`,
         {
           name: name,
+          timezone: timezone,
         },
         { withCredentials: true },
       );

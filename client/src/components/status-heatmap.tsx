@@ -4,6 +4,8 @@ import useMonitorStore from "../store/useMonitorStore";
 import { TimeRange } from "../lib/types";
 import { Skeleton } from "./ui/skeleton";
 import { uptimePercentage, type ReturnType } from "../lib/uptimepercent";
+import useSettingStore from "../store/useSettingStore";
+import useAuthStore from "../store/useAuthStore";
 
 export default function StatusHeatmap() {
   const {
@@ -12,6 +14,7 @@ export default function StatusHeatmap() {
     isLoadingHeatMapData,
     heatMapData,
   } = useMonitorStore();
+  const { user } = useAuthStore();
 
   const [heatmapData, setHeatMapData] = useState<ReturnType[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
@@ -24,7 +27,7 @@ export default function StatusHeatmap() {
   useEffect(() => {
     setLoading(true);
     if (heatMapData) {
-      const data = uptimePercentage(heatMapData);
+      const data = uptimePercentage(heatMapData, user!.timezone);
       setHeatMapData(data);
     }
     setLoading(false);

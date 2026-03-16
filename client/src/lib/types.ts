@@ -3,6 +3,7 @@ export interface User {
   name: string;
   email: string;
   createdAt: Date;
+  timezone: string;
   picture: string;
 }
 export interface AuthState {
@@ -67,7 +68,7 @@ export interface MonitorAction {
 }
 
 //incident types
-export type IncidentStatus = "OPEN" | " RESOLVED" | "ACKNOWLEDGED";
+export type IncidentStatus = "OPEN" | "RESOLVED" | "ACKNOWLEDGED";
 export interface Incident {
   monitorName: string;
   url: string;
@@ -89,5 +90,5 @@ export interface SettingState {
   updating: boolean;
 }
 export interface SettingActions {
-  updateUserSetting: (name: string) => Promise<void>;
+  updateUserSetting: (name: string, timezone: string) => Promise<void>;
 }

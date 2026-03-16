@@ -21,10 +21,12 @@ import {
 } from "./ui/empty";
 import { CircleSlash } from "lucide-react";
 import { TimeRange } from "../lib/types";
+import useAuthStore from "../store/useAuthStore";
 
 export default function LatencyGraph() {
   const { fetchPingData, currentMonitor, isLoadingPingData, pingData } =
     useMonitorStore();
+  const { user } = useAuthStore();
 
   const [timeRange, setTimeRange] = useState<TimeRange>(TimeRange.Week);
 
@@ -103,10 +105,12 @@ export default function LatencyGraph() {
                   const date = new Date(value);
                   if (timeRange === 1) {
                     return date.toLocaleTimeString("en-IN", {
+                      timeZone: user!.timezone,
                       hour: "numeric",
                     });
                   } else {
                     return date.toLocaleDateString("en-IN", {
+                      timeZone: user!.timezone,
                       month: "short",
                       day: "numeric",
                     });
@@ -128,6 +132,7 @@ export default function LatencyGraph() {
                     labelFormatter={(label) => {
                       const date = new Date(label);
                       return date.toLocaleString("en-IN", {
+                        timeZone: user!.timezone,
                         month: "short",
                         day: "numeric",
                         hour: "numeric",

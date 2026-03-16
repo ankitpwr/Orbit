@@ -24,7 +24,7 @@ export default function Incidents() {
         <h1 className="text-3xl font-bold">Incidents</h1>
       </div>
 
-      <div>
+      <div className="flex flex-col gap-8">
         {incidents.map((i, index) => (
           <IncidentCard
             key={index}

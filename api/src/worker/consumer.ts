@@ -83,16 +83,39 @@ async function storeResult(pingResults: PingResult[]) {
               processed: false,
             },
           });
-          await tx.monitor.updateMany({
+
+          const newUpMonitor = await tx.monitor.findMany({
             where: { id: { in: upMonitorsId }, status: "DOWN" },
-            data: {
-              lastChecked: new Date(),
-              consecutiveFailure: 0,
-              status: "UP",
-              statusChangedAt: new Date(),
-              processed: false,
-            },
+            select: { id: true },
           });
+
+          if (newUpMonitor.length > 0) {
+            const ids = newUpMonitor.map((i) => i.id);
+            await tx.incident.updateMany({
+              where: {
+                monitorId: { in: ids },
+                OR: [
+                  { currentStatus: "ACKNOWLEDGED" },
+                  { currentStatus: "OPEN" },
+                ],
+              },
+              data: {
+                currentStatus: "RESOLVED",
+                resolvedAt: new Date(),
+                alertCount: 0,
+              },
+            });
+            await tx.monitor.updateMany({
+              where: { id: { in: ids }, status: "DOWN" },
+              data: {
+                lastChecked: new Date(),
+                consecutiveFailure: 0,
+                status: "UP",
+                statusChangedAt: new Date(),
+                processed: false,
+              },
+            });
+          }
         }
 
         if (downMonitorsId.length > 0) {

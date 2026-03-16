@@ -17,7 +17,7 @@ const AuthStore: StateCreator<AuthStoreType> = (set) => ({
         { withCredentials: true },
       );
       if (response.status === 200) {
-        set({ isAuthenticated: true, user: response.data });
+        set({ isAuthenticated: true, user: response.data.user });
       } else {
         set({ isAuthenticated: false, user: null });
       }

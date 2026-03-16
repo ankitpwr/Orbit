@@ -1,19 +1,29 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, type JSX } from "react";
 import { Field, FieldDescription, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
 import useAuthStore from "../store/useAuthStore";
 import { Button } from "../components/ui/button";
 import useSettingStore from "../store/useSettingStore";
-import { useNavigate } from "react-router-dom";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "../components/ui/select";
+import { Timezones } from "../lib/timezone";
 
 export default function Settings() {
   const { user } = useAuthStore();
+  const [timezone, setTimezone] = useState<string | undefined>();
   const nameRef = useRef<HTMLInputElement | null>(null);
   const { updateUserSetting } = useSettingStore();
 
   async function saveChange() {
-    if (!nameRef.current) return;
-    await updateUserSetting(nameRef.current.value);
+    if (!nameRef.current || timezone == undefined) return;
+    console.log("timezone is ", timezone);
+    await updateUserSetting(nameRef.current.value, timezone);
     window.location.reload();
   }
 
@@ -52,11 +62,31 @@ export default function Settings() {
             defaultValue={new Date(user!.createdAt).toLocaleDateString(
               "en-In",
               {
+                timeZone: user?.timezone,
                 dateStyle: "long",
               },
             )}
             disabled
           />
+        </Field>
+
+        <Field className="flex flex-col gap-1 max-w-2xl">
+          <FieldLabel htmlFor="input-field-username">Timezone</FieldLabel>
+          <Select onValueChange={(value) => setTimezone(value)}>
+            <SelectTrigger className="w-full max-w-64">
+              <SelectValue placeholder={user?.timezone} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                {" "}
+                {Timezones.map((z, index) => (
+                  <SelectItem key={index} value={z}>
+                    {z}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
         </Field>
       </div>
 
