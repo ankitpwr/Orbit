@@ -11,6 +11,7 @@ import { useEffect } from "react";
 import useAuthStore from "./store/useAuthStore";
 import Incidents from "./pages/incidents";
 import Settings from "./pages/settings";
+import { ThemeProvider } from "./components/theme-provider";
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -21,28 +22,30 @@ function App() {
 
   return (
     <>
-      <BrowserRouter>
-        <Routes>
-          <Route path="/auth" element={<GoogleAuthWrapper />} />
-          <Route element={<RequireAuth />}>
-            <Route element={<Dashboard />}>
-              <Route path="/dashboard/monitors" element={<Monitors />} />
-              <Route path="/dashboard/incidents" element={<Incidents />} />
-              <Route path="/dashboard/settings" element={<Settings />} />
+      <ThemeProvider>
+        <BrowserRouter>
+          <Routes>
+            <Route path="/auth" element={<GoogleAuthWrapper />} />
+            <Route element={<RequireAuth />}>
+              <Route element={<Dashboard />}>
+                <Route path="/dashboard/monitors" element={<Monitors />} />
+                <Route path="/dashboard/incidents" element={<Incidents />} />
+                <Route path="/dashboard/settings" element={<Settings />} />
 
-              <Route
-                path="/dashboard/monitors/new"
-                element={<CreateMonitor />}
-              />
-              <Route
-                path="/dashboard/monitors/:id"
-                element={<MonitorDetails />}
-              />
+                <Route
+                  path="/dashboard/monitors/new"
+                  element={<CreateMonitor />}
+                />
+                <Route
+                  path="/dashboard/monitors/:id"
+                  element={<MonitorDetails />}
+                />
+              </Route>
             </Route>
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </ThemeProvider>
     </>
   );
 }

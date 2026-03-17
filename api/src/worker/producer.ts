@@ -47,7 +47,7 @@ async function publish() {
 
 // Schedule task for fetching monitors from DB
 const publishTask = cron.schedule(
-  "*/2 * * * *",
+  "*/5 * * * *",
   async () => {
     await publish();
   },
