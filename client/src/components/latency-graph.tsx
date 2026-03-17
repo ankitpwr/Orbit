@@ -22,11 +22,14 @@ import {
 import { CircleSlash } from "lucide-react";
 import { TimeRange } from "../lib/types";
 import useAuthStore from "../store/useAuthStore";
+import { useTheme } from "./theme-provider";
 
 export default function LatencyGraph() {
   const { fetchPingData, currentMonitor, isLoadingPingData, pingData } =
     useMonitorStore();
   const { user } = useAuthStore();
+  const { theme } = useTheme();
+  console.log("theme is  ", theme);
 
   const [timeRange, setTimeRange] = useState<TimeRange>(TimeRange.Week);
 
@@ -146,7 +149,7 @@ export default function LatencyGraph() {
               <Area
                 dataKey="latency"
                 type="linear"
-                fill="#afcfff"
+                fill={theme == "light" ? "#afcfff" : "#204277"}
                 fillOpacity={0.4}
                 stroke="#2b7fff"
               />

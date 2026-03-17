@@ -11,7 +11,7 @@ export default function IncidentCard({
 }: Incident) {
   const { user } = useAuthStore();
   return (
-    <div className="w-full font-montserrat rounded-lg flex flex-col  justify-center  border border-[#dfe3ea]  cursor-pointer shadow-[1px_6px_10px_-4px_rgba(0,_0,_0,_0.1)]">
+    <div className="w-full font-montserrat rounded-lg flex flex-col  justify-center  border border-[#dfe3ea]  dark:border-[#2e2f2f]  cursor-pointer shadow-[1px_6px_10px_-4px_rgba(0,_0,_0,_0.1)]">
       <div className="grid grid-cols-4  items-center py-4 px-5">
         <div className="col-span-2 flex items-center  gap-4">
           <IncidentBadge status={currentStatus} />

@@ -98,7 +98,7 @@ export default function MonitorDetails() {
               } catch (error) {}
             }}
             variant={"destructive"}
-            className="bg-red-100 text-red-500 hover:bg-red-200"
+            className="bg-red-100 text-red-500 hover:bg-red-200 dark:bg-[#3b1c1d] dark:hover:bg-[#753b3d]"
           >
             <Trash /> <span>Delete</span>
           </Button>

@@ -12,12 +12,12 @@ export default function MonitorCard({ url, name, id, status }: UserMonitors) {
   return (
     <div
       onClick={() => handleMonitorSelection()}
-      className="w-full font-montserrat rounded-lg flex flex-col  justify-center  border border-[#dfe3ea]  cursor-pointer shadow-[1px_6px_10px_-4px_rgba(0,_0,_0,_0.1)]"
+      className="w-full font-montserrat rounded-lg flex flex-col  justify-center  border border-[#dfe3ea] dark:border-[#2e2f2f]  cursor-pointer shadow-[1px_6px_10px_-4px_rgba(0,_0,_0,_0.1)]"
     >
-      <div className="bg-[#f8f9fc] rounded-t-lg py-2 ">
+      <div className="bg-[#f8f9fc] dark:bg-[#161616] rounded-t-lg py-2 ">
         <h1 className="px-4 text-lg ">{name}</h1>
       </div>
-      <div className="h-[1px] w-full bg-[#dfe3ea] rounded-lg"></div>
+      <div className="h-[1px] w-full bg-[#dfe3ea] dark:bg-[#2e2f2f] rounded-lg"></div>
       <div
         className="grid grid-cols-4 px-6 py-4  justify-center  text-base rounded-b-lg  
       "
