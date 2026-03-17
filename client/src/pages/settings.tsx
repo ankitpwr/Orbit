@@ -16,7 +16,7 @@ import { Timezones } from "../lib/timezone";
 
 export default function Settings() {
   const { user } = useAuthStore();
-  const [timezone, setTimezone] = useState<string | undefined>();
+  const [timezone, setTimezone] = useState<string | undefined>(user?.timezone);
   const nameRef = useRef<HTMLInputElement | null>(null);
   const { updateUserSetting } = useSettingStore();
 

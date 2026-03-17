@@ -12,10 +12,13 @@ export default function Incidents() {
     fetchIncidents();
   }, []);
 
+  console.log(isLoadingIncidents);
   if (isLoadingIncidents) {
-    <div className="w-full h-full flex items-center justify-center">
-      <Spinner className="size-12" />
-    </div>;
+    return (
+      <div className="w-full h-full flex items-center justify-center">
+        <Spinner className="size-12" />
+      </div>
+    );
   }
 
   return (

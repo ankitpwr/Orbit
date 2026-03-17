@@ -114,8 +114,12 @@ async function findMonitorsToAlert() {
   }
 }
 
-const alert = cron.schedule("*/2 * * * *", async () => {
-  findMonitorsToAlert();
-});
+const alert = cron.schedule(
+  "*/2 * * * *",
+  async () => {
+    await findMonitorsToAlert();
+  },
+  { noOverlap: true },
+);
 
 alert.start();

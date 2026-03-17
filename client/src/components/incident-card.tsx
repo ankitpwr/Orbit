@@ -1,6 +1,7 @@
 import IncidentBadge from "./incident-badge";
 import type { Incident } from "../lib/types";
 import useAuthStore from "../store/useAuthStore";
+import { formatDistanceToNow } from "date-fns";
 
 export default function IncidentCard({
   monitorName,
@@ -10,6 +11,7 @@ export default function IncidentCard({
   currentStatus,
 }: Incident) {
   const { user } = useAuthStore();
+
   return (
     <div className="w-full font-montserrat rounded-lg flex flex-col  justify-center  border border-[#dfe3ea]  dark:border-[#2e2f2f]  cursor-pointer shadow-[1px_6px_10px_-4px_rgba(0,_0,_0,_0.1)]">
       <div className="grid grid-cols-4  items-center py-4 px-5">
@@ -36,7 +38,19 @@ export default function IncidentCard({
 
         <div className="flex flex-col  items-end ">
           {currentStatus == "RESOLVED" ? (
-            <span className="text-green-600">Resolved</span>
+            <div className="flex flex-col">
+              <span>Lasted for</span>
+              <span className="text-sm">
+                {resolvedAt != undefined
+                  ? String(
+                      Math.abs(
+                        new Date(resolvedAt).getTime() -
+                          new Date(startedAt).getTime(),
+                      ),
+                    )
+                  : ""}
+              </span>
+            </div>
           ) : (
             <span className="text-red-600">Ongoing</span>
           )}

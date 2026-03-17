@@ -123,6 +123,7 @@ async function storeResult(pingResults: PingResult[]) {
             where: { id: { in: downMonitorsId }, status: "DOWN" },
             data: {
               consecutiveFailure: { increment: 1 },
+              lastChecked: new Date(),
             },
           });
           await tx.monitor.updateMany({
@@ -131,6 +132,7 @@ async function storeResult(pingResults: PingResult[]) {
               consecutiveFailure: { increment: 1 },
               status: "DOWN",
               statusChangedAt: new Date(),
+              lastChecked: new Date(),
             },
           });
 

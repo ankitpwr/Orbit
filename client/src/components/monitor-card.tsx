@@ -1,5 +1,5 @@
-import { BadgeAlert, BadgeCheck, BadgeX, Clock3 } from "lucide-react";
-import type { User, UserMonitors } from "../lib/types";
+import { Clock3 } from "lucide-react";
+import type { UserMonitors } from "../lib/types";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "./status-badge";
@@ -28,14 +28,9 @@ export default function MonitorCard({ url, name, id, status }: UserMonitors) {
         <div className="">
           <StatusBadge status={status} />
         </div>
-        <Tooltip>
-          <TooltipTrigger>
-            <div className="flex items-center justify-end gap-2">
-              <Clock3 size={18} /> <span>10m</span>
-            </div>
-          </TooltipTrigger>
-          <TooltipContent className="py-2">{`Checks every 10 minutes`}</TooltipContent>
-        </Tooltip>
+        <div className="flex items-center justify-end gap-2">
+          <Clock3 size={18} /> <span>5m</span>
+        </div>
       </div>
     </div>
   );

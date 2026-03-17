@@ -58,13 +58,13 @@ const publishTask = cron.schedule(
 publishTask.start();
 
 async function deleteOlderLogs() {
-  const sevenDayAgo = new Date();
-  sevenDayAgo.setDate(sevenDayAgo.getDate() - 7);
+  const thirtyDayAgo = new Date();
+  thirtyDayAgo.setDate(thirtyDayAgo.getDate() - 30);
 
   await prisma.pingLog.deleteMany({
     where: {
       timestamp: {
-        lt: sevenDayAgo,
+        lt: thirtyDayAgo,
       },
     },
   });
