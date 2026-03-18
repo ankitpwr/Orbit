@@ -6,6 +6,7 @@ export const addMonitorSchema = z.object({
     .max(100, { error: "Monitor Name Is Too Long" }),
   url: z.url({ error: "Invalid URL" }),
   primaryEmail: z.email(),
+  timezone: z.string(),
   esacalationEmail1: z.email().optional(),
   esacalationEmail2: z.email().optional(),
 });

@@ -14,16 +14,16 @@ export default function IncidentCard({
 
   return (
     <div className="w-full font-montserrat rounded-lg flex flex-col  justify-center  border border-[#dfe3ea]  dark:border-[#2e2f2f]  cursor-pointer shadow-[1px_6px_10px_-4px_rgba(0,_0,_0,_0.1)]">
-      <div className="grid grid-cols-4  items-center py-4 px-5">
+      <div className="grid grid-cols-4  items-center py-4 md:px-5 px-3 ">
         <div className="col-span-2 flex items-center  gap-4">
           <IncidentBadge status={currentStatus} />
           <div className="flex flex-col ">
             <span>{monitorName}</span>
-            <span className="text-sm">{url}</span>
+            <span className="md:text-sm text-xs">{url}</span>
           </div>
         </div>
 
-        <div className="flex flex-col">
+        <div className="hidden md:flex flex-col ">
           <span>Started at</span>
           <span className="text-sm">
             {new Date(startedAt).toLocaleString("en-IN", {
@@ -36,7 +36,7 @@ export default function IncidentCard({
           </span>
         </div>
 
-        <div className="flex flex-col  items-end ">
+        <div className="hidden md:flex flex-col  items-end ">
           {currentStatus == "RESOLVED" ? (
             <div className="flex flex-col">
               <span>Lasted for</span>

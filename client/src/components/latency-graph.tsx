@@ -59,28 +59,31 @@ export default function LatencyGraph() {
   } satisfies ChartConfig;
 
   return (
-    <Card className="min-h-96">
+    <Card className="">
       <CardHeader className="flex items-center justify-between">
-        <CardTitle className="text-lg">Response Time</CardTitle>
-        <div className="flex gap-2">
+        <CardTitle className="md:text-lg text-xs">Response Time</CardTitle>
+        <div className="flex md:gap-2 gap-1">
           <Button
+            size={"sm"}
             onClick={() => setTimeRange(TimeRange.Day)}
             variant={"outline"}
-            className={`${timeRange == TimeRange.Day ? "bg-[#eaecf1]" : ""}`}
+            className={`text-xs ${timeRange == TimeRange.Day ? "bg-[#eaecf1]" : ""}`}
           >
             Day
           </Button>
           <Button
+            size={"sm"}
             onClick={() => setTimeRange(TimeRange.Week)}
             variant={"outline"}
-            className={`${timeRange == TimeRange.Week ? "bg-[#eaecf1]" : ""}`}
+            className={`text-xs ${timeRange == TimeRange.Week ? "bg-[#eaecf1]" : ""}`}
           >
             Week
           </Button>
           <Button
+            size="sm"
             onClick={() => setTimeRange(TimeRange.Month)}
             variant={"outline"}
-            className={`${timeRange == TimeRange.Month ? "bg-[#eaecf1]" : ""}`}
+            className={`text-xs ${timeRange == TimeRange.Month ? "bg-[#eaecf1]" : ""}`}
           >
             Month
           </Button>
@@ -124,7 +127,7 @@ export default function LatencyGraph() {
                 domain={["auto", "auto"]}
                 tickLine={true}
                 axisLine={true}
-                tickMargin={10}
+                tickMargin={8}
                 tickFormatter={(value) => `${value}ms`}
               />
               <ChartTooltip

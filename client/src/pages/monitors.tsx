@@ -15,8 +15,8 @@ export default function Monitors() {
     fetchUserMonitors();
   }, [fetchUserMonitors]);
   return (
-    <div className="w-full h-full flex flex-col px-30 pt-20 font-montserrat gap-10">
-      <div className="w-full flex justify-between ">
+    <div className="w-full h-full flex flex-col md:px-30 md:pt-20 px-5 py-10 font-montserrat gap-10">
+      <div className="md:w-full w-fit flex md:flex-row flex-col justify-between md:gap-0 gap-2">
         <h1 className="text-3xl font-bold">Monitors</h1>
         <Button
           variant={"default"}

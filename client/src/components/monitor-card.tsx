@@ -15,21 +15,21 @@ export default function MonitorCard({ url, name, id, status }: UserMonitors) {
       className="w-full font-montserrat rounded-lg flex flex-col  justify-center  border border-[#dfe3ea] dark:border-[#2e2f2f]  cursor-pointer shadow-[1px_6px_10px_-4px_rgba(0,_0,_0,_0.1)]"
     >
       <div className="bg-[#f8f9fc] dark:bg-[#161616] rounded-t-lg py-2 ">
-        <h1 className="px-4 text-lg ">{name}</h1>
+        <h1 className="px-4 md:text-lg text-base ">{name}</h1>
       </div>
       <div className="h-[1px] w-full bg-[#dfe3ea] dark:bg-[#2e2f2f] rounded-lg"></div>
       <div
-        className="grid grid-cols-4 px-6 py-4  justify-center  text-base rounded-b-lg  
+        className="grid grid-cols-4 px-6 py-4  justify-center rounded-b-lg   md:text-sm text-xs
       "
       >
-        <div className="col-span-2 flex items-center justify-start gap-2  ">
+        <div className="col-span-3 md:col-span-2 flex items-center justify-start   ">
           <h2>{url}</h2>
         </div>
-        <div className="">
+        <div className="flex md:justify-center justify-end  ">
           <StatusBadge status={status} />
         </div>
-        <div className="flex items-center justify-end gap-2">
-          <Clock3 size={18} /> <span>5m</span>
+        <div className="hidden md:flex items-center justify-end gap-2">
+          <Clock3 size={16} /> <span className="">5m</span>
         </div>
       </div>
     </div>

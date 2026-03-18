@@ -18,7 +18,7 @@ export const addMonitor = async (req: Request, res: Response) => {
         error: parsedBody.error.issues,
       });
     }
-    const { name, url, primaryEmail } = req.body;
+    const { name, url, primaryEmail, timezone } = req.body;
     const newMonitor = await prisma.$transaction(async () => {
       const data = await prisma.monitor.create({
         data: {
@@ -28,9 +28,6 @@ export const addMonitor = async (req: Request, res: Response) => {
         },
         select: {
           id: true,
-          name: true,
-          url: true,
-          status: true,
         },
       });
 

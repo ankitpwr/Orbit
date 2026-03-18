@@ -22,7 +22,7 @@ export default function Incidents() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col px-30 pt-20 font-montserrat gap-10">
+    <div className="w-full h-full flex flex-col md:px-30 md:pt-20 px-5 py-10 font-montserrat text-sm gap-10">
       <div className="flex">
         <h1 className="text-3xl font-bold">Incidents</h1>
       </div>

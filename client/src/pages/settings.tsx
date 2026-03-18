@@ -28,13 +28,13 @@ export default function Settings() {
   }
 
   return (
-    <div className="w-full h-full flex flex-col px-30 pt-20 font-montserrat gap-10">
+    <div className="w-full h-full flex flex-col md:px-30 md:pt-20 px-5 py-10 font-montserrat gap-10">
       <div className="flex">
         <h1 className="text-3xl font-bold">Settings</h1>
       </div>
 
       <div className="flex flex-col gap-6">
-        <Field className="flex flex-col gap-1 max-w-2xl">
+        <Field className="flex flex-col gap-1 md:w-xl">
           <FieldLabel htmlFor="input-field-username">Username</FieldLabel>
           <Input
             ref={nameRef}
@@ -44,7 +44,7 @@ export default function Settings() {
           />
         </Field>
 
-        <Field className="flex flex-col gap-1 max-w-2xl">
+        <Field className="flex flex-col gap-1 md:w-xl">
           <FieldLabel htmlFor="input-field-username">Email</FieldLabel>
           <Input
             id="input-field-username"
@@ -54,7 +54,7 @@ export default function Settings() {
           />
         </Field>
 
-        <Field className="flex flex-col gap-1 max-w-2xl">
+        <Field className="flex flex-col gap-1 md:w-xl">
           <FieldLabel htmlFor="input-field-username">Created at</FieldLabel>
           <Input
             id="input-field-username"

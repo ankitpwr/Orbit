@@ -45,12 +45,12 @@ export const googleAuth = async (req: Request, res: Response) => {
     });
     res.cookie("token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV == "prod",
-      sameSite: "lax",
+      secure: true, //process.env.NODE_ENV == "prod",
+      sameSite: "none",
       path: "/",
       maxAge: 1000 * 60 * 60 * 480,
     });
-    res.status(200).json({
+    return res.status(200).json({
       message: "signup successful",
       token: token,
     });

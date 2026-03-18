@@ -84,34 +84,29 @@ export default function CreateMonitors() {
   };
 
   return (
-    <div className=" h-full flex flex-col px-30 font-montserrat gap-8 ">
+    <div className=" h-full flex flex-col md:px-30 px-5 font-montserrat gap-8  ">
       <h1 className="text-3xl font-bold">Create Monitor</h1>
 
-      <Field className="w-2xl">
+      <Field className="md:w-2xl  ">
         <FieldLabel htmlFor="input-field-username">
           Name of Monitor <span className="text-destructive">*</span>
         </FieldLabel>
         <Input
-          id="input-field-username"
+          className=""
           type="text"
           placeholder="Website Name"
           ref={nameRef}
         />
       </Field>
 
-      <Field className="w-2xl">
+      <Field className="md:w-2xl">
         <FieldLabel htmlFor="input-field-username">
           URL to monitor <span className="text-destructive">*</span>
         </FieldLabel>
-        <Input
-          id="input-field-username"
-          type="url"
-          defaultValue={"https://"}
-          ref={urlRef}
-        />
+        <Input type="url" defaultValue={"https://"} ref={urlRef} />
       </Field>
 
-      <Field className="w-2xl">
+      <Field className="md:w-2xl">
         <FieldLabel
           className="flex flex-col items-start gap-2"
           htmlFor="input-field-username"
@@ -122,7 +117,6 @@ export default function CreateMonitors() {
         <div className="flex flex-col gap-6">
           <Field className="flex flex-col gap-1">
             <Input
-              id="input-field-username"
               type="email"
               defaultValue={user?.email}
               className="w-44 "
@@ -137,7 +131,6 @@ export default function CreateMonitors() {
 
           <Field className="flex flex-col gap-1">
             <Input
-              id="input-field-username"
               type="email"
               className="w-44 "
               placeholder="Email"
@@ -150,7 +143,6 @@ export default function CreateMonitors() {
 
           <Field className="flex flex-col gap-1">
             <Input
-              id="input-field-username"
               type="email"
               placeholder="Email"
               className="w-44 "
