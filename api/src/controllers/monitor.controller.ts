@@ -4,6 +4,7 @@ import { prisma } from "../lib/prisma.js";
 import { ChannelType, Prisma } from "../generated/prisma/client.js";
 import {
   addMonitorSchema,
+  incidentDetailsSchema,
   monitorStatusSchema,
   paramsSchema,
   pingDataQuerySchema,
@@ -132,7 +133,7 @@ export const monitorDetails = async (req: Request, res: Response) => {
     const { id } = req as CustomRequest;
     const parsedParam = paramsSchema.safeParse(req.params);
     if (!parsedParam.success) {
-      res.status(400).json({
+      return res.status(400).json({
         error: parsedParam.error.issues,
       });
     }
@@ -311,8 +312,8 @@ export const findIncidents = async (req: Request, res: Response) => {
         },
       },
       select: {
+        id: true,
         startedAt: true,
-        resolvedAt: true,
         currentStatus: true,
         monitor: {
           select: { name: true, url: true },
@@ -326,6 +327,49 @@ export const findIncidents = async (req: Request, res: Response) => {
     });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+};
+
+export const findIncidentData = async (req: Request, res: Response) => {
+  try {
+    const parsedParam = incidentDetailsSchema.safeParse(req.params);
+    if (!parsedParam.success) {
+      return res.status(400).json({
+        error: parsedParam.error.issues,
+      });
+    }
+
+    const incidentId = String(req.params.incidentId);
+    const incidentData = await prisma.incident.findFirst({
+      where: { id: incidentId },
+      select: {
+        startedAt: true,
+        resolvedAt: true,
+        currentStatus: true,
+        lastAlertSentAt: true,
+        alertCount: true,
+        monitor: { select: { name: true, url: true } },
+      },
+    });
+    console.log("inciddent data is ", incidentData);
+    return res.status(200).json({
+      incidentData: incidentData,
+    });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return res.status(400).json({
+          error: "Incident Does Not Exist",
+        });
+      } else {
+        return res.status(400).json({
+          error: "Failed to Remove the Monitor!",
+        });
+      }
+    }
     return res.status(500).json({
       error: "Internal Server Error",
     });

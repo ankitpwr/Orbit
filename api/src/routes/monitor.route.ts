@@ -4,6 +4,7 @@ import {
   addMonitor,
   changeStatus,
   deleteMonitor,
+  findIncidentData,
   findIncidents,
   findMonitors,
   monitorDetails,
@@ -19,3 +20,4 @@ monitorRouter.patch("/change-status", authMiddleware, changeStatus);
 monitorRouter.get("/ping-data/:monitorId", authMiddleware, pingData);
 monitorRouter.get("/", authMiddleware, findMonitors);
 monitorRouter.get("/incidents", authMiddleware, findIncidents);
+monitorRouter.get("/incidents/:incidentId", authMiddleware, findIncidentData);

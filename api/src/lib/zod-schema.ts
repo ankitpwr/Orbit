@@ -28,3 +28,7 @@ export const updateUserDetailsSchema = z.object({
     .max(100, { error: "Name can be of maximum 100 characters" }),
   timezone: z.string({ error: "Not a valid timezone" }),
 });
+
+export const incidentDetailsSchema = z.object({
+  incidentId: z.uuid({ error: "Invalid Monitor ID In Params" }),
+});
