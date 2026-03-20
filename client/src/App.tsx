@@ -12,6 +12,7 @@ import useAuthStore from "./store/useAuthStore";
 import Incidents from "./pages/incidents";
 import Settings from "./pages/settings";
 import { ThemeProvider } from "./components/theme-provider";
+import IncidentDetails from "./pages/incident-details";
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -31,6 +32,10 @@ function App() {
                 <Route path="/dashboard/monitors" element={<Monitors />} />
                 <Route path="/dashboard/incidents" element={<Incidents />} />
                 <Route path="/dashboard/settings" element={<Settings />} />
+                <Route
+                  path="/dashboard/incidents/:incidentId"
+                  element={<IncidentDetails />}
+                />
 
                 <Route
                   path="/dashboard/monitors/new"

@@ -68,21 +68,33 @@ export interface MonitorAction {
 }
 
 //incident types
-export type IncidentStatus = "OPEN" | "RESOLVED" | "ACKNOWLEDGED";
+export type IncidentStatus = "OPEN" | "RESOLVED" | "ACKNOWLEDGED" | "PROCESSED";
 export interface Incident {
+  incidentId: string;
+  monitorName: string;
+  url: string;
+  startedAt: Date;
+  currentStatus: IncidentStatus;
+}
+export interface SelectedIncident {
   monitorName: string;
   url: string;
   startedAt: Date;
   resolvedAt?: Date;
   currentStatus: IncidentStatus;
+  lastAlertSentAt: Date;
+  alertCount: number;
 }
 export interface IncidentState {
   isLoadingIncidents: boolean;
+  isLoadingIncidentData: boolean;
   incidents: Incident[];
+  selectedIncident: SelectedIncident | null;
 }
 
 export interface IncidentAction {
   fetchIncidents: () => Promise<void>;
+  fetchIncidentData: (id: string) => Promise<void>;
 }
 
 //setting

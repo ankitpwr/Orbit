@@ -97,7 +97,7 @@ export default function LatencyGraph() {
               data={data}
               margin={{
                 left: 10,
-                right: 20,
+                right: 10,
               }}
             >
               <CartesianGrid vertical={false} />

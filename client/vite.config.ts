@@ -13,6 +13,6 @@ export default defineConfig({
   },
   server: {
     host: true,
-    allowedHosts: ["differently-expired-hrs-caroline.trycloudflare.com"],
+    allowedHosts: ["orbitfrontend.sketch.qzz.io"],
   },
 });

@@ -128,7 +128,7 @@ export default function MonitorDetails() {
           })}`}
         />
         <StatsCard
-          icon={<Radio color="blue" size={30} />}
+          icon={<Radio size={30} />}
           title="Averge Latency"
           details={`${Math.round(averageLatency)}ms`}
         />

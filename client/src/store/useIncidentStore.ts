@@ -7,7 +7,9 @@ type IncidentStoreType = IncidentState & IncidentAction;
 
 const IncidentStore: StateCreator<IncidentStoreType> = (set) => ({
   isLoadingIncidents: false,
+  isLoadingIncidentData: false,
   incidents: [],
+  selectedIncident: null,
 
   fetchIncidents: async () => {
     set({ isLoadingIncidents: true, incidents: [] });
@@ -20,16 +22,45 @@ const IncidentStore: StateCreator<IncidentStoreType> = (set) => ({
       if (response.status == 200) {
         set({
           incidents: response.data.incidents.map((i: any) => ({
+            incidentId: i.id,
             monitorName: i.monitor.name,
             url: i.monitor.url,
             startedAt: i.startedAt,
-            resolvedAt: i.resolvedAt,
             currentStatus: i.currentStatus,
           })),
         });
       } else console.log("could't fetch incidents");
     } catch (error) {
       console.log("error in current monitor", error);
+    } finally {
+      set({ isLoadingIncidents: false });
+    }
+  },
+
+  fetchIncidentData: async (id) => {
+    set({ isLoadingIncidentData: false, selectedIncident: null });
+
+    try {
+      const response = await axios.get(
+        `${import.meta.env.VITE_BACKEND_URL}/monitor/incidents/${id}`,
+        { withCredentials: true },
+      );
+      console.log("response is ", response.data);
+      if (response.status == 200) {
+        set({
+          selectedIncident: {
+            monitorName: response.data.incidentData.monitor.name,
+            url: response.data.incidentData.monitor.url,
+            startedAt: response.data.incidentData.startedAt,
+            currentStatus: response.data.incidentData.currentStatus,
+            resolvedAt: response.data.incidentData.resolvedAt,
+            alertCount: response.data.incidentData.alertCount,
+            lastAlertSentAt: response.data.incidentData.lastAlertSentAt,
+          },
+        });
+      }
+    } catch (error) {
+      console.log("error !", error);
     } finally {
       set({ isLoadingIncidents: false });
     }

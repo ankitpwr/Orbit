@@ -31,11 +31,11 @@ export default function Incidents() {
         {incidents.map((i, index) => (
           <IncidentCard
             key={index}
+            incidentId={i.incidentId}
             monitorName={i.monitorName}
             url={i.url}
             startedAt={i.startedAt}
             currentStatus={i.currentStatus}
-            resolvedAt={i.resolvedAt}
           />
         ))}
       </div>
