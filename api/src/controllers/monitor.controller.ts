@@ -4,11 +4,13 @@ import { prisma } from "../lib/prisma.js";
 import { ChannelType, Prisma } from "../generated/prisma/client.js";
 import {
   addMonitorSchema,
-  incidentDetailsSchema,
+  incidentParamsSchema,
   monitorStatusSchema,
   paramsSchema,
   pingDataQuerySchema,
+  updateIncidentStatusSchema,
 } from "../lib/zod-schema.js";
+import { stat } from "node:fs";
 
 export const addMonitor = async (req: Request, res: Response) => {
   try {
@@ -335,7 +337,7 @@ export const findIncidents = async (req: Request, res: Response) => {
 
 export const findIncidentData = async (req: Request, res: Response) => {
   try {
-    const parsedParam = incidentDetailsSchema.safeParse(req.params);
+    const parsedParam = incidentParamsSchema.safeParse(req.params);
     if (!parsedParam.success) {
       return res.status(400).json({
         error: parsedParam.error.issues,
@@ -354,7 +356,6 @@ export const findIncidentData = async (req: Request, res: Response) => {
         monitor: { select: { name: true, url: true } },
       },
     });
-    console.log("inciddent data is ", incidentData);
     return res.status(200).json({
       incidentData: incidentData,
     });
@@ -366,7 +367,72 @@ export const findIncidentData = async (req: Request, res: Response) => {
         });
       } else {
         return res.status(400).json({
-          error: "Failed to Remove the Monitor!",
+          error: "Failed to Find the Incident!",
+        });
+      }
+    }
+    return res.status(500).json({
+      error: "Internal Server Error",
+    });
+  }
+};
+
+export const changeIncidentStatus = async (req: Request, res: Response) => {
+  try {
+    const parsedParam = incidentParamsSchema.safeParse(req.params);
+    const parsedBody = updateIncidentStatusSchema.safeParse(req.body);
+
+    if (!parsedParam.success) {
+      return res.status(400).json({
+        error: parsedParam.error.issues,
+      });
+    }
+
+    if (!parsedBody.success) {
+      return res.status(400).json({ error: parsedBody.error.issues });
+    }
+
+    const { status } = req.body;
+    const incidentId = String(req.params.incidentId);
+
+    if (status == "OPEN") {
+      await prisma.incident.update({
+        where: { id: incidentId },
+        data: {
+          currentStatus: "OPEN",
+          startedAt: new Date(),
+          resolvedAt: null,
+          alertCount: 0,
+          lastAlertSentAt: new Date(),
+        },
+      });
+    } else if (status == "ACKNOWLEDGED") {
+      await prisma.incident.update({
+        where: { id: incidentId },
+        data: {
+          currentStatus: "ACKNOWLEDGED",
+        },
+      });
+    } else if (status == "RESOLVED") {
+      await prisma.incident.update({
+        where: { id: incidentId },
+        data: {
+          currentStatus: "RESOLVED",
+          resolvedAt: new Date(),
+        },
+      });
+    }
+
+    return res.status(200).json({ message: "Status Successfully updated" });
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return res.status(400).json({
+          error: "Incident does not exist",
+        });
+      } else {
+        return res.status(400).json({
+          error: "Failed to update the status!",
         });
       }
     }

@@ -44,7 +44,7 @@ async function findMonitorsToAlert() {
             OR: [
               { currentStatus: "OPEN" },
               {
-                currentStatus: "ACKNOWLEDGED",
+                currentStatus: "PROCESSED",
                 alertCount: { lt: 3 },
                 lastAlertSentAt: { lt: thirtyMinutesAgo },
               },
@@ -89,7 +89,7 @@ async function findMonitorsToAlert() {
           data: {
             lastAlertSentAt: new Date(),
             alertCount: { increment: 1 },
-            currentStatus: "ACKNOWLEDGED",
+            currentStatus: "PROCESSED",
           },
         });
 

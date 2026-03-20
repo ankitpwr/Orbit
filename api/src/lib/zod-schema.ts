@@ -29,6 +29,12 @@ export const updateUserDetailsSchema = z.object({
   timezone: z.string({ error: "Not a valid timezone" }),
 });
 
-export const incidentDetailsSchema = z.object({
+export const incidentParamsSchema = z.object({
   incidentId: z.uuid({ error: "Invalid Monitor ID In Params" }),
+});
+
+export const updateIncidentStatusSchema = z.object({
+  status: z.enum(["OPEN", "RESOLVED", "ACKNOWLEDGED"], {
+    error: "Not a valid status",
+  }),
 });

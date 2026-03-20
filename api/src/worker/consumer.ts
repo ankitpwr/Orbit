@@ -96,6 +96,7 @@ async function storeResult(pingResults: PingResult[]) {
                 monitorId: { in: ids },
                 OR: [
                   { currentStatus: "ACKNOWLEDGED" },
+                  { currentStatus: "PROCESSED" },
                   { currentStatus: "OPEN" },
                 ],
               },

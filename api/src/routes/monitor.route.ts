@@ -2,6 +2,7 @@ import express, { Router } from "express";
 import { authMiddleware } from "../lib/middleware.js";
 import {
   addMonitor,
+  changeIncidentStatus,
   changeStatus,
   deleteMonitor,
   findIncidentData,
@@ -21,3 +22,8 @@ monitorRouter.get("/ping-data/:monitorId", authMiddleware, pingData);
 monitorRouter.get("/", authMiddleware, findMonitors);
 monitorRouter.get("/incidents", authMiddleware, findIncidents);
 monitorRouter.get("/incidents/:incidentId", authMiddleware, findIncidentData);
+monitorRouter.put(
+  "/incidents-update-status/:incidentId",
+  authMiddleware,
+  changeIncidentStatus,
+);

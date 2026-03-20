@@ -83,6 +83,7 @@ enum IncidentStatus{
   OPEN
   RESOLVED
   ACKNOWLEDGED
+  PROCESSED
 }
 
 enum MonitorStatus{
