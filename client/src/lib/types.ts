@@ -95,6 +95,7 @@ export interface IncidentState {
 export interface IncidentAction {
   fetchIncidents: () => Promise<void>;
   fetchIncidentData: (id: string) => Promise<void>;
+  updateStatus: (status: IncidentStatus, id: string) => Promise<void>;
 }
 
 //setting

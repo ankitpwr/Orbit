@@ -1,21 +1,25 @@
 import { useEffect } from "react";
 import useIncidentStore from "../store/useIncidentStore";
-import { Link, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Spinner } from "../components/ui/spinner";
-import IncidentBadge from "../components/incident-badge";
-import { AlertCircle, Ban, BellRing, Globe2, LinkIcon } from "lucide-react";
+import { AlertCircle, Ban, BellRing, LinkIcon } from "lucide-react";
 
 import { Button } from "../components/ui/button";
 import StatsCard from "../components/stats-card";
 import useAuthStore from "../store/useAuthStore";
-import { differenceInDays } from "date-fns";
 import { Badge } from "../components/ui/badge";
+import { formatDistance, intervalToDuration } from "date-fns";
 
 export default function IncidentDetails() {
-  const { selectedIncident, isLoadingIncidentData, fetchIncidentData } =
-    useIncidentStore();
+  const {
+    selectedIncident,
+    isLoadingIncidentData,
+    fetchIncidentData,
+    updateStatus,
+  } = useIncidentStore();
   const { user } = useAuthStore();
   const { incidentId } = useParams();
+  const naviagate = useNavigate();
 
   useEffect(() => {
     if (!incidentId) return;
@@ -30,7 +34,11 @@ export default function IncidentDetails() {
     );
   }
 
-  console.log("incident data", selectedIncident);
+  if (!incidentId) {
+    naviagate("/");
+    return;
+  }
+
   return (
     <div className=" w-full h-full flex flex-col md:px-30 md:pt-20 px-5 py-10 font-montserrat gap-10 overflow-hidden">
       <div className="flex md:flex-row flex-col w-full justify-between  md:gap-0 gap-4">
@@ -61,11 +69,32 @@ export default function IncidentDetails() {
 
         <div className="flex items-center gap-2">
           {selectedIncident.currentStatus == "OPEN" ? (
-            <Button variant={"outline"}>Acknowledge</Button>
+            <Button
+              onClick={() => {
+                updateStatus("ACKNOWLEDGED", incidentId);
+              }}
+              variant={"outline"}
+            >
+              Acknowledge
+            </Button>
           ) : selectedIncident.currentStatus == "ACKNOWLEDGED" ? (
-            <Button variant={"outline"}>Resolve</Button>
+            <Button
+              onClick={() => {
+                updateStatus("RESOLVED", incidentId);
+              }}
+              variant={"outline"}
+            >
+              Resolve
+            </Button>
           ) : (
-            <Button variant={"outline"}>Reopen</Button>
+            <Button
+              onClick={() => {
+                updateStatus("OPEN", incidentId);
+              }}
+              variant={"outline"}
+            >
+              Reopen
+            </Button>
           )}
         </div>
       </div>
@@ -79,7 +108,8 @@ export default function IncidentDetails() {
               timeZone: user?.timezone,
               month: "short",
               day: "numeric",
-              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
             },
           )}`}
         />
@@ -93,7 +123,8 @@ export default function IncidentDetails() {
               timeZone: user?.timezone,
               month: "short",
               day: "numeric",
-              year: "numeric",
+              hour: "numeric",
+              minute: "numeric",
             },
           )}`}
         />
@@ -103,7 +134,7 @@ export default function IncidentDetails() {
           title="Length"
           details={`${
             selectedIncident.resolvedAt != null
-              ? `${differenceInDays(selectedIncident.resolvedAt, selectedIncident.startedAt)}`
+              ? `${formatDistance(selectedIncident.resolvedAt, selectedIncident.startedAt)}`
               : `${selectedIncident.currentStatus.charAt(0).toUpperCase() + selectedIncident.currentStatus.slice(1).toLocaleLowerCase()}`
           }`}
         />

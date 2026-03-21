@@ -1,6 +1,11 @@
 import { create } from "zustand";
 import type { StateCreator } from "zustand";
-import type { Incident, IncidentAction, IncidentState } from "../lib/types";
+import type {
+  Incident,
+  IncidentAction,
+  IncidentState,
+  IncidentStatus,
+} from "../lib/types";
 import axios from "axios";
 
 type IncidentStoreType = IncidentState & IncidentAction;
@@ -39,13 +44,11 @@ const IncidentStore: StateCreator<IncidentStoreType> = (set) => ({
 
   fetchIncidentData: async (id) => {
     set({ isLoadingIncidentData: false, selectedIncident: null });
-
     try {
       const response = await axios.get(
         `${import.meta.env.VITE_BACKEND_URL}/monitor/incidents/${id}`,
         { withCredentials: true },
       );
-      console.log("response is ", response.data);
       if (response.status == 200) {
         set({
           selectedIncident: {
@@ -63,6 +66,35 @@ const IncidentStore: StateCreator<IncidentStoreType> = (set) => ({
       console.log("error !", error);
     } finally {
       set({ isLoadingIncidents: false });
+    }
+  },
+
+  updateStatus: async (status: IncidentStatus, id: string) => {
+    try {
+      const response = await axios.put(
+        `${import.meta.env.VITE_BACKEND_URL}/monitor/incidents-update-status/${id}`,
+        {
+          status: status,
+        },
+        { withCredentials: true },
+      );
+
+      if (response.status == 200) {
+        set({
+          selectedIncident: {
+            monitorName: response.data.data.monitor.name,
+            url: response.data.data.monitor.url,
+            startedAt: response.data.data.startedAt,
+            currentStatus: response.data.data.currentStatus,
+            resolvedAt: response.data.data.resolvedAt,
+            alertCount: response.data.data.alertCount,
+            lastAlertSentAt: response.data.data.lastAlertSentAt,
+          },
+        });
+      }
+      //error
+    } catch (error) {
+      console.log("error !", error);
     }
   },
 });
