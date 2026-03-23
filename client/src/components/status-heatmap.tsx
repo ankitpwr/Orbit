@@ -34,7 +34,7 @@ export default function StatusHeatmap() {
   }, [heatMapData]);
 
   if (isLoadingHeatMapData || loading) {
-    return <Skeleton className="h-4 w-full" />;
+    return <Skeleton className="h-15 w-full" />;
   }
 
   return (

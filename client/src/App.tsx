@@ -13,6 +13,7 @@ import Incidents from "./pages/incidents";
 import Settings from "./pages/settings";
 import { ThemeProvider } from "./components/theme-provider";
 import IncidentDetails from "./pages/incident-details";
+import LandingPage from "./pages/landing-page";
 
 function App() {
   const { checkAuth } = useAuthStore();
@@ -26,6 +27,7 @@ function App() {
       <ThemeProvider>
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<LandingPage />} />
             <Route path="/auth" element={<GoogleAuthWrapper />} />
             <Route element={<RequireAuth />}>
               <Route element={<Dashboard />}>

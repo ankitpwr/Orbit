@@ -8,7 +8,7 @@ import { Button } from "../components/ui/button";
 import StatsCard from "../components/stats-card";
 import useAuthStore from "../store/useAuthStore";
 import { Badge } from "../components/ui/badge";
-import { formatDistance, intervalToDuration } from "date-fns";
+import { formatDistance } from "date-fns";
 
 export default function IncidentDetails() {
   const {
@@ -40,7 +40,7 @@ export default function IncidentDetails() {
   }
 
   return (
-    <div className=" w-full h-full flex flex-col md:px-30 md:pt-20 px-5 py-10 font-montserrat gap-10 overflow-hidden">
+    <div className=" w-full h-full flex flex-col md:px-20 md:pt-20 px-5 py-10 font-montserrat gap-10 overflow-hidden">
       <div className="flex md:flex-row flex-col w-full justify-between  md:gap-0 gap-4">
         <div className="flex flex-col  gap-1 ">
           <div className="flex gap-3 items-center ">

@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
 import { useTheme } from "./theme-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
@@ -5,8 +6,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { SidebarMenuButton } from "./ui/sidebar";
 import { LogOut, Moon, Sun } from "lucide-react";
 export default function ProfilePopup() {
-  const { user } = useAuthStore();
+  const { user, logout } = useAuthStore();
   const { theme, setTheme } = useTheme();
+  const navigate = useNavigate();
 
   return (
     <Popover>
@@ -49,7 +51,13 @@ export default function ProfilePopup() {
 
           <div className="w-full h-[1px] bg-[#eaeaea] dark:bg-[#2e2f2f] rounded"></div>
 
-          <div className="flex items-center px-4 gap-2 cursor-pointer">
+          <div
+            onClick={() => {
+              logout();
+              navigate("/");
+            }}
+            className="flex items-center px-4 gap-2 cursor-pointer"
+          >
             <LogOut size={16} />
             <span className="text-sm">Logout</span>
           </div>

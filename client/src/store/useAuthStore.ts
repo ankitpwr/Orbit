@@ -28,6 +28,20 @@ const AuthStore: StateCreator<AuthStoreType> = (set) => ({
       set({ isLoading: false });
     }
   },
+  logout: async () => {
+    try {
+      const response = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/auth/logout`,
+        {},
+        { withCredentials: true },
+      );
+      if (response.status == 200) {
+        set({ isAuthenticated: false });
+      }
+    } catch (error) {
+      console.log("error!", error);
+    }
+  },
 });
 
 const useAuthStore = create<AuthStoreType>(AuthStore);

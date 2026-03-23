@@ -2,9 +2,11 @@ import { useGoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
+import useAuthStore from "../store/useAuthStore";
 
 export default function GoogleLogin() {
   const navigate = useNavigate();
+  const { checkAuth } = useAuthStore();
   const responseGoogle = async (authResult: any) => {
     try {
       if (!authResult.code) {
@@ -19,6 +21,7 @@ export default function GoogleLogin() {
         { withCredentials: true },
       );
       if (result.status == 200) {
+        await checkAuth();
         navigate("/dashboard/monitors");
       }
     } catch (error) {

@@ -53,8 +53,8 @@ export default function MonitorDetails() {
   if (!currentMonitor) return;
 
   return (
-    <div className=" w-full h-full flex flex-col md:px-30 md:pt-20 px-5 py-10 font-montserrat gap-10 overflow-hidden">
-      <div className="flex md:flex-row flex-col w-full justify-between  md:gap-0 gap-4">
+    <div className=" w-full h-full flex flex-col md:px-20  md:pt-20 px-5 py-10 font-montserrat gap-10 overflow-hidden  ">
+      <div className="flex md:flex-row flex-col w-full justify-between  md:gap-0 gap-4 ">
         <div className="flex flex-col ">
           <div className="flex items-center gap-4 ">
             <h1 className="text-3xl font-bold">{currentMonitor?.name}</h1>
@@ -104,7 +104,7 @@ export default function MonitorDetails() {
           </Button>
         </div>
       </div>
-      <div className="flex md:flex-row flex-col items-center gap-8 ">
+      <div className="flex md:flex-row flex-col items-center justify-between ">
         <StatsCard
           icon={
             currentMonitor.status == "UP" ? (

@@ -13,6 +13,7 @@ export interface AuthState {
 }
 export interface AuthAction {
   checkAuth: () => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 //monitors  types
