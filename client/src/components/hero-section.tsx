@@ -1,3 +1,4 @@
+import GoogleAuthWrapper from "./google-auth-wrapper";
 import { Button } from "./ui/button";
 
 export default function HeroSection() {
@@ -18,16 +19,7 @@ export default function HeroSection() {
       </div>
 
       <div className="flex justify-center gap-4 md:gap-6 font-montserrat mt-4">
-        <Button variant="secondary" size="lg" className="px-8">
-          Signup
-        </Button>
-        <Button
-          className="bg-[#b7c4ff] text-black hover:bg-[#a6b5f5] px-8"
-          variant="default"
-          size="lg"
-        >
-          Get Started
-        </Button>
+        <GoogleAuthWrapper />
       </div>
     </div>
   );

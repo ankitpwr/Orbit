@@ -1,5 +1,4 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import React from "react";
 import GoogleLogin from "./google-login";
 
 export default function GoogleAuthWrapper() {

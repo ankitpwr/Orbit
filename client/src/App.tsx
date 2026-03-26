@@ -28,7 +28,6 @@ function App() {
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<LandingPage />} />
-            <Route path="/auth" element={<GoogleAuthWrapper />} />
             <Route element={<RequireAuth />}>
               <Route element={<Dashboard />}>
                 <Route path="/dashboard/monitors" element={<Monitors />} />

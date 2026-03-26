@@ -35,8 +35,17 @@ export default function GoogleLogin() {
     flow: "auth-code",
   });
   return (
-    <div className="w-screen h-screen  flex justify-center items-center ">
-      <Button onClick={() => login()}>signup</Button>
+    <div className="flex justify-center items-center gap-4 ">
+      <Button onClick={() => login()} variant="secondary">
+        Signup
+      </Button>
+      <Button
+        className="bg-[#b7c4ff] text-black hover:bg-[#a6b5f5] px-4"
+        onClick={() => login()}
+        variant={"default"}
+      >
+        Get Started
+      </Button>
     </div>
   );
 }

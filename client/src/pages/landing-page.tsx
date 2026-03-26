@@ -1,9 +1,10 @@
 import { useState } from "react";
-import Beams from "../components/Beams";
 import Navbar from "../components/navbar";
 import MobileNavbarItems from "../components/mobile-navbar-items";
 import HeroSection from "../components/hero-section";
 import Feature from "../components/feature";
+import Footer from "../components/footer";
+
 import dashboard from "../assets/dashboard.png";
 
 export default function LandingPage() {
@@ -50,18 +51,8 @@ export default function LandingPage() {
         </div>
 
         <Feature />
+        <Footer />
       </div>
-
-      {/* <Beams
-        beamWidth={3}
-        beamHeight={30}
-        beamNumber={20}
-        lightColor="#ffffff"
-        speed={2}
-        noiseIntensity={1.75}
-        scale={0.2}
-        rotation={30}
-      /> */}
     </div>
   );
 }
