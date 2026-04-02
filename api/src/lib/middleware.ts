@@ -19,13 +19,13 @@ export const authMiddleware = async (
   try {
     const token = req.cookies.token || "";
     if (!token || token == "") {
-      res.status(400).json({
+      return res.status(400).json({
         error: "Invalid User , Token is not present",
       });
     }
     const decode = jwt.verify(token, process.env.JWT_SECRET!) as CustomPayload;
     if (!decode || !decode.email || !decode.id)
-      res.status(401).json({
+      return res.status(401).json({
         error: "Please Signup!",
       });
     (req as CustomRequest).id = decode.id;
@@ -33,8 +33,7 @@ export const authMiddleware = async (
 
     next();
   } catch (error) {
-    console.log(error);
-    res.status(500).json({
+    return res.status(500).json({
       error: "Internal Server Error",
     });
   }

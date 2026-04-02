@@ -10,7 +10,6 @@ import {
   pingDataQuerySchema,
   updateIncidentStatusSchema,
 } from "../lib/zod-schema.js";
-import { stat } from "node:fs";
 
 export const addMonitor = async (req: Request, res: Response) => {
   try {
@@ -18,10 +17,11 @@ export const addMonitor = async (req: Request, res: Response) => {
     const parsedBody = addMonitorSchema.safeParse(req.body);
     if (!parsedBody.success) {
       return res.status(400).json({
-        error: parsedBody.error.issues,
+        message: "Validation failed",
+        error: parsedBody.error.issues[0]?.message,
       });
     }
-    const { name, url, primaryEmail, timezone } = req.body;
+    const { name, url, primaryEmail, timezone } = parsedBody.data;
     const newMonitor = await prisma.$transaction(async () => {
       const data = await prisma.monitor.create({
         data: {
@@ -92,15 +92,11 @@ export const deleteMonitor = async (req: Request, res: Response) => {
     const parsedParam = paramsSchema.safeParse(req.params);
     if (!parsedParam.success) {
       return res.status(400).json({
-        error: parsedParam.error.issues,
+        message: "Validation failed",
+        error: parsedParam.error.issues[0]?.message,
       });
     }
-    const monitorId = String(req.params.monitorId);
-    if (!monitorId) {
-      return res.status(400).json({
-        error: "Monitor ID Required!",
-      });
-    }
+    const { monitorId } = parsedParam.data;
 
     await prisma.monitor.delete({
       where: {
@@ -136,10 +132,11 @@ export const monitorDetails = async (req: Request, res: Response) => {
     const parsedParam = paramsSchema.safeParse(req.params);
     if (!parsedParam.success) {
       return res.status(400).json({
-        error: parsedParam.error.issues,
+        message: "Validation failed",
+        error: parsedParam.error.issues[0]?.message,
       });
     }
-    const monitorId = String(req.params.monitorId);
+    const { monitorId } = parsedParam.data;
     const details = await prisma.monitor.findFirst({
       where: {
         id: monitorId,
@@ -202,16 +199,14 @@ export const findMonitors = async (req: Request, res: Response) => {
 
 export const changeStatus = async (req: Request, res: Response) => {
   try {
-    console.log("in change status!");
-    const { monitorId, status } = req.body;
-    console.log("data ", monitorId, status);
-    const { id } = req as CustomRequest;
     const parsedBody = monitorStatusSchema.safeParse(req.body);
     if (!parsedBody.success) {
       return res.status(400).json({
-        error: parsedBody.error.issues,
+        message: "Validation failed",
+        error: parsedBody.error.issues[0]?.message,
       });
     }
+    const { monitorId, status } = parsedBody.data;
     const updatedData = await prisma.monitor.update({
       where: {
         id: monitorId,
@@ -254,14 +249,18 @@ export const pingData = async (req: Request, res: Response) => {
     const parsedQuery = pingDataQuerySchema.safeParse(req.query);
     if (!parsedParam.success) {
       return res.status(400).json({
-        error: parsedParam.error.issues,
+        message: "Validation failed",
+        error: parsedParam.error.issues[0]?.message,
       });
     }
     if (!parsedQuery.success) {
-      return res.status(400).json({ error: parsedQuery.error.issues });
+      return res.status(400).json({
+        message: "Validation failed",
+        error: parsedQuery.error.issues[0]?.message,
+      });
     }
 
-    const monitorId = String(req.params.monitorId);
+    const { monitorId } = parsedParam.data;
     const { days } = parsedQuery.data;
     const date = new Date();
     date.setDate(date.getDate() - days);
@@ -340,11 +339,12 @@ export const findIncidentData = async (req: Request, res: Response) => {
     const parsedParam = incidentParamsSchema.safeParse(req.params);
     if (!parsedParam.success) {
       return res.status(400).json({
-        error: parsedParam.error.issues,
+        message: "Validation failed",
+        error: parsedParam.error.issues[0]?.message,
       });
     }
 
-    const incidentId = String(req.params.incidentId);
+    const { incidentId } = parsedParam.data;
     const incidentData = await prisma.incident.findFirst({
       where: { id: incidentId },
       select: {
@@ -384,19 +384,22 @@ export const changeIncidentStatus = async (req: Request, res: Response) => {
 
     if (!parsedParam.success) {
       return res.status(400).json({
-        error: parsedParam.error.issues,
+        message: "Validation failed",
+        error: parsedParam.error.issues[0]?.message,
       });
     }
 
     if (!parsedBody.success) {
-      return res.status(400).json({ error: parsedBody.error.issues });
+      return res
+        .status(400)
+        .json({ error: parsedBody.error.issues[0]?.message });
     }
 
-    const { status } = req.body;
-    const incidentId = String(req.params.incidentId);
-
+    const { status } = parsedBody.data;
+    const { incidentId } = parsedParam.data;
+    let data = null;
     if (status == "OPEN") {
-      await prisma.incident.update({
+      data = await prisma.incident.update({
         where: { id: incidentId },
         data: {
           currentStatus: "OPEN",
@@ -405,25 +408,51 @@ export const changeIncidentStatus = async (req: Request, res: Response) => {
           alertCount: 0,
           lastAlertSentAt: new Date(),
         },
+        select: {
+          startedAt: true,
+          resolvedAt: true,
+          currentStatus: true,
+          lastAlertSentAt: true,
+          alertCount: true,
+          monitor: { select: { name: true, url: true } },
+        },
       });
     } else if (status == "ACKNOWLEDGED") {
-      await prisma.incident.update({
+      data = await prisma.incident.update({
         where: { id: incidentId },
         data: {
           currentStatus: "ACKNOWLEDGED",
         },
+        select: {
+          startedAt: true,
+          resolvedAt: true,
+          currentStatus: true,
+          lastAlertSentAt: true,
+          alertCount: true,
+          monitor: { select: { name: true, url: true } },
+        },
       });
     } else if (status == "RESOLVED") {
-      await prisma.incident.update({
+      data = await prisma.incident.update({
         where: { id: incidentId },
         data: {
           currentStatus: "RESOLVED",
           resolvedAt: new Date(),
         },
+        select: {
+          startedAt: true,
+          resolvedAt: true,
+          currentStatus: true,
+          lastAlertSentAt: true,
+          alertCount: true,
+          monitor: { select: { name: true, url: true } },
+        },
       });
     }
 
-    return res.status(200).json({ message: "Status Successfully updated" });
+    return res
+      .status(200)
+      .json({ message: "Status Successfully updated", data: data });
   } catch (error) {
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === "P2025") {

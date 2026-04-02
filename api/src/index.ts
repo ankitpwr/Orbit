@@ -17,7 +17,6 @@ app.use("/api/v1/user", userRoute);
 app.get("/health-check", async (req, res) => {
   try {
     console.log("hit on health check");
-
     return res.status(200).json({
       message: "All Good!",
     });
