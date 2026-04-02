@@ -3,6 +3,7 @@ import axios from "axios";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import useAuthStore from "../store/useAuthStore";
+import { toast } from "sonner";
 
 export default function GoogleLogin() {
   const navigate = useNavigate();
@@ -22,7 +23,11 @@ export default function GoogleLogin() {
       );
       if (result.status == 200) {
         await checkAuth();
+        toast.success(result.data.message, { position: "bottom-right" });
         navigate("/dashboard/monitors");
+      } else {
+        toast.error(result.data.error, { position: "bottom-right" });
+        return;
       }
     } catch (error) {
       console.log(error);

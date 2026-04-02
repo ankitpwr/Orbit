@@ -1,14 +1,11 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import GoogleAuthWrapper from "./components/google-auth-wrapper";
 import Dashboard from "./pages/dashboard";
 import Monitors from "./pages/monitors";
 import RequireAuth from "./components/require-auth";
 import CreateMonitor from "./pages/create-monitor";
 import MonitorDetails from "./pages/monitor-details";
 import NotFound from "./pages/not-fount";
-import { useEffect } from "react";
-import useAuthStore from "./store/useAuthStore";
 import Incidents from "./pages/incidents";
 import Settings from "./pages/settings";
 import { ThemeProvider } from "./components/theme-provider";
@@ -16,12 +13,6 @@ import IncidentDetails from "./pages/incident-details";
 import LandingPage from "./pages/landing-page";
 
 function App() {
-  const { checkAuth } = useAuthStore();
-
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
   return (
     <>
       <ThemeProvider>

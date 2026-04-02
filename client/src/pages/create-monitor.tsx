@@ -78,6 +78,7 @@ export default function CreateMonitors() {
         toast.error(response.data.error);
       }
     } catch (error) {
+      console.log("error !", error);
     } finally {
       setLoading(false);
     }

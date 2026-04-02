@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { StateCreator } from "zustand";
 import type { SettingActions, SettingState } from "../lib/types";
 import axios from "axios";
+import { toast } from "sonner";
 
 type SettingStoreType = SettingActions & SettingState;
 
@@ -21,9 +22,12 @@ const SettingStore: StateCreator<SettingStoreType> = (set) => ({
 
       if (response.status == 200) {
         console.log(response.data);
+      } else {
+        toast.error(response.data.error, { position: "bottom-right" });
       }
     } catch (error) {
       console.log("error ", error);
+      toast.error("Something went wrong", { position: "bottom-right" });
     }
   },
 });

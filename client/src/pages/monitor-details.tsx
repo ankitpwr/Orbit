@@ -51,6 +51,14 @@ export default function MonitorDetails() {
   }
 
   if (!currentMonitor) return;
+  const handleDelete = async () => {
+    const res = await deleteMonitor(currentMonitor!.id);
+    if (res.success) {
+      navigate("/dashboard/monitors");
+    } else {
+      toast.error(res.message, { position: "bottom-right" });
+    }
+  };
 
   return (
     <div className=" w-full h-full flex flex-col md:px-20  md:pt-20 px-5 py-10 font-montserrat gap-10 overflow-hidden  ">
@@ -92,10 +100,7 @@ export default function MonitorDetails() {
           </Button>
           <Button
             onClick={() => {
-              try {
-                deleteMonitor(currentMonitor.id);
-                navigate("/dashboard/monitors");
-              } catch (error) {}
+              handleDelete();
             }}
             variant={"destructive"}
             className="bg-red-100 text-red-500 hover:bg-red-200 dark:bg-[#3b1c1d] dark:hover:bg-[#753b3d]"

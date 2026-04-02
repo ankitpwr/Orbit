@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import type { StateCreator } from "zustand";
 import type {
-  Incident,
   IncidentAction,
   IncidentState,
   IncidentStatus,
 } from "../lib/types";
 import axios from "axios";
+import { toast } from "sonner";
 
 type IncidentStoreType = IncidentState & IncidentAction;
 
@@ -26,7 +26,7 @@ const IncidentStore: StateCreator<IncidentStoreType> = (set) => ({
 
       if (response.status == 200) {
         set({
-          incidents: response.data.incidents.map((i: any) => ({
+          incidents: response.data.data.map((i: any) => ({
             incidentId: i.id,
             monitorName: i.monitor.name,
             url: i.monitor.url,
@@ -34,9 +34,12 @@ const IncidentStore: StateCreator<IncidentStoreType> = (set) => ({
             currentStatus: i.currentStatus,
           })),
         });
-      } else console.log("could't fetch incidents");
+      } else {
+        toast.error(response.data.error, { position: "bottom-right" });
+      }
     } catch (error) {
-      console.log("error in current monitor", error);
+      console.log("error !", error);
+      toast.error("Something went wrongs", { position: "bottom-right" });
     } finally {
       set({ isLoadingIncidents: false });
     }
@@ -52,18 +55,21 @@ const IncidentStore: StateCreator<IncidentStoreType> = (set) => ({
       if (response.status == 200) {
         set({
           selectedIncident: {
-            monitorName: response.data.incidentData.monitor.name,
-            url: response.data.incidentData.monitor.url,
-            startedAt: response.data.incidentData.startedAt,
-            currentStatus: response.data.incidentData.currentStatus,
-            resolvedAt: response.data.incidentData.resolvedAt,
-            alertCount: response.data.incidentData.alertCount,
-            lastAlertSentAt: response.data.incidentData.lastAlertSentAt,
+            monitorName: response.data.data.monitor.name,
+            url: response.data.data.monitor.url,
+            startedAt: response.data.data.startedAt,
+            currentStatus: response.data.data.currentStatus,
+            resolvedAt: response.data.data.resolvedAt,
+            alertCount: response.data.data.alertCount,
+            lastAlertSentAt: response.data.data.lastAlertSentAt,
           },
         });
+      } else {
+        toast.error(response.data.error, { position: "bottom-right" });
       }
     } catch (error) {
       console.log("error !", error);
+      toast.error("Something went wrong", { position: "bottom-right" });
     } finally {
       set({ isLoadingIncidents: false });
     }
@@ -91,10 +97,12 @@ const IncidentStore: StateCreator<IncidentStoreType> = (set) => ({
             lastAlertSentAt: response.data.data.lastAlertSentAt,
           },
         });
+      } else {
+        toast.error(response.data.error, { position: "bottom-right" });
       }
-      //error
     } catch (error) {
       console.log("error !", error);
+      toast.error("Something went wrong", { position: "bottom-right" });
     }
   },
 });

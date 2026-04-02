@@ -4,7 +4,6 @@ import useMonitorStore from "../store/useMonitorStore";
 import { TimeRange } from "../lib/types";
 import { Skeleton } from "./ui/skeleton";
 import { uptimePercentage, type ReturnType } from "../lib/uptimepercent";
-import useSettingStore from "../store/useSettingStore";
 import useAuthStore from "../store/useAuthStore";
 
 export default function StatusHeatmap() {

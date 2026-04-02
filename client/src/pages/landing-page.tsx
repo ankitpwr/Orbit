@@ -1,6 +1,4 @@
-import { useState } from "react";
 import Navbar from "../components/navbar";
-import MobileNavbarItems from "../components/mobile-navbar-items";
 import HeroSection from "../components/hero-section";
 import Feature from "../components/feature";
 import Footer from "../components/footer";
@@ -8,20 +6,11 @@ import Footer from "../components/footer";
 import dashboard from "../assets/dashboard.png";
 
 export default function LandingPage() {
-  const [mobileMenu, setMobileMenu] = useState(false);
-
   return (
     <div className="flex flex-col w-full min-h-screen bg-black px-8 md:px-32 gap-16 text-white overflow-hidden pb-24">
       {/* Navbar Container */}
       <div className="fixed z-50 w-full left-0 flex justify-center md:py-8 py-4 px-8 md:px-0">
-        {!mobileMenu ? (
-          <Navbar mobileMenu={mobileMenu} setMobileMenu={setMobileMenu} />
-        ) : (
-          <MobileNavbarItems
-            mobileMenu={mobileMenu}
-            setMobileMenu={setMobileMenu}
-          />
-        )}
+        <Navbar />
       </div>
 
       {/* Main Content Wrapper (added padding-top to account for fixed navbar) */}

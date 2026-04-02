@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "../components/ui/button";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import useMonitorStore from "../store/useMonitorStore";
 import MonitorCard from "../components/monitor-card";
 import NoMonitor from "../components/no-monitor";

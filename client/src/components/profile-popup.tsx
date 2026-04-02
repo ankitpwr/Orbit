@@ -5,10 +5,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { SidebarMenuButton } from "./ui/sidebar";
 import { LogOut, Moon, Sun } from "lucide-react";
+import { toast } from "sonner";
 export default function ProfilePopup() {
   const { user, logout } = useAuthStore();
   const { theme, setTheme } = useTheme();
   const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    const res = await logout();
+    if (res.success) {
+      toast.success(res.message, { position: "bottom-right" });
+      navigate("/");
+    } else {
+      toast.error(res.message, { position: "bottom-right" });
+    }
+  };
 
   return (
     <Popover>
@@ -53,8 +64,7 @@ export default function ProfilePopup() {
 
           <div
             onClick={() => {
-              logout();
-              navigate("/");
+              handleLogout();
             }}
             className="flex items-center px-4 gap-2 cursor-pointer"
           >

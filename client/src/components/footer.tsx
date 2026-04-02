@@ -8,19 +8,29 @@ export default function Footer() {
         <div className="  flex flex-col gap-4 col-span-1 md:col-span-1">
           <h1 className="text-2xl font-semibold text-white">Orbit</h1>
           <p className="text-[#a0a3a4] text-sm leading-relaxed">
-            Precision uptime monitoring for modern engineering teams. Never miss a moment of downtime.
+            Precision uptime monitoring for modern engineering teams. Never miss
+            a moment of downtime.
           </p>
         </div>
         <div className="flex flex-col gap-3 md:items-end">
           <h2 className="text-white font-semibold mb-2">Connect</h2>
           <div className="flex gap-4">
-            <a href="#" className="text-[#a0a3a4] hover:text-[#b7c4ff] transition-colors">
+            <a
+              href="https://x.com/ankit_pam"
+              className="text-[#a0a3a4] hover:text-[#b7c4ff] transition-colors"
+            >
               <Twitter size={20} />
             </a>
-            <a href="#" className="text-[#a0a3a4] hover:text-[#b7c4ff] transition-colors">
+            <a
+              href="https://github.com/ankitpwr/Orbit"
+              className="text-[#a0a3a4] hover:text-[#b7c4ff] transition-colors"
+            >
               <Github size={20} />
             </a>
-            <a href="#" className="text-[#a0a3a4] hover:text-[#b7c4ff] transition-colors">
+            <a
+              href="https://www.linkedin.com/in/ankit-panwar-30a997342/?skipRedirect=true"
+              className="text-[#a0a3a4] hover:text-[#b7c4ff] transition-colors"
+            >
               <Linkedin size={20} />
             </a>
           </div>
@@ -28,7 +38,7 @@ export default function Footer() {
       </div>
 
       <div className="max-w-7xl mx-auto w-full h-[1px] bg-gray-900 mb-8"></div>
-      
+
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
         <p className="text-[#a0a3a4] text-sm">
           © {new Date().getFullYear()} Orbit Monitoring. All rights reserved.

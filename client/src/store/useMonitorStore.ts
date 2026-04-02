@@ -29,10 +29,13 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
         { withCredentials: true },
       );
       if (response.status === 200) {
-        set({ userMonitors: response.data.monitors });
-      } else console.log("not 200 ", response.status);
+        set({ userMonitors: response.data.data });
+      } else {
+        toast.error(response.data.error, { position: "bottom-right" });
+      }
     } catch (error) {
       console.log("error !", error);
+      toast.error("Something went wrong", { position: "bottom-right" });
     } finally {
       set({ isLoadingMonitors: false });
     }
@@ -53,10 +56,13 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
       );
 
       if (response.status === 200) {
-        set({ currentMonitor: response.data.details });
-      } else console.log("could't fetch current monitor details");
+        set({ currentMonitor: response.data.data });
+      } else {
+        toast.error(response.data.error, { position: "bottom-right" });
+      }
     } catch (error) {
-      console.log("error in current monitor", error);
+      console.log("error !", error);
+      toast.error("Something went wrong", { position: "bottom-right" });
     } finally {
       set({ isLoadingCurrentMonitor: false });
     }
@@ -74,13 +80,13 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
         { withCredentials: true },
       );
       if (response.status == 200) {
-        set({ currentMonitor: response.data.updatedData });
+        set({ currentMonitor: response.data.data });
       } else if (response.status != 200) {
-        console.log(response.data.error);
-        toast.error("error", { position: "bottom-right" });
+        toast.error(response.data.error, { position: "bottom-right" });
       }
     } catch (error) {
       console.log("error!", error);
+      toast.error("Something went wrong", { position: "bottom-right" });
     } finally {
       set({ isLoadingCurrentMonitor: false });
     }
@@ -94,17 +100,17 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
         { withCredentials: true },
       );
 
-      if (response.status != 200) {
-        console.log("error ", response.data.error);
-        toast.error("error", { position: "bottom-right" });
+      if (response.status == 200) {
+        set({
+          pingData: response.data.pingData,
+          averageLatency: response.data.avgLatency,
+        });
+      } else {
+        toast.error(response.data.error, { position: "bottom-right" });
       }
-
-      set({
-        pingData: response.data.pingData,
-        averageLatency: response.data.avgLatency,
-      });
     } catch (error) {
       console.log("error", error);
+      toast.error("Something went wrong", { position: "bottom-right" });
     } finally {
       set({ isLoadingPingData: false });
     }
@@ -118,13 +124,13 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
         { withCredentials: true },
       );
       if (response.status == 200) {
-        toast.success(response.data.message);
+        return { success: true, message: "successfully deleted" };
       } else {
-        toast.success(response.data.error);
-        throw new Error(response.data.error);
+        return { success: false, message: response.data.error };
       }
     } catch (error) {
-      console.log(error);
+      console.log("error !", error);
+      return { success: false, message: "Something went wrong" };
     } finally {
       set({ isCreateMonitor: false });
     }
@@ -137,17 +143,16 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
         `${import.meta.env.VITE_BACKEND_URL}/monitor/ping-data/${id}?days=${days}`,
         { withCredentials: true },
       );
-
-      if (response.status != 200) {
-        console.log("error ", response.data.error);
-        toast.error("error", { position: "bottom-right" });
+      if (response.status === 200) {
+        set({
+          heatMapData: response.data.pingData,
+        });
+      } else {
+        toast.error(response.data.error, { position: "bottom-right" });
       }
-
-      set({
-        heatMapData: response.data.pingData,
-      });
     } catch (error) {
       console.log("error", error);
+      toast.error("Something went wrong", { position: "bottom-right" });
     } finally {
       set({ isLoadingHeatMapData: false });
     }

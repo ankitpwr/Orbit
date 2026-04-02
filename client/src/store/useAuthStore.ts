@@ -7,7 +7,7 @@ type AuthStoreType = AuthState & AuthAction;
 const AuthStore: StateCreator<AuthStoreType> = (set) => ({
   isAuthenticated: false,
   user: null,
-  isLoading: false,
+  isLoading: true,
 
   checkAuth: async () => {
     set({ isLoading: true });
@@ -17,13 +17,17 @@ const AuthStore: StateCreator<AuthStoreType> = (set) => ({
         { withCredentials: true },
       );
       if (response.status === 200) {
-        set({ isAuthenticated: true, user: response.data.user });
+        console.log("user is authorized");
+        set({ isAuthenticated: true, user: response.data.data });
+        return { success: true, message: "successfully checked" };
       } else {
         set({ isAuthenticated: false, user: null });
+        return { success: false, message: response.data.error };
       }
     } catch (error) {
       console.log("error ! ", error);
       set({ isAuthenticated: false, user: null });
+      return { success: false, message: "Something went wrong" };
     } finally {
       set({ isLoading: false });
     }
@@ -37,9 +41,14 @@ const AuthStore: StateCreator<AuthStoreType> = (set) => ({
       );
       if (response.status == 200) {
         set({ isAuthenticated: false });
+        return { success: true, message: "successfully logout" };
+      } else {
+        console.log(response.data.error);
+        return { success: false, message: response.data.error };
       }
     } catch (error) {
       console.log("error!", error);
+      return { success: false, message: "Something went wrong" };
     }
   },
 });

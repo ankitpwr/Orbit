@@ -13,7 +13,6 @@ export default function Dashboard() {
         <AppSidebar />
         <SidebarInset>
           <SidebarTrigger />
-
           <div className="flex-1 p-4">
             <Outlet />
           </div>

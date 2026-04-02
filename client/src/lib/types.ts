@@ -12,8 +12,8 @@ export interface AuthState {
   isLoading: boolean;
 }
 export interface AuthAction {
-  checkAuth: () => Promise<void>;
-  logout: () => Promise<void>;
+  checkAuth: () => Promise<{ success: boolean; message: string }>;
+  logout: () => Promise<{ success: boolean; message: string }>;
 }
 
 //monitors  types
@@ -65,7 +65,7 @@ export interface MonitorAction {
   changeStatus: (id: string, status: MonitorStatus) => Promise<void>;
   fetchPingData: (id: string, days: number) => Promise<void>;
   fetchHeatMapData: (id: string, days: number) => Promise<void>;
-  deleteMonitor: (id: string) => Promise<void>;
+  deleteMonitor: (id: string) => Promise<{ success: boolean; message: string }>;
 }
 
 //incident types
