@@ -37,12 +37,12 @@ export default function StatusHeatmap() {
   }
 
   return (
-    <div className="flex gap-[6px] h-fit w-full bg-[#f8f9fc] dark:bg-[#171717] border border-[#dfe3ea] dark:border-[#2e2f2f]  px-4  py-2 rounded-lg">
+    <div className="flex md:gap-[6px] gap-[4px] h-fit w-full bg-[#f8f9fc] dark:bg-[#171717] border border-[#dfe3ea] dark:border-[#2e2f2f]  px-4  py-2 rounded-lg">
       {heatmapData.map((day, i) => (
         <Tooltip key={i}>
           <TooltipTrigger>
             <div
-              className={`h-10 w-3 rounded-sm flex-1 cursor-pointer ${day.uptimepercent > 95 ? "bg-green-500  dark:bg-green-700 " : "bg-red-500 dark:bg-red-700 "}`}
+              className={`h-10 w-[6px] md:w-2 rounded-sm flex-1 cursor-pointer ${day.uptimepercent > 95 ? "bg-green-500  dark:bg-green-700 " : "bg-red-500 dark:bg-red-700 "}`}
             ></div>
           </TooltipTrigger>
           <TooltipContent className="text-sm">
