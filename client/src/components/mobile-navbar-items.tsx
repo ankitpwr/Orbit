@@ -1,8 +1,3 @@
-import React from "react";
-import { Button } from "./ui/button";
-import { X } from "lucide-react";
-import GoogleAuthWrapper from "./google-auth-wrapper";
-
 export default function MobileNavbarItems() {
   return (
     <div className="flex md:hidden flex-col  w-screen h-screen gap-4 bg-black px-6 py-4 items-center  rounded-xl text-white font-montserrat">

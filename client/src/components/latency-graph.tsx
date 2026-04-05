@@ -29,7 +29,6 @@ export default function LatencyGraph() {
     useMonitorStore();
   const { user } = useAuthStore();
   const { theme } = useTheme();
-  console.log("theme is  ", theme);
 
   const [timeRange, setTimeRange] = useState<TimeRange>(TimeRange.Week);
 

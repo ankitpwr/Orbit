@@ -1,3 +1,4 @@
+import { pushMonitorUpdate } from "../controllers/monitor.controller.js";
 import { Prisma } from "../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 import { consumerClient } from "../lib/redis.js";
@@ -31,6 +32,7 @@ async function checkStatus(url: string): Promise<Response> {
           responseType: "stream",
         });
         response.data.destroy();
+
         return {
           statuscode: response.status,
           latency: Date.now() - fallbackStart,
@@ -177,6 +179,7 @@ async function storeResult(pingResults: PingResult[]) {
 }
 
 async function reclaimStalePending(): Promise<PingResult[]> {
+  //claim from pending list
   const result = await consumerClient.xautoclaim(
     "Orbit:monitors",
     "monitor-group-1",
@@ -189,6 +192,7 @@ async function reclaimStalePending(): Promise<PingResult[]> {
 
   const claimed = result[1] as [string, string[]][];
 
+  //check status of pending monitors ticks
   if (!claimed || claimed.length === 0) return [];
   const pingResults: (PingResult | undefined)[] = await Promise.all(
     claimed.map(async ([id, fields]) => {
@@ -200,7 +204,7 @@ async function reclaimStalePending(): Promise<PingResult[]> {
       const monitorId = monitorData.id;
       if (url && monitorId) {
         const res = await checkStatus(url);
-        console.log("reclaimed data ", res);
+
         return {
           redisId: id,
           monitorId,
@@ -215,6 +219,7 @@ async function reclaimStalePending(): Promise<PingResult[]> {
 
 async function processJobs() {
   try {
+    //retries
     const reclaimedResults = await reclaimStalePending();
     if (reclaimedResults.length > 0) {
       await storeResult(reclaimedResults);
@@ -257,6 +262,18 @@ async function processJobs() {
           if (url && monitorId) {
             // check website status
             const res = await checkStatus(url);
+            const payload = {
+              monitorId: monitorId,
+              statusCode: res.statuscode,
+              latency: res.latency,
+              timestamp: new Date().toISOString(),
+            };
+
+            //publish for new updated status for sse
+            await consumerClient.publish(
+              "monitor-updates",
+              JSON.stringify(payload),
+            );
             return {
               redisId: id,
               monitorId: monitorId,

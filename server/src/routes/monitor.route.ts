@@ -9,17 +9,18 @@ import {
   findIncidents,
   findMonitors,
   monitorDetails,
+  monitorSSE,
   pingData,
 } from "../controllers/monitor.controller.js";
 
 export const monitorRouter = Router();
 
-monitorRouter.post("/add", authMiddleware, addMonitor);
-monitorRouter.delete("/remove/:monitorId", authMiddleware, deleteMonitor);
-monitorRouter.get("/details/:monitorId", authMiddleware, monitorDetails);
-monitorRouter.patch("/change-status", authMiddleware, changeStatus);
-monitorRouter.get("/ping-data/:monitorId", authMiddleware, pingData);
 monitorRouter.get("/", authMiddleware, findMonitors);
+monitorRouter.post("/add", authMiddleware, addMonitor);
+monitorRouter.get("/details/:monitorId", authMiddleware, monitorDetails);
+monitorRouter.get("/ping-data/:monitorId", authMiddleware, pingData);
+monitorRouter.delete("/remove/:monitorId", authMiddleware, deleteMonitor);
+monitorRouter.patch("/change-status", authMiddleware, changeStatus);
 monitorRouter.get("/incidents", authMiddleware, findIncidents);
 monitorRouter.get("/incidents/:incidentId", authMiddleware, findIncidentData);
 monitorRouter.put(
@@ -27,3 +28,5 @@ monitorRouter.put(
   authMiddleware,
   changeIncidentStatus,
 );
+
+monitorRouter.get("/stream/:monitorId", authMiddleware, monitorSSE);

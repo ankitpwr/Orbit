@@ -32,6 +32,7 @@ export default function MonitorDetails() {
     changeStatus,
     averageLatency,
     deleteMonitor,
+    updateMonitorDetails,
   } = useMonitorStore();
 
   useEffect(() => {
@@ -41,6 +42,38 @@ export default function MonitorDetails() {
       fetchCurrentMonitor(id);
     }
   }, [id, fetchCurrentMonitor]);
+
+  useEffect(() => {
+    if (!id) {
+      toast.error("Not a valid route", { position: "bottom-right" });
+      return;
+    }
+
+    //create server-sent-event connection
+    const sse = new EventSource(
+      `${import.meta.env.VITE_BACKEND_URL}/monitor/stream/${id}`,
+      { withCredentials: true },
+    );
+
+    //run whenever new message is sent by server
+    sse.onmessage = function (event) {
+      const data = JSON.parse(event.data);
+      const { monitorId, statusCode, latency, timestamp } = data;
+      if (
+        !monitorId ||
+        !statusCode ||
+        !latency ||
+        !timestamp ||
+        monitorId != id
+      )
+        return;
+      //update monitor data
+      updateMonitorDetails(statusCode, latency, timestamp);
+    };
+    return () => {
+      sse.close();
+    };
+  }, [id]);
 
   if (isLoadingCurrentMonitor || !currentMonitor || currentMonitor?.id !== id) {
     return (

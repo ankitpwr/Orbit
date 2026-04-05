@@ -157,6 +157,38 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
       set({ isLoadingHeatMapData: false });
     }
   },
+
+  updateMonitorDetails: (
+    statusCode: number,
+    latency: number,
+    timestamp: Date,
+  ) => {
+    set((state) => {
+      const isUP = statusCode >= 200 && statusCode < 300;
+      const newStatus: MonitorStatus = isUP == true ? "UP" : "DOWN";
+      let updatedMonitor = state.currentMonitor;
+      if (updatedMonitor) {
+        updatedMonitor = {
+          ...updatedMonitor,
+          status: newStatus,
+          lastChecked: timestamp,
+          ...(updatedMonitor.status !== newStatus && {
+            statusChangedAt: timestamp,
+          }),
+        };
+      }
+
+      const newPing = { timestamp, statusCode, latency };
+      const updatedPingData = state.pingData
+        ? [...state.pingData, newPing]
+        : [newPing];
+
+      return {
+        currentMonitor: updatedMonitor,
+        pingData: updatedPingData,
+      };
+    });
+  },
 });
 
 const useMonitorStore = create<MonitorStoreType>(MonitorStore);

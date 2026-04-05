@@ -19,3 +19,8 @@ export const outboxClient = new Redis.default({
   host: "localhost",
   port: 6379,
 });
+
+export const subscriber = new Redis.default({
+  host: "localhost",
+  port: 6379,
+});

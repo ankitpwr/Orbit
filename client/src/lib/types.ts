@@ -66,6 +66,11 @@ export interface MonitorAction {
   fetchPingData: (id: string, days: number) => Promise<void>;
   fetchHeatMapData: (id: string, days: number) => Promise<void>;
   deleteMonitor: (id: string) => Promise<{ success: boolean; message: string }>;
+  updateMonitorDetails: (
+    statusCode: number,
+    latency: number,
+    timestamp: Date,
+  ) => void;
 }
 
 //incident types

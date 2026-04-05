@@ -10,6 +10,24 @@ import {
   pingDataQuerySchema,
   updateIncidentStatusSchema,
 } from "../lib/zod-schema.js";
+import { subscriber } from "../lib/redis.js";
+
+//store client connection
+const sseClient = new Map<string, Response[]>();
+
+//subscribe for new event
+subscriber.subscribe("monitor-updates", (err) => {
+  if (err) console.log("failed to subscribe");
+});
+
+//listen to new message
+subscriber.on("message", (channel, message) => {
+  if (channel == "monitor-updates") {
+    const data = JSON.parse(message);
+
+    pushMonitorUpdate(data.monitorId, data);
+  }
+});
 
 export const addMonitor = async (req: Request, res: Response) => {
   try {
@@ -472,3 +490,45 @@ export const changeIncidentStatus = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const monitorSSE = async (req: Request, res: Response) => {
+  try {
+    const parsedParam = paramsSchema.safeParse(req.params);
+    if (!parsedParam.success) {
+      return res.status(400).json({
+        message: "Validation failed",
+        error: parsedParam.error.issues[0]?.message,
+      });
+    }
+    const { monitorId } = parsedParam.data;
+    const { id } = req as CustomRequest;
+
+    res.setHeader("Content-Type", "text/event-stream");
+    res.setHeader("Cache-Control", "no-cache");
+    res.setHeader("Connection", "keep-alive");
+    res.flushHeaders(); //send header to client
+
+    const clients = sseClient.get(monitorId) ?? [];
+    clients.push(res);
+    sseClient.set(monitorId, clients);
+
+    // Send a heartbeat every 25s to keep the connection alive
+    const heartbeat = setInterval(() => res.write(": heartbeat\n\n"), 25_000);
+    req.on("close", () => {
+      clearInterval(heartbeat);
+      const updatedClients = (sseClient.get(monitorId) ?? []).filter(
+        (r) => r !== res,
+      );
+      sseClient.set(monitorId, updatedClients);
+    });
+  } catch (error) {
+    return res.status(500).json({
+      error: "Internal server error",
+    });
+  }
+};
+export function pushMonitorUpdate(monitorId: string, payload: object) {
+  const clients = sseClient.get(monitorId) ?? [];
+  const data = `data: ${JSON.stringify(payload)}\n\n`;
+  clients.forEach((res) => res.write(data));
+}
