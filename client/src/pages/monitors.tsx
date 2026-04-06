@@ -5,6 +5,7 @@ import useMonitorStore from "../store/useMonitorStore";
 import MonitorCard from "../components/monitor-card";
 import NoMonitor from "../components/no-monitor";
 import { Spinner } from "../components/ui/spinner";
+import { Skeleton } from "../components/ui/skeleton";
 
 export default function Monitors() {
   const navigate = useNavigate();
@@ -28,8 +29,10 @@ export default function Monitors() {
         </Button>
       </div>
       {isLoadingMonitors == true ? (
-        <div className="w-full h-full flex items-center justify-center">
-          <Spinner className="size-12" />
+        <div className="w-full h-full flex flex-col gap-8 items-center">
+          <Skeleton className="w-full h-22 rounded-lg border border-[#dfe3ea] dark:border-[#2e2f2f]  shadow-[1px_6px_10px_-4px_rgba(0,_0,_0,_0.1)]" />
+          <Skeleton className="w-full h-22 rounded-lg border border-[#dfe3ea] dark:border-[#2e2f2f]  shadow-[1px_6px_10px_-4px_rgba(0,_0,_0,_0.1)]" />
+          <Skeleton className="w-full h-22 rounded-lg border border-[#dfe3ea] dark:border-[#2e2f2f]  shadow-[1px_6px_10px_-4px_rgba(0,_0,_0,_0.1)]" />
         </div>
       ) : userMonitors.length != 0 ? (
         userMonitors.map((data, index) => (
