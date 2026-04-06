@@ -38,12 +38,12 @@ export default function Feature() {
           <BracesIcon size={24} />
         </div>
         <h1 className="font-montserrat font-semibold text-xl md:text-2xl mt-2 text-white">
-          API Testing
+          Website Monitoring
         </h1>
         <p className="text-[#a0a3a4] text-sm md:text-base leading-relaxed">
-          Go beyond simple status codes. Assert JSON payloads, track response
-          times, and verify specific headers to ensure your services are truly
-          functional.
+          Our uptime monitoring continuously tests your website’s availability,
+          detects latency issue and visualizes performance trends with an
+          intuitive status heatmap
         </p>
       </div>
     </div>
