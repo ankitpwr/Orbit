@@ -6,6 +6,7 @@ import { Spinner } from "../components/ui/spinner";
 import {
   Activity,
   CircleCheck,
+  Globe,
   Link,
   Pause,
   Play,
@@ -20,6 +21,14 @@ import { formatDistanceToNow } from "date-fns";
 import StatusBadge from "../components/status-badge";
 import LatencyGraph from "../components/latency-graph";
 import StatusHeatmap from "../components/status-heatmap";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../components/ui/breadcrumb";
 
 export default function MonitorDetails() {
   const navigate = useNavigate();
@@ -50,6 +59,7 @@ export default function MonitorDetails() {
     }
 
     //create server-sent-event connection
+    // Event source opens a persistent connection to an HTTP server,
     const sse = new EventSource(
       `${import.meta.env.VITE_BACKEND_URL}/monitor/stream/${id}`,
       { withCredentials: true },
@@ -95,6 +105,21 @@ export default function MonitorDetails() {
 
   return (
     <div className=" w-full h-full flex flex-col md:px-20  md:pt-20 px-5 py-10 font-montserrat gap-10 overflow-hidden  ">
+      <div>
+        <Breadcrumb className="text-white">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard/monitors">
+                Monitors
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{currentMonitor.name}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
       <div className="flex md:flex-row flex-col w-full justify-between  md:gap-0 gap-4 ">
         <div className="flex flex-col ">
           <div className="flex items-center gap-4 ">

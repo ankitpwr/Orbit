@@ -9,6 +9,14 @@ import StatsCard from "../components/stats-card";
 import useAuthStore from "../store/useAuthStore";
 import { Badge } from "../components/ui/badge";
 import { formatDistance } from "date-fns";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../components/ui/breadcrumb";
 
 export default function IncidentDetails() {
   const {
@@ -41,6 +49,21 @@ export default function IncidentDetails() {
 
   return (
     <div className=" w-full h-full flex flex-col md:px-20 md:pt-20 px-5 py-10 font-montserrat gap-10 overflow-hidden">
+      <div>
+        <Breadcrumb className="text-white">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard/monitors">
+                Incidents
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>{selectedIncident.monitorName}</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
       <div className="flex md:flex-row flex-col w-full justify-between  md:gap-0 gap-4">
         <div className="flex flex-col  gap-1 ">
           <div className="flex gap-3 items-center ">
@@ -48,14 +71,18 @@ export default function IncidentDetails() {
               {selectedIncident.monitorName}
             </h1>
             <Badge
-              className={`w-fit h-fit ${selectedIncident.currentStatus == "RESOLVED" ? "bg-green-200 text-green-600" : selectedIncident.currentStatus == "ACKNOWLEDGED" ? "bg-orange-200 text-orange-600" : "bg-red-200 text-red-600"}`}
+              className={`w-fit h-fit ${selectedIncident.currentStatus == "RESOLVED" ? "bg-green-200 text-green-600" : selectedIncident.currentStatus == "ACKNOWLEDGED" || selectedIncident.currentStatus == "PROCESSED" ? "bg-orange-200 text-orange-600" : "bg-red-200 text-red-600"}`}
             >
               {selectedIncident.currentStatus == "OPEN"
                 ? "Ongoing"
-                : `${
-                    selectedIncident.currentStatus.charAt(0).toUpperCase() +
-                    selectedIncident.currentStatus.slice(1).toLocaleLowerCase()
-                  }`}
+                : selectedIncident.currentStatus == "PROCESSED"
+                  ? "Acknowledge"
+                  : `${
+                      selectedIncident.currentStatus.charAt(0).toUpperCase() +
+                      selectedIncident.currentStatus
+                        .slice(1)
+                        .toLocaleLowerCase()
+                    }`}
             </Badge>
           </div>
           <div
@@ -77,7 +104,8 @@ export default function IncidentDetails() {
             >
               Acknowledge
             </Button>
-          ) : selectedIncident.currentStatus == "ACKNOWLEDGED" ? (
+          ) : selectedIncident.currentStatus == "ACKNOWLEDGED" ||
+            selectedIncident.currentStatus == "PROCESSED" ? (
             <Button
               onClick={() => {
                 updateStatus("RESOLVED", incidentId);

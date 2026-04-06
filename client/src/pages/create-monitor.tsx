@@ -7,7 +7,14 @@ import { toast } from "sonner";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { Spinner } from "../components/ui/spinner";
-
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "../components/ui/breadcrumb";
 export default function CreateMonitors() {
   const urlRef = useRef<HTMLInputElement | null>(null);
   const primaryEmailRef = useRef<HTMLInputElement | null>(null);
@@ -86,6 +93,21 @@ export default function CreateMonitors() {
 
   return (
     <div className=" h-full flex flex-col md:px-30 px-5 font-montserrat gap-8  ">
+      <div>
+        <Breadcrumb className="text-white">
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink href="/dashboard/monitors">
+                Monitors
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Create monitor</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </div>
       <h1 className="text-3xl font-bold">Create Monitor</h1>
 
       <Field className="md:w-2xl  ">

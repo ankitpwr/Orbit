@@ -58,7 +58,7 @@ export default function LatencyGraph() {
   } satisfies ChartConfig;
 
   return (
-    <Card className="">
+    <Card className="md:min-h-72">
       <CardHeader className="flex items-center justify-between">
         <CardTitle className="md:text-lg text-xs">Response Time</CardTitle>
         <div className="flex md:gap-2 gap-1">
