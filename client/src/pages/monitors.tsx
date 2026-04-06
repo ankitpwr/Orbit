@@ -23,6 +23,7 @@ export default function Monitors() {
           variant={"default"}
           size={"lg"}
           onClick={() => navigate("/dashboard/monitors/new")}
+          className="bg-[#5b63d3] text-white hover:bg-[#7c87f7] "
         >
           {" "}
           Create monitor

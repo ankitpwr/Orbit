@@ -180,7 +180,7 @@ export default function CreateMonitors() {
 
       <Button
         onClick={() => createMonitor()}
-        className="w-60 cursor-pointer"
+        className="bg-[#5b63d3] text-white hover:bg-[#7c87f7] w-60 cursor-pointer"
         size={"lg"}
         variant="default"
       >

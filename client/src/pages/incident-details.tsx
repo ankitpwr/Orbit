@@ -71,18 +71,15 @@ export default function IncidentDetails() {
               {selectedIncident.monitorName}
             </h1>
             <Badge
-              className={`w-fit h-fit ${selectedIncident.currentStatus == "RESOLVED" ? "bg-green-200 text-green-600" : selectedIncident.currentStatus == "ACKNOWLEDGED" || selectedIncident.currentStatus == "PROCESSED" ? "bg-orange-200 text-orange-600" : "bg-red-200 text-red-600"}`}
+              className={`w-fit h-fit ${selectedIncident.currentStatus == "RESOLVED" ? "bg-green-200 text-green-600" : selectedIncident.currentStatus == "ACKNOWLEDGED" ? "bg-orange-200 text-orange-600" : "bg-red-200 text-red-600"}`}
             >
-              {selectedIncident.currentStatus == "OPEN"
+              {selectedIncident.currentStatus == "OPEN" ||
+              selectedIncident.currentStatus == "PROCESSED"
                 ? "Ongoing"
-                : selectedIncident.currentStatus == "PROCESSED"
-                  ? "Acknowledge"
-                  : `${
-                      selectedIncident.currentStatus.charAt(0).toUpperCase() +
-                      selectedIncident.currentStatus
-                        .slice(1)
-                        .toLocaleLowerCase()
-                    }`}
+                : `${
+                    selectedIncident.currentStatus.charAt(0).toUpperCase() +
+                    selectedIncident.currentStatus.slice(1).toLocaleLowerCase()
+                  }`}
             </Badge>
           </div>
           <div
@@ -95,22 +92,24 @@ export default function IncidentDetails() {
         </div>
 
         <div className="flex items-center gap-2">
-          {selectedIncident.currentStatus == "OPEN" ? (
+          {selectedIncident.currentStatus == "OPEN" ||
+          selectedIncident.currentStatus == "PROCESSED" ? (
             <Button
               onClick={() => {
                 updateStatus("ACKNOWLEDGED", incidentId);
               }}
-              variant={"outline"}
+              className="bg-[#5b63d3] text-white hover:bg-[#7c87f7] "
+              variant={"default"}
             >
               Acknowledge
             </Button>
-          ) : selectedIncident.currentStatus == "ACKNOWLEDGED" ||
-            selectedIncident.currentStatus == "PROCESSED" ? (
+          ) : selectedIncident.currentStatus == "ACKNOWLEDGED" ? (
             <Button
               onClick={() => {
                 updateStatus("RESOLVED", incidentId);
               }}
-              variant={"outline"}
+              className="bg-[#5b63d3] text-white hover:bg-[#7c87f7] "
+              variant={"default"}
             >
               Resolve
             </Button>
@@ -119,7 +118,8 @@ export default function IncidentDetails() {
               onClick={() => {
                 updateStatus("OPEN", incidentId);
               }}
-              variant={"outline"}
+              className="bg-[#5b63d3] text-white hover:bg-[#7c87f7] "
+              variant={"default"}
             >
               Reopen
             </Button>
