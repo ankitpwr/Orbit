@@ -1,13 +1,31 @@
-FROM node:22-alpine
+FROM node:22-alpine AS builder
 
-WORKDIR /app
+WORKDIR /build
 
-COPY ./package.json .
+ARG VITE_BACKEND_URL
+ARG VITE_CLIENT_ID
+ENV VITE_BACKEND_URL=$VITE_BACKEND_URL
+ENV VITE_CLIENT_ID=$VITE_CLIENT_ID
 
-RUN npm install
+COPY ./package.json package.json
+
+COPY ./package-lock.json package-lock.json
+
+RUN npm ci
 
 COPY . .
 
 RUN npm run build
 
-CMD ["npm", "run", "dev"]
+FROM nginx:alpine-otel
+
+COPY --from=builder /build/dist /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+
+
+
+
+
