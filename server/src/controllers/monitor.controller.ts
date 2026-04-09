@@ -504,8 +504,8 @@ export const monitorSSE = async (req: Request, res: Response) => {
     const { id } = req as CustomRequest;
 
     res.setHeader("Content-Type", "text/event-stream");
-    res.setHeader("Cache-Control", "no-cache");
-    res.setHeader("Connection", "keep-alive");
+    res.setHeader("Cache-Control", "no-cache"); // tell CDN & browser to not cache/store the results
+    res.setHeader("Connection", "keep-alive"); // tell TCP connection to stay open after data is sent,
     res.flushHeaders(); //send header to client
 
     const clients = sseClient.get(monitorId) ?? [];
