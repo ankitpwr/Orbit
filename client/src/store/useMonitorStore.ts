@@ -166,6 +166,8 @@ const MonitorStore: StateCreator<MonitorStoreType> = (set) => ({
     set((state) => {
       const isUP = statusCode >= 200 && statusCode < 300;
       const newStatus: MonitorStatus = isUP == true ? "UP" : "DOWN";
+
+      console.log("time is", timestamp);
       let updatedMonitor = state.currentMonitor;
       if (updatedMonitor) {
         updatedMonitor = {

@@ -78,6 +78,7 @@ export default function MonitorDetails() {
       )
         return;
       //update monitor data
+      console.log(timestamp);
       updateMonitorDetails(statusCode, latency, timestamp);
     };
     return () => {

@@ -35,7 +35,7 @@ export default function LatencyGraph() {
   useEffect(() => {
     if (!currentMonitor) return;
     fetchPingData(currentMonitor.id, timeRange);
-  }, [fetchPingData, timeRange, currentMonitor]);
+  }, [fetchPingData, timeRange, currentMonitor?.id]);
 
   if (!pingData) {
     return <div className="flex items-center justify-center">Nothing</div>;
