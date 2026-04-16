@@ -19,6 +19,7 @@ async function publish() {
           status: {
             not: "PAUSED",
           },
+          nextPing: { lte: new Date() },
         },
         ...(cursorId ? { cursor: { id: cursorId } } : {}),
         skip: cursorId ? 1 : 0,

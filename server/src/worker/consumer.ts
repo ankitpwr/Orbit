@@ -72,6 +72,32 @@ async function storeResult(pingResults: PingResult[]) {
           })),
         });
 
+        const currentMonitorsToUpdate = await tx.monitor.findMany({
+          where: { id: { in: pingResults.map((p) => p.monitorId) } },
+          select: { id: true, interval: true },
+        });
+
+        const groupedInterval = currentMonitorsToUpdate.reduce(
+          (acc, monitor) => {
+            const key = monitor.interval;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(monitor.id);
+            return acc;
+          },
+          {} as Record<number, string[]>,
+        );
+
+        await Promise.all(
+          Object.entries(groupedInterval).map(([interval, ids]) => {
+            const nextPing = new Date();
+            nextPing.setMinutes(nextPing.getMinutes() + Number(interval));
+            return tx.monitor.updateMany({
+              where: { id: { in: ids } },
+              data: { nextPing },
+            });
+          }),
+        );
+
         if (upMonitorsId.length > 0) {
           await tx.monitor.updateMany({
             where: {
