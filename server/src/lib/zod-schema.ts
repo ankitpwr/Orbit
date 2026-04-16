@@ -5,8 +5,12 @@ export const addMonitorSchema = z.object({
     .string({ message: "Name must be valid string" })
     .max(100, { message: "Monitor name is too long" }),
   url: z.url({ message: "Invalid url" }),
+  interval: z.coerce
+    .number()
+    .multipleOf(5, { message: "Not valid interval" })
+    .min(5, { message: "Not valid interval" })
+    .max(20, { message: "Not valid interval" }),
   primaryEmail: z.email({ message: "Invalid email" }),
-  timezone: z.string({ message: "Invalid timezone" }),
   esacalationEmail1: z.email({ message: "Invalid email" }).optional(),
   esacalationEmail2: z.email({ message: "Invalid email" }).optional(),
 });
