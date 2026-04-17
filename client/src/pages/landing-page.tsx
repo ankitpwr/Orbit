@@ -14,7 +14,7 @@ export default function LandingPage() {
       </div>
 
       {/* Main Content Wrapper (added padding-top to account for fixed navbar) */}
-      <div className="pt-32 md:pt-70 flex flex-col items-center w-full gap-20 md:gap-40 max-w-7xl mx-auto">
+      <div className="pt-32 md:pt-40 flex flex-col items-center w-full gap-20 md:gap-16 max-w-7xl mx-auto">
         <HeroSection />
 
         {/* Stylish Dashboard Image Presentation */}

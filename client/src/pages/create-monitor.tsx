@@ -15,6 +15,27 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "../components/ui/breadcrumb";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface Data {
+  name: string;
+  url: string;
+  interval: IntervalType;
+  primaryEmail: string;
+  esacalationEmail1?: string;
+  esacalationEmail2?: string;
+}
+const validInterval = [5, 10, 15, 20] as const;
+
+type IntervalType = (typeof validInterval)[number];
+
 export default function CreateMonitors() {
   const urlRef = useRef<HTMLInputElement | null>(null);
   const primaryEmailRef = useRef<HTMLInputElement | null>(null);
@@ -24,14 +45,9 @@ export default function CreateMonitors() {
   const nameRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
   const [loading, setLoading] = useState<boolean>(false);
+  const [interval, setInterval] = useState<IntervalType>(5);
   const { user } = useAuthStore();
-  interface Data {
-    name: string;
-    url: string;
-    primaryEmail: string;
-    esacalationEmail1?: string;
-    esacalationEmail2?: string;
-  }
+
   const createMonitor = async () => {
     setLoading(true);
     const name = nameRef.current?.value;
@@ -54,6 +70,7 @@ export default function CreateMonitors() {
       name: name,
       url: url,
       primaryEmail: primaryEmail,
+      interval: interval,
     };
 
     if (
@@ -127,6 +144,28 @@ export default function CreateMonitors() {
           URL to monitor <span className="text-destructive">*</span>
         </FieldLabel>
         <Input type="url" defaultValue={"https://"} ref={urlRef} />
+      </Field>
+      <Field className="flex flex-col gap-1 max-w-2xl">
+        <FieldLabel htmlFor="input-field-username">
+          Check Frequency (in minutes)
+        </FieldLabel>
+        <Select
+          onValueChange={(value) => setInterval(Number(value) as IntervalType)}
+        >
+          <SelectTrigger className="w-full max-w-64">
+            <SelectValue placeholder={5} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup>
+              {" "}
+              {validInterval.map((z, index) => (
+                <SelectItem key={index} value={String(z)}>
+                  {z}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
       </Field>
 
       <Field className="md:w-2xl">
