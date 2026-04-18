@@ -1,6 +1,5 @@
 import { Clock3 } from "lucide-react";
 import type { UserMonitors } from "../lib/types";
-import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "./status-badge";
 
@@ -25,13 +24,13 @@ export default function MonitorCard({
       </div>
       <div className="h-[1px] w-full bg-[#dfe3ea] dark:bg-[#2e2f2f] rounded-lg"></div>
       <div
-        className="grid grid-cols-4 px-6 py-4  justify-center rounded-b-lg   md:text-sm text-xs
+        className="grid grid-cols-4 md:px-6 px-2 py-4  justify-center items-center rounded-b-lg   md:text-sm text-xs
       "
       >
-        <div className="col-span-3 md:col-span-2 flex items-center justify-start   ">
+        <div className="col-span-3 md:col-span-2 flex items-center justify-start  ">
           <h2>{url}</h2>
         </div>
-        <div className="flex md:justify-center justify-end  ">
+        <div className="flex md:justify-center justify-end    ">
           <StatusBadge status={status} />
         </div>
         <div className="hidden md:flex items-center justify-end gap-2">

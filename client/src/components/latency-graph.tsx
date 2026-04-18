@@ -37,107 +37,126 @@ export default function LatencyGraph() {
     fetchPingData(currentMonitor.id, timeRange);
   }, [fetchPingData, timeRange, currentMonitor?.id]);
 
-  if (!pingData) {
-    return <div className="flex items-center justify-center">Nothing</div>;
-  }
+  if (!pingData) return null;
 
-  const daysOld = new Date();
-  daysOld.setDate(daysOld.getDate() - timeRange);
-
-  const data = pingData.map((obj, index) => {
-    let latency = obj.latency;
-    let date = obj.timestamp;
-    return { date: date, latency: latency };
-  });
+  const data = pingData.map((obj) => ({
+    date: obj.timestamp,
+    latency: obj.latency,
+  }));
 
   const chartConfig = {
     latency: {
-      label: "latency",
+      label: "Latency",
       color: "blue",
     },
   } satisfies ChartConfig;
 
+  const getButtonStyles = (range: TimeRange) => {
+    return timeRange === range
+      ? "bg-gray-100 text-gray-900 dark:bg-[#2e2f2f] dark:text-white"
+      : "text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white";
+  };
+
   return (
-    <Card className="md:min-h-72">
-      <CardHeader className="flex items-center justify-between">
-        <CardTitle className="md:text-lg text-xs">Response Time</CardTitle>
-        <div className="flex md:gap-2 gap-1">
+    <Card className="w-full rounded-xl border-gray-200 dark:border-[#2e2f2f] bg-white dark:bg-[#121212] shadow-sm">
+      <CardHeader className="flex flex-row items-center justify-between pb-2 md:pb-4 border-b border-transparent">
+        <CardTitle className="text-base md:text-lg font-semibold text-gray-900 dark:text-white">
+          Response Time
+        </CardTitle>
+        <div className="flex gap-1.5 p-1 rounded-md bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-[#2e2f2f]">
           <Button
-            size={"sm"}
+            size="sm"
             onClick={() => setTimeRange(TimeRange.Day)}
-            variant={"outline"}
-            className={`text-xs ${timeRange == TimeRange.Day ? "bg-[#eaecf1]" : ""}`}
+            variant="ghost"
+            className={`h-7 px-3 text-xs rounded-sm transition-colors ${getButtonStyles(TimeRange.Day)}`}
           >
             Day
           </Button>
           <Button
-            size={"sm"}
+            size="sm"
             onClick={() => setTimeRange(TimeRange.Week)}
-            variant={"outline"}
-            className={`text-xs ${timeRange == TimeRange.Week ? "bg-[#eaecf1]" : ""}`}
+            variant="ghost"
+            className={`h-7 px-3 text-xs rounded-sm transition-colors ${getButtonStyles(TimeRange.Week)}`}
           >
             Week
           </Button>
           <Button
             size="sm"
             onClick={() => setTimeRange(TimeRange.Month)}
-            variant={"outline"}
-            className={`text-xs ${timeRange == TimeRange.Month ? "bg-[#eaecf1]" : ""}`}
+            variant="ghost"
+            className={`h-7 px-3 text-xs rounded-sm transition-colors ${getButtonStyles(TimeRange.Month)}`}
           >
             Month
           </Button>
         </div>
       </CardHeader>
-      <CardContent>
-        {data.length != 0 ? (
-          <ChartContainer config={chartConfig}>
+
+      <CardContent className="pt-4 pb-2 px-2 md:px-6">
+        {data.length !== 0 ? (
+          <ChartContainer
+            config={chartConfig}
+            className="h-[300px] md:h-[360px] w-full"
+          >
             <AreaChart
               accessibilityLayer
               data={data}
-              margin={{
-                left: 10,
-                right: 10,
-              }}
+              margin={{ left: 2, right: 10, top: 10, bottom: 0 }}
             >
-              <CartesianGrid vertical={false} />
+              <CartesianGrid
+                vertical={false}
+                strokeDasharray="3 3"
+                stroke={theme === "dark" ? "#2e2f2f" : "#e5e7eb"}
+              />
               <XAxis
                 dataKey="date"
-                tickLine={true}
-                axisLine={true}
-                tickMargin={8}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={12}
                 minTickGap={40}
+                tick={{
+                  fontSize: 12,
+                  fill: theme === "dark" ? "#9ca3af" : "#6b7280",
+                }}
                 tickFormatter={(value) => {
                   const date = new Date(value);
-                  if (timeRange === 1) {
+                  if (timeRange === TimeRange.Day) {
                     return date.toLocaleTimeString("en-IN", {
-                      timeZone: user!.timezone,
+                      timeZone: user?.timezone,
                       hour: "numeric",
                     });
-                  } else {
-                    return date.toLocaleDateString("en-IN", {
-                      timeZone: user!.timezone,
-                      month: "short",
-                      day: "numeric",
-                    });
                   }
+                  return date.toLocaleDateString("en-IN", {
+                    timeZone: user?.timezone,
+                    month: "short",
+                    day: "numeric",
+                  });
                 }}
               />
               <YAxis
                 domain={["auto", "auto"]}
-                tickLine={true}
-                axisLine={true}
+                tickLine={false}
+                axisLine={false}
                 tickMargin={8}
+                tick={{
+                  fontSize: 12,
+                  fill: theme === "dark" ? "#9ca3af" : "#6b7280",
+                }}
                 tickFormatter={(value) => `${value}ms`}
               />
               <ChartTooltip
-                cursor={false}
+                cursor={{
+                  stroke: theme === "dark" ? "#4b5563" : "#d1d5db",
+                  strokeWidth: 1,
+                  strokeDasharray: "3 3",
+                }}
                 content={
                   <ChartTooltipContent
                     indicator="dot"
+                    className="bg-white dark:bg-[#1a1a1a] border-gray-200 dark:border-[#2e2f2f]"
                     labelFormatter={(label) => {
                       const date = new Date(label);
                       return date.toLocaleString("en-IN", {
-                        timeZone: user!.timezone,
+                        timeZone: user?.timezone,
                         month: "short",
                         day: "numeric",
                         hour: "numeric",
@@ -150,30 +169,35 @@ export default function LatencyGraph() {
               />
               <Area
                 dataKey="latency"
-                type="linear"
-                fill={theme == "light" ? "#afcfff" : "#204277"}
-                fillOpacity={0.4}
-                stroke="#2b7fff"
+                type="monotone"
+                fill={theme === "light" ? "#5b63d320" : "#5b63d330"}
+                fillOpacity={1}
+                stroke="#5b63d3"
+                strokeWidth={2}
               />
             </AreaChart>
           </ChartContainer>
-        ) : isLoadingPingData == true ? (
-          <div className="flex items-center justify-center">
-            <Spinner />
+        ) : isLoadingPingData ? (
+          <div className="flex h-[250px] items-center justify-center">
+            <Spinner className="text-[#5b63d3]" />
           </div>
         ) : (
-          <div className="flex items-center justify-center">
-            <Empty>
+          <div className="flex h-[250px] items-center justify-center">
+            <Empty className="border-none shadow-none bg-transparent">
               <EmptyHeader>
-                <EmptyMedia variant="icon">
+                <EmptyMedia
+                  variant="icon"
+                  className="bg-gray-100 dark:bg-[#1e1e1e] text-gray-500"
+                >
                   <CircleSlash />
                 </EmptyMedia>
-                <EmptyTitle>Empty</EmptyTitle>
-                <EmptyDescription>
-                  No response times data available
+                <EmptyTitle className="text-gray-900 dark:text-white">
+                  No Data
+                </EmptyTitle>
+                <EmptyDescription className="text-gray-500 dark:text-gray-400">
+                  No response time data available for this range.
                 </EmptyDescription>
               </EmptyHeader>
-              <EmptyContent></EmptyContent>
             </Empty>
           </div>
         )}

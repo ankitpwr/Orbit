@@ -1,22 +1,25 @@
 import { type ReactElement } from "react";
 
-interface props {
+interface Props {
   icon: ReactElement;
   title: string;
   details: string;
 }
 
-export default function StatsCard({ icon, title, details }: props) {
+export default function StatsCard({ icon, title, details }: Props) {
   return (
-    <div
-      className="bg-[#f8f9fc] dark:bg-[#171717] border border-[#dfe3ea] dark:border-[#2e2f2f]  
-      rounded-lg py-2 px-2 h-26 w-86  grid grid-cols-5 justify-center gap-2 cursor-pointer"
-    >
-      <div className="flex justify-center items-center ">{icon}</div>
+    <div className="flex items-center gap-4 p-5 w-full rounded-xl border border-gray-200 dark:border-[#2e2f2f] bg-white dark:bg-[#121212] shadow-sm">
+      <div className="flex justify-center items-center p-3 rounded-lg bg-gray-50 dark:bg-[#1e1e1e]">
+        {icon}
+      </div>
 
-      <div className="col-span-4 flex flex-col justify-center gap-1">
-        <h1 className="text-xl font-semibold">{title}</h1>
-        <span className="text-sm  ">{details}</span>
+      <div className="flex flex-col justify-center overflow-hidden">
+        <span className="text-sm font-medium text-gray-500 dark:text-gray-400 truncate">
+          {title}
+        </span>
+        <h2 className="text-xl md:text-2xl font-bold text-gray-900 dark:text-white truncate">
+          {details}
+        </h2>
       </div>
     </div>
   );
