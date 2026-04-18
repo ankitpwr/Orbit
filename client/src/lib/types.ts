@@ -25,11 +25,15 @@ export const TimeRange = {
 } as const;
 export type TimeRange = (typeof TimeRange)[keyof typeof TimeRange];
 
+export const validInterval = [5, 10, 15, 20] as const;
+export type IntervalType = (typeof validInterval)[number];
+
 export interface UserMonitors {
   url: string;
   id: string;
   name: string;
   status: MonitorStatus;
+  interval: IntervalType;
 }
 export interface ping {
   timestamp: Date;

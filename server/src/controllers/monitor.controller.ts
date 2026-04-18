@@ -200,6 +200,7 @@ export const findMonitors = async (req: Request, res: Response) => {
         name: true,
         url: true,
         status: true,
+        interval: true,
       },
       orderBy: {
         createdAt: "desc",

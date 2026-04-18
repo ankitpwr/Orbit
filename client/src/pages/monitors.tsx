@@ -43,6 +43,7 @@ export default function Monitors() {
             name={data.name}
             url={data.url}
             status={data.status}
+            interval={data.interval}
           />
         ))
       ) : (

@@ -23,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { validInterval, type IntervalType } from "@/lib/types";
 
 interface Data {
   name: string;
@@ -32,9 +33,6 @@ interface Data {
   esacalationEmail1?: string;
   esacalationEmail2?: string;
 }
-const validInterval = [5, 10, 15, 20] as const;
-
-type IntervalType = (typeof validInterval)[number];
 
 export default function CreateMonitors() {
   const urlRef = useRef<HTMLInputElement | null>(null);

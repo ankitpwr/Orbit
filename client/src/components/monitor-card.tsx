@@ -4,7 +4,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "./ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import StatusBadge from "./status-badge";
 
-export default function MonitorCard({ url, name, id, status }: UserMonitors) {
+export default function MonitorCard({
+  url,
+  name,
+  id,
+  status,
+  interval,
+}: UserMonitors) {
   const navigate = useNavigate();
   const handleMonitorSelection = () => {
     navigate(`/dashboard/monitors/${id}`);
@@ -29,7 +35,7 @@ export default function MonitorCard({ url, name, id, status }: UserMonitors) {
           <StatusBadge status={status} />
         </div>
         <div className="hidden md:flex items-center justify-end gap-2">
-          <Clock3 size={16} /> <span className="">5m</span>
+          <Clock3 size={16} /> <span className="">{interval}</span>
         </div>
       </div>
     </div>
