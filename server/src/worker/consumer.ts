@@ -72,11 +72,13 @@ async function storeResult(pingResults: PingResult[]) {
           })),
         });
 
+        // find all monitor id and interval for current batch
         const currentMonitorsToUpdate = await tx.monitor.findMany({
           where: { id: { in: pingResults.map((p) => p.monitorId) } },
           select: { id: true, interval: true },
         });
 
+        // batch monitor according to interval
         const groupedInterval = currentMonitorsToUpdate.reduce(
           (acc, monitor) => {
             const key = monitor.interval;
@@ -87,6 +89,7 @@ async function storeResult(pingResults: PingResult[]) {
           {} as Record<number, string[]>,
         );
 
+        //update next ping time
         await Promise.all(
           Object.entries(groupedInterval).map(([interval, ids]) => {
             const nextPing = new Date();
@@ -111,42 +114,38 @@ async function storeResult(pingResults: PingResult[]) {
             },
           });
 
-          const newUpMonitor = await tx.monitor.findMany({
-            where: { id: { in: upMonitorsId }, status: "DOWN" },
-            select: { id: true },
+          //updating incident status for new UP monitor
+          await tx.incident.updateMany({
+            where: {
+              monitorId: { in: upMonitorsId },
+              OR: [
+                { currentStatus: "ACKNOWLEDGED" },
+                { currentStatus: "PROCESSED" },
+                { currentStatus: "OPEN" },
+              ],
+            },
+            data: {
+              currentStatus: "RESOLVED",
+              resolvedAt: new Date(),
+              alertCount: 0,
+            },
           });
 
-          if (newUpMonitor.length > 0) {
-            const ids = newUpMonitor.map((i) => i.id);
-            await tx.incident.updateMany({
-              where: {
-                monitorId: { in: ids },
-                OR: [
-                  { currentStatus: "ACKNOWLEDGED" },
-                  { currentStatus: "PROCESSED" },
-                  { currentStatus: "OPEN" },
-                ],
-              },
-              data: {
-                currentStatus: "RESOLVED",
-                resolvedAt: new Date(),
-                alertCount: 0,
-              },
-            });
-            await tx.monitor.updateMany({
-              where: { id: { in: ids }, status: "DOWN" },
-              data: {
-                lastChecked: new Date(),
-                consecutiveFailure: 0,
-                status: "UP",
-                statusChangedAt: new Date(),
-                processed: false,
-              },
-            });
-          }
+          //updating monitor for new UP monitor
+          await tx.monitor.updateMany({
+            where: { id: { in: upMonitorsId }, status: "DOWN" },
+            data: {
+              lastChecked: new Date(),
+              consecutiveFailure: 0,
+              status: "UP",
+              statusChangedAt: new Date(),
+              processed: false,
+            },
+          });
         }
 
         if (downMonitorsId.length > 0) {
+          // update monitor which are DOWN and previously also DOWN
           await tx.monitor.updateMany({
             where: { id: { in: downMonitorsId }, status: "DOWN" },
             data: {
@@ -154,6 +153,8 @@ async function storeResult(pingResults: PingResult[]) {
               lastChecked: new Date(),
             },
           });
+
+          // update monitor which are DOWN and previously UP
           await tx.monitor.updateMany({
             where: { id: { in: downMonitorsId }, status: "UP" },
             data: {
@@ -164,11 +165,12 @@ async function storeResult(pingResults: PingResult[]) {
             },
           });
 
+          //find monitor which DOWN and consecutive failure
           const monitorToAlert = await tx.monitor.findMany({
             where: {
               id: { in: downMonitorsId },
               status: "DOWN",
-              consecutiveFailure: { gte: 3 },
+              consecutiveFailure: { gte: 2 },
               processed: false,
             },
             select: {
@@ -177,10 +179,12 @@ async function storeResult(pingResults: PingResult[]) {
           });
 
           if (monitorToAlert.length > 0) {
+            // create new incident
             await tx.incident.createMany({
               data: monitorToAlert.map((obj) => ({ monitorId: obj.id })),
             });
 
+            // update monitor processed field
             await tx.monitor.updateMany({
               where: { id: { in: monitorToAlert.map((obj) => obj.id) } },
               data: {
