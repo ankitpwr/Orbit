@@ -10,7 +10,12 @@ interface MonitorData {
 
 async function publish() {
   try {
-    console.log("starting producer! ");
+    console.log("Running producer at ", new Date().toISOString());
+    //find which
+    const currentMinute = new Date().getMinutes();
+    const ALL_INTERVAL = [5, 10, 15, 20];
+    const dueIntervals = ALL_INTERVAL.filter((i) => currentMinute % i === 0);
+
     let cursorId: string | undefined = undefined;
     while (true) {
       // cursor based pagination for batch import
@@ -19,7 +24,7 @@ async function publish() {
           status: {
             not: "PAUSED",
           },
-          nextPing: { lte: new Date() },
+          interval: { in: dueIntervals },
         },
         ...(cursorId ? { cursor: { id: cursorId } } : {}),
         skip: cursorId ? 1 : 0,

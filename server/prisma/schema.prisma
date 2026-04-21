@@ -32,7 +32,6 @@ model Monitor{
   url                   String
   createdAt             DateTime                    @default(now())
   interval              Int                         @default(5)
-  nextPing              DateTime                    @default(now())           
   status                MonitorStatus               @default(UP)
   lastChecked           DateTime                    @default(now())
   statusChangedAt       DateTime                    @default(now())

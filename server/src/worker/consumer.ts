@@ -1,4 +1,3 @@
-import { pushMonitorUpdate } from "../controllers/monitor.controller.js";
 import { Prisma } from "../generated/prisma/client.js";
 import { prisma } from "../lib/prisma.js";
 import { consumerClient } from "../lib/redis.js";
@@ -58,7 +57,12 @@ async function storeResult(pingResults: PingResult[]) {
     .filter((obj) => obj.statusCode < 200 || obj.statusCode >= 300)
     .map((val) => val.monitorId);
 
-  console.log("downmonitorid ", downMonitorsId);
+  console.log(
+    "downmonitorid ",
+    downMonitorsId,
+    "time is",
+    new Date().toISOString(),
+  );
 
   try {
     await prisma.$transaction(
@@ -72,45 +76,25 @@ async function storeResult(pingResults: PingResult[]) {
           })),
         });
 
-        // find all monitor id and interval for current batch
-        const currentMonitorsToUpdate = await tx.monitor.findMany({
-          where: { id: { in: pingResults.map((p) => p.monitorId) } },
-          select: { id: true, interval: true },
-        });
-
-        // batch monitor according to interval
-        const groupedInterval = currentMonitorsToUpdate.reduce(
-          (acc, monitor) => {
-            const key = monitor.interval;
-            if (!acc[key]) acc[key] = [];
-            acc[key].push(monitor.id);
-            return acc;
-          },
-          {} as Record<number, string[]>,
-        );
-
-        //update next ping time
-        await Promise.all(
-          Object.entries(groupedInterval).map(([interval, ids]) => {
-            const nextPing = new Date();
-            nextPing.setMinutes(nextPing.getMinutes() + Number(interval));
-            return tx.monitor.updateMany({
-              where: { id: { in: ids } },
-              data: { nextPing },
-            });
-          }),
-        );
-
         if (upMonitorsId.length > 0) {
+          //updating monitor statusChangedAt field for new UP monitor
+          await tx.monitor.updateMany({
+            where: { id: { in: upMonitorsId }, status: "DOWN" },
+            data: {
+              statusChangedAt: new Date(),
+            },
+          });
+
+          // update monitor which are UP monitor
           await tx.monitor.updateMany({
             where: {
               id: { in: upMonitorsId },
-              status: "UP",
             },
             data: {
               lastChecked: new Date(),
               consecutiveFailure: 0,
               processed: false,
+              status: "UP",
             },
           });
 
@@ -130,38 +114,23 @@ async function storeResult(pingResults: PingResult[]) {
               alertCount: 0,
             },
           });
-
-          //updating monitor for new UP monitor
-          await tx.monitor.updateMany({
-            where: { id: { in: upMonitorsId }, status: "DOWN" },
-            data: {
-              lastChecked: new Date(),
-              consecutiveFailure: 0,
-              status: "UP",
-              statusChangedAt: new Date(),
-              processed: false,
-            },
-          });
         }
 
         if (downMonitorsId.length > 0) {
-          // update monitor which are DOWN and previously also DOWN
+          // update statusChangedAt field for new DOWN monitor
+          await tx.monitor.updateMany({
+            where: { id: { in: downMonitorsId }, status: "UP" },
+            data: {
+              statusChangedAt: new Date(),
+            },
+          });
+          // update monitor which are DOWN monitor
           await tx.monitor.updateMany({
             where: { id: { in: downMonitorsId }, status: "DOWN" },
             data: {
               consecutiveFailure: { increment: 1 },
               lastChecked: new Date(),
-            },
-          });
-
-          // update monitor which are DOWN and previously UP
-          await tx.monitor.updateMany({
-            where: { id: { in: downMonitorsId }, status: "UP" },
-            data: {
-              consecutiveFailure: { increment: 1 },
               status: "DOWN",
-              statusChangedAt: new Date(),
-              lastChecked: new Date(),
             },
           });
 
@@ -266,7 +235,7 @@ async function processJobs() {
       "monitor-group-1",
       "worker-1",
       "COUNT",
-      "2",
+      "5",
       "BLOCK",
       "10",
       "STREAMS",

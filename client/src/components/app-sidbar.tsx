@@ -28,7 +28,7 @@ export default function AppSidebar() {
       <SidebarHeader className="pt-4 pb-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton className="hover:bg-transparent cursor-default">
+            <SidebarMenuButton className="hover:bg-transparent cursor-default px-4 ">
               <Orbit className="" size={28} />
               <span className="font-montserrat text-2xl font-bold tracking-tight text-gray-900 dark:text-white">
                 Orbit
