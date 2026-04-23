@@ -3,10 +3,25 @@ import type { CustomRequest } from "../lib/middleware.js";
 import { prisma } from "../lib/prisma.js";
 import { updateUserDetailsSchema } from "../lib/zod-schema.js";
 import { Prisma } from "../generated/prisma/client.js";
+import { cacheClient } from "../lib/redis.js";
+import { ca } from "zod/locales";
 
 export const userDetails = async (req: Request, res: Response) => {
   try {
-    const { id, email } = req as CustomRequest;
+    const { id } = req as CustomRequest;
+
+    //create cache key based on user id
+    const cacheKey = `user:${id}:profile`;
+
+    //look for cached user
+    const cachedUser = await cacheClient.get(cacheKey);
+    if (cachedUser) {
+      console.log("cache hit!");
+      return res.status(200).json({
+        data: JSON.parse(cachedUser),
+      });
+    }
+
     const user = await prisma.user.findFirst({
       where: {
         id: id,
@@ -15,10 +30,14 @@ export const userDetails = async (req: Request, res: Response) => {
         id: true,
       },
     });
-    if (!user)
+    if (!user) {
       return res.status(400).json({
         error: "Failed to get the user details",
       });
+    }
+
+    //store user details in cache with 1hour expire.
+    await cacheClient.set(cacheKey, JSON.stringify(user), "EX", 3600);
 
     return res.status(200).json({
       data: user,
