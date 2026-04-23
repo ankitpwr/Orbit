@@ -4,7 +4,6 @@ import { prisma } from "../lib/prisma.js";
 import { updateUserDetailsSchema } from "../lib/zod-schema.js";
 import { Prisma } from "../generated/prisma/client.js";
 import { cacheClient } from "../lib/redis.js";
-import { ca } from "zod/locales";
 
 export const userDetails = async (req: Request, res: Response) => {
   try {
@@ -16,7 +15,6 @@ export const userDetails = async (req: Request, res: Response) => {
     //look for cached user
     const cachedUser = await cacheClient.get(cacheKey);
     if (cachedUser) {
-      console.log("cache hit!");
       return res.status(200).json({
         data: JSON.parse(cachedUser),
       });
@@ -36,7 +34,7 @@ export const userDetails = async (req: Request, res: Response) => {
       });
     }
 
-    //store user details in cache with 1hour expire.
+    //store user details in cache with 1 hour expire.
     await cacheClient.set(cacheKey, JSON.stringify(user), "EX", 3600);
 
     return res.status(200).json({
@@ -52,6 +50,7 @@ export const userDetails = async (req: Request, res: Response) => {
 
 export const updateUserDetails = async (req: Request, res: Response) => {
   try {
+    const { id } = req as CustomRequest;
     const parsedData = updateUserDetailsSchema.safeParse(req.body);
     if (!parsedData.success) {
       return res.status(400).json({
@@ -59,8 +58,8 @@ export const updateUserDetails = async (req: Request, res: Response) => {
         error: parsedData.error.issues[0]?.message,
       });
     }
+
     const { name, timezone } = parsedData.data;
-    const { id } = req as CustomRequest;
     await prisma.user.update({
       where: { id: id },
       data: {

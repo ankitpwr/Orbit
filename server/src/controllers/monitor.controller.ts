@@ -10,7 +10,7 @@ import {
   pingDataQuerySchema,
   updateIncidentStatusSchema,
 } from "../lib/zod-schema.js";
-import { subscriber } from "../lib/redis.js";
+import { cacheClient, subscriber } from "../lib/redis.js";
 
 //store client connection
 const sseClient = new Map<string, Response[]>();
@@ -283,6 +283,19 @@ export const pingData = async (req: Request, res: Response) => {
 
     const { monitorId } = parsedParam.data;
     const { days } = parsedQuery.data;
+
+    //
+    const thirtyDayCacheKey = `monitor:${monitorId}:pingData:30`;
+    const sevenDayCacheKey = `monitor:${monitorId}:pingData:7`;
+
+    if (days === 30) {
+      const cachedData = await cacheClient.get(thirtyDayCacheKey);
+      if (cachedData) return res.status(200).json(JSON.parse(cachedData));
+    } else if (days === 7) {
+      const cachedData = await cacheClient.get(sevenDayCacheKey);
+      if (cachedData) return res.status(200).json(JSON.parse(cachedData));
+    }
+
     const date = new Date();
     date.setDate(date.getDate() - days);
     const [data, aggregate] = await prisma.$transaction([
@@ -314,11 +327,28 @@ export const pingData = async (req: Request, res: Response) => {
       }),
     ]);
 
-    return res.status(200).json({
+    const response = {
       message: "Successfully fetched ping data",
       pingData: data,
       avgLatency: aggregate._avg.latency ?? 0,
-    });
+    };
+
+    if (days === 30) {
+      await cacheClient.set(
+        thirtyDayCacheKey,
+        JSON.stringify(response),
+        "EX",
+        7200,
+      );
+    } else if (days === 7) {
+      await cacheClient.set(
+        sevenDayCacheKey,
+        JSON.stringify(response),
+        "EX",
+        3600,
+      );
+    }
+    return res.status(200).json(response);
   } catch (error) {
     console.log("error");
     return res.status(500).json({ error: "Internal server error" });
