@@ -102,8 +102,8 @@ export default function MonitorDetails() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink
-                href="/dashboard/monitors"
-                className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors"
+                onClick={() => navigate("/dashboard/monitors")}
+                className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
               >
                 Monitors
               </BreadcrumbLink>

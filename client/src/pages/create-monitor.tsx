@@ -112,7 +112,10 @@ export default function CreateMonitors() {
         <Breadcrumb className="text-white">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard/monitors">
+              <BreadcrumbLink
+                onClick={() => navigate("/dashboard/monitors")}
+                className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+              >
                 Monitors
               </BreadcrumbLink>
             </BreadcrumbItem>
@@ -151,7 +154,7 @@ export default function CreateMonitors() {
           onValueChange={(value) => setInterval(Number(value) as IntervalType)}
         >
           <SelectTrigger className="w-full max-w-64">
-            <SelectValue placeholder={5} />
+            <SelectValue defaultValue={5} />
           </SelectTrigger>
           <SelectContent>
             <SelectGroup>

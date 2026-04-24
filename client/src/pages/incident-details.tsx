@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import useIncidentStore from "../store/useIncidentStore";
-import { useNavigate, useParams } from "react-router-dom";
+import { Navigate, useNavigate, useParams } from "react-router-dom";
 import { Spinner } from "../components/ui/spinner";
 import { AlertCircle, Ban, BellRing, LinkIcon } from "lucide-react";
 
@@ -27,7 +27,7 @@ export default function IncidentDetails() {
   } = useIncidentStore();
   const { user } = useAuthStore();
   const { incidentId } = useParams();
-  const naviagate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!incidentId) return;
@@ -43,7 +43,7 @@ export default function IncidentDetails() {
   }
 
   if (!incidentId) {
-    naviagate("/");
+    navigate("/");
     return;
   }
 
@@ -53,7 +53,10 @@ export default function IncidentDetails() {
         <Breadcrumb className="text-white">
           <BreadcrumbList>
             <BreadcrumbItem>
-              <BreadcrumbLink href="/dashboard/monitors">
+              <BreadcrumbLink
+                onClick={() => navigate("/dashboard/incidents")}
+                className="text-gray-500 hover:text-gray-900 dark:hover:text-white transition-colors cursor-pointer"
+              >
                 Incidents
               </BreadcrumbLink>
             </BreadcrumbItem>

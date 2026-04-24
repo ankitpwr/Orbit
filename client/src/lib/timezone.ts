@@ -1,4 +1,4 @@
-export const Timezones = [
+export const Timezones: string[] = [
   "America/New_York",
   "America/Los_Angeles",
   "America/Chicago",
