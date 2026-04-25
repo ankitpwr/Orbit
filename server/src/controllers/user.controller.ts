@@ -59,6 +59,13 @@ export const updateUserDetails = async (req: Request, res: Response) => {
       });
     }
 
+    //remove user cached data
+    const cacheKey = `user:${id}:profile`;
+    const cachedUser = await cacheClient.get(cacheKey);
+    if (cachedUser) {
+      await cacheClient.del(cacheKey);
+    }
+
     const { name, timezone } = parsedData.data;
     await prisma.user.update({
       where: { id: id },

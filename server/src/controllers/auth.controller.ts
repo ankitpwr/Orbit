@@ -1,10 +1,9 @@
-import { google } from "googleapis";
+import { OAuth2Client } from "google-auth-library";
 import jwt from "jsonwebtoken";
 import type { Request, Response } from "express";
 
-import { oauth2Client } from "../lib/google-config.js";
+import { client } from "../lib/google-config.js";
 import { prisma } from "../lib/prisma.js";
-import type { CustomRequest } from "../lib/middleware.js";
 
 export const googleAuth = async (req: Request, res: Response) => {
   try {
@@ -15,12 +14,31 @@ export const googleAuth = async (req: Request, res: Response) => {
         error: "Signup failed try again!",
       });
     }
-    const { tokens } = await oauth2Client.getToken(code);
-    oauth2Client.setCredentials(tokens);
-    const oauth = google.oauth2({ version: "v2", auth: oauth2Client });
-    const userInfo = await oauth.userinfo.get();
+    const { tokens } = await client.getToken(code);
+    if (!tokens.id_token) {
+      return res.status(400).json({ error: "No id_token received" });
+    }
 
-    const { email, picture, name } = userInfo.data;
+    const googleClientId = process.env.GOOGLE_CLIENT_ID;
+    if (!googleClientId) {
+      return res.status(500).json({ error: "Google Client ID not configured" });
+    }
+
+    const ticket = await client.verifyIdToken({
+      idToken: tokens.id_token,
+      audience: googleClientId,
+    });
+
+    const payload = ticket.getPayload();
+
+    if (!payload) {
+      return res.status(400).json({ error: "Invalid token" });
+    }
+
+    // const oauth = OAuth2Client.oauth2({ version: "v2", auth: client });
+    // const userInfo = await oauth.userinfo.get();
+
+    const { email, name, picture } = payload;
     if (!email || !name || !picture)
       return res.status(400).json({ error: "Signup failed try again!" });
     let user = await prisma.user.findFirst({

@@ -338,7 +338,7 @@ export const pingData = async (req: Request, res: Response) => {
         thirtyDayCacheKey,
         JSON.stringify(response),
         "EX",
-        7200,
+        3600,
       );
     } else if (days === 7) {
       await cacheClient.set(

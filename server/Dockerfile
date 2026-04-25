@@ -26,11 +26,8 @@ RUN npm ci --omit=dev
 
 COPY --from=builder /build/dist ./dist
 
-COPY --from=builder /build/prisma ./prisma
-
-RUN DATABASE_URL=postgresql://dummy:dummy@localhost/dummy npx prisma generate
-
 ARG SERVICE=api
+
 ENV SERVICE=${SERVICE}
 
 EXPOSE 3001
