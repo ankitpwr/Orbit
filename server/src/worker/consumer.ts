@@ -126,7 +126,7 @@ async function storeResult(pingResults: PingResult[]) {
           });
           // update monitor which are DOWN monitor
           await tx.monitor.updateMany({
-            where: { id: { in: downMonitorsId }, status: "DOWN" },
+            where: { id: { in: downMonitorsId } },
             data: {
               consecutiveFailure: { increment: 1 },
               lastChecked: new Date(),
