@@ -9,7 +9,7 @@ RUN npm ci
 
 COPY . .
 
-RUN DATABASE_URL=postgresql://dummy:dummy@localhost/dummy npx prisma generate
+RUN DATABASE_URL=postgresql://dummy:dummy@localhost/dummy npx prisma generate --no-engine
 
 RUN npm run build
 
@@ -22,7 +22,7 @@ WORKDIR /app
 
 COPY package.json package-lock.json ./
 
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev --omit=optional
 
 COPY --from=builder /build/dist ./dist
 

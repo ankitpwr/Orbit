@@ -1,9 +1,7 @@
 import "dotenv/config";
-import { render, type EmailElementProps } from "@react-email/components";
 import nodemailer from "nodemailer";
-import { Email } from "./emailTemplate.js";
+import { generateMonitorDownEmail } from "./emailTemplate.js";
 import type SMTPTransport from "nodemailer/lib/smtp-transport/index.js";
-import type { ChannelType } from "../generated/prisma/enums.js";
 
 const transporter = nodemailer.createTransport({
   host: process.env.EMAIL_HOST,
@@ -22,14 +20,17 @@ export const sendEmail = async (
   checkedAt: string,
 ) => {
   try {
-    const emailHtml = await render(
-      Email({ monitorName, monitorUrl, checkedAt }),
-    );
+    const emailHtml = generateMonitorDownEmail({
+      monitorName,
+      monitorUrl,
+      checkedAt,
+    });
+
     const info = await transporter.sendMail({
       from: `"Orbit" <${process.env.EMAIL_FROM}>`,
       to: `${channelValue}`,
       subject: "Monitor Is Down",
-      text: "your monitor is experiencing down time",
+      text: `Your monitor ${monitorName} is experiencing downtime. URL: ${monitorUrl}`,
       html: emailHtml,
     });
 
