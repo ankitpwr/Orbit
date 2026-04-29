@@ -9,7 +9,7 @@ RUN npm ci
 
 COPY . .
 
-RUN DATABASE_URL=postgresql://dummy:dummy@localhost/dummy npx prisma generate --no-engine
+RUN DATABASE_URL=postgresql://dummy:dummy@localhost/dummy npx prisma generate 
 
 RUN npm run build
 

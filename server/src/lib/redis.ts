@@ -1,32 +1,34 @@
 import Redis from "ioredis";
 
+const HOST = "alpine-redis";
+
 export const producerClient = new Redis.default({
-  host: "localhost",
+  host: HOST,
   port: 6379,
 });
 
 export const consumerClient = new Redis.default({
-  host: "localhost",
+  host: HOST,
   port: 6379,
 });
 
 export const notificationClient = new Redis.default({
-  host: "localhost",
+  host: HOST,
   port: 6379,
 });
 
 export const outboxClient = new Redis.default({
-  host: "localhost",
+  host: HOST,
   port: 6379,
 });
 
 export const subscriber = new Redis.default({
-  host: "localhost",
+  host: HOST,
   port: 6379,
 });
 
 export const cacheClient = new Redis.default({
-  host: "localhost",
+  host: HOST,
   port: 6379,
 });
 

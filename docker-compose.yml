@@ -1,0 +1,79 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7.0-alpine
+    container_name: alpine-redis
+    ports:
+      - 6379:6379
+
+  frontend:
+    image: ankitpwr/orbit-frontend
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+      args:
+        - VITE_CLIENT_ID=287467303570-v39mqtf2ehgabehs4c16rrjb7quksc1t.apps.googleusercontent.com
+        - VITE_BACKEND_URL=https://orbitbackend.sketch.qzz.io/api/v1
+    container_name: orbit-frontend
+    ports:
+      - 5173:80
+    env_file:
+      - ./client/.env
+
+  api:
+    image: ankitpwr/orbit-api
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+      args:
+        - SERVICE=api
+    container_name: orbit-api
+    ports:
+      - 3001:3001
+    env_file:
+      - ./server/.env
+
+    depends_on:
+      - redis
+
+  producer:
+    image: ankitpwr/orbit-api
+    container_name: obit-producer
+    environment:
+      - SERVICE=producer
+    env_file:
+      - ./server/.env
+
+    depends_on:
+      - api
+
+  consumer:
+    image: ankitpwr/orbit-api
+    container_name: orbit-consumer
+    env_file:
+      - ./server/.env
+    environment:
+      - SERVICE=consumer
+    depends_on:
+      - api
+
+  outbox:
+    image: ankitpwr/orbit-api
+    container_name: orbit-outbox
+    env_file:
+      - ./server/.env
+    environment:
+      - SERVICE=outbox
+    depends_on:
+      - api
+
+  notification:
+    image: ankitpwr/orbit-api
+    container_name: orbit-notification
+    env_file:
+      - ./server/.env
+    environment:
+      - SERVICE=notification
+    depends_on:
+      - api

@@ -35,9 +35,6 @@ export const googleAuth = async (req: Request, res: Response) => {
       return res.status(400).json({ error: "Invalid token" });
     }
 
-    // const oauth = OAuth2Client.oauth2({ version: "v2", auth: client });
-    // const userInfo = await oauth.userinfo.get();
-
     const { email, name, picture } = payload;
     if (!email || !name || !picture)
       return res.status(400).json({ error: "Signup failed try again!" });

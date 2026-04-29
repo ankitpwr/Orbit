@@ -5,6 +5,14 @@ import { TimeRange } from "../lib/types";
 import { Skeleton } from "./ui/skeleton";
 import { uptimePercentage, type ReturnType } from "../lib/uptimepercent";
 import useAuthStore from "../store/useAuthStore";
+import {
+  Empty,
+  EmptyDescription,
+  EmptyHeader,
+  EmptyMedia,
+  EmptyTitle,
+} from "./ui/empty";
+import { CircleSlash } from "lucide-react";
 
 export default function StatusHeatmap() {
   const {
@@ -34,6 +42,29 @@ export default function StatusHeatmap() {
 
   if (isLoadingHeatMapData || loading) {
     return <Skeleton className="h-15 w-full" />;
+  }
+
+  if (heatMapData?.length == 0) {
+    return (
+      <div className="flex h:[50px] md:h-[100px] items-center justify-center">
+        <Empty className="border-none shadow-none bg-transparent">
+          <EmptyHeader>
+            <EmptyMedia
+              variant="icon"
+              className="bg-gray-100 dark:bg-[#1e1e1e] text-gray-500"
+            >
+              <CircleSlash />
+            </EmptyMedia>
+            <EmptyTitle className="text-gray-900 dark:text-white">
+              No Data
+            </EmptyTitle>
+            <EmptyDescription className="text-gray-500 dark:text-gray-400">
+              Please wait for some time
+            </EmptyDescription>
+          </EmptyHeader>
+        </Empty>
+      </div>
+    );
   }
 
   return (
