@@ -1,0 +1,73 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7.0-alpine
+    container_name: alpine-redis
+    restart: unless-stopped
+    ports:
+      - 6379:6379
+
+  frontend:
+    image: ankitpwr/orbit-frontend:latest
+    restart: unless-stopped
+    container_name: orbit-frontend
+    ports:
+      - 5173:80
+
+  api:
+    image: ankitpwr/orbit-api:latest
+    container_name: orbit-api
+    restart: unless-stopped
+    ports:
+      - 3001:3001
+    env_file:
+      - /home/ubuntu/orbit/server.env
+    environment:
+      - SERVICE=api
+    depends_on:
+      - redis
+
+  producer:
+    image: ankitpwr/orbit-api:latest
+    container_name: obit-producer
+    restart: unless-stopped
+    environment:
+      - SERVICE=producer
+    env_file:
+      - /home/ubuntu/orbit/server.env
+    depends_on:
+      - api
+
+  consumer:
+    image: ankitpwr/orbit-api:latest
+    container_name: orbit-consumer
+    restart: unless-stopped
+    env_file:
+      - /home/ubuntu/orbit/server.env
+    environment:
+      - SERVICE=consumer
+    depends_on:
+      - api
+
+  outbox:
+    image: ankitpwr/orbit-api:latest
+    container_name: orbit-outbox
+    restart: unless-stopped
+    env_file:
+      - /home/ubuntu/orbit/server.env
+    environment:
+      - SERVICE=outbox
+    depends_on:
+      - api
+
+  notification:
+    image: ankitpwr/orbit-api:latest
+    container_name: orbit-notification
+    restart: unless-stopped
+    env_file:
+      - /home/ubuntu/orbit/server.env
+    environment:
+      - SERVICE=notification
+    depends_on:
+      - api
