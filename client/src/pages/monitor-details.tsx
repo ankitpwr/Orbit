@@ -61,6 +61,7 @@ export default function MonitorDetails() {
 
     sse.onmessage = function (event) {
       const data = JSON.parse(event.data);
+      console.log("new data from SSE ", data);
       const { monitorId, statusCode, latency, timestamp } = data;
       if (
         !monitorId ||

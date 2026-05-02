@@ -269,6 +269,7 @@ async function processJobs() {
             };
 
             //publish for new updated status for sse
+            console.log("publish new monitor update");
             await consumerClient.publish(
               "monitor-updates",
               JSON.stringify(payload),
