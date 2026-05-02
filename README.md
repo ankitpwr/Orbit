@@ -4,29 +4,11 @@ A full-stack uptime monitoring system that tracks website availability, measures
 
 **Live Demo:** [orbit.ankitpwr.me](https://orbit.ankitpwr.me)
 
+![Orbit Dashboard UI](./assets/dashboard.png)
 ---
 
 ## Architecture
-
-```
-Client  ──api/v1/*──►  Express API  ──────────────────────►  Postgres DB
-          ◄──SSE──                                                 ▲
-                           │ subscribe                             │
-                           ▼                                       │
-                       Redis Pub/Sub                               │
-                      (monitor-updates)                            │
-                           ▲                                       │
-                           │ publish               store ping data │
-                           │                                       │
-Producer (cron)  ──►  Redis Stream  ──►  Consumer  ───────────────┘
-                      (Status Queue)      │
-                                          │ check website status
-                                          ▼
-                                   https://target.com
-                                          
-                      Postgres DB  ──►  Outbox Worker  ──►  Redis Stream  ──►  Notification Worker  ──►  Email
-                    (open incidents)    (cron/2 min)       (Alert Queue)
-```
+![Orbit Architecture Diagram](./assets/architecture.png)
 
 **Four async workers handle all monitoring logic:**
 
