@@ -2,9 +2,7 @@
 
 A full-stack uptime monitoring system that tracks website availability, measures response latency, and alerts users in real time when a service goes down.
 
-**Live Demo:** [orbit.sketch.qzz.io](https://orbit.sketch.qzz.io) &nbsp;|&nbsp; **Backend:** [orbitbackend.sketch.qzz.io](https://orbitbackend.sketch.qzz.io)
-
-![Dashboard](./assets/dashboard.png)
+**Live Demo:** [orbit.ankitpwr.me](https://orbit.ankitpwr.me)
 
 ---
 
