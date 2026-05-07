@@ -5,7 +5,7 @@ import Monitors from "./pages/monitors";
 import RequireAuth from "./components/require-auth";
 import CreateMonitor from "./pages/create-monitor";
 import MonitorDetails from "./pages/monitor-details";
-import NotFound from "./pages/not-fount";
+import NotFound from "./pages/not-found";
 import Incidents from "./pages/incidents";
 import Settings from "./pages/settings";
 import { ThemeProvider } from "./components/theme-provider";
