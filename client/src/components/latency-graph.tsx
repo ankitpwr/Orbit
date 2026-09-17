@@ -24,6 +24,18 @@ import { TimeRange } from "../lib/types";
 import useAuthStore from "../store/useAuthStore";
 import { useTheme } from "./theme-provider";
 
+function smoothValues(values: number[], windowSize = 5) {
+  const halfWindow = Math.floor(windowSize / 2);
+
+  return values.map((_, index) => {
+    const start = Math.max(0, index - halfWindow);
+    const end = Math.min(values.length, index + halfWindow + 1);
+    const window = values.slice(start, end);
+
+    return window.reduce((sum, value) => sum + value, 0) / window.length;
+  });
+}
+
 export default function LatencyGraph() {
   const { fetchPingData, currentMonitor, isLoadingPingData, pingData } =
     useMonitorStore();
@@ -39,9 +51,10 @@ export default function LatencyGraph() {
 
   if (!pingData) return null;
 
-  const data = pingData.map((obj) => ({
+  const smoothedLatencies = smoothValues(pingData.map((obj) => obj.latency));
+  const data = pingData.map((obj, index) => ({
     date: obj.timestamp,
-    latency: obj.latency,
+    latency: smoothedLatencies[index],
   }));
 
   const chartConfig = {
