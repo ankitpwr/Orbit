@@ -22,7 +22,6 @@ subscriber.subscribe("monitor-updates", (err) => {
 
 //listen to new message
 subscriber.on("message", (channel, message) => {
-  console.log("new message from publisher ", message);
   if (channel == "monitor-updates") {
     const data = JSON.parse(message);
     pushMonitorUpdate(data.monitorId, data);

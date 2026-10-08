@@ -7,7 +7,6 @@ import { prisma } from "../lib/prisma.js";
 
 export const googleAuth = async (req: Request, res: Response) => {
   try {
-    console.log("signup endpoint");
     const { code } = req.body;
     if (!code) {
       return res.status(400).json({
@@ -60,7 +59,7 @@ export const googleAuth = async (req: Request, res: Response) => {
     });
     res.cookie("token", token, {
       httpOnly: true,
-      secure: true, //process.env.NODE_ENV == "prod",
+      secure: true,
       sameSite: "none",
       path: "/",
       maxAge: 1000 * 60 * 60 * 480,

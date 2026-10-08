@@ -13,7 +13,6 @@ import {
 import { Button } from "./ui/button";
 import {
   Empty,
-  EmptyContent,
   EmptyDescription,
   EmptyHeader,
   EmptyMedia,

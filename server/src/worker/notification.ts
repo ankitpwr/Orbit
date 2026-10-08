@@ -1,6 +1,5 @@
 import { sendEmail } from "../email/email.js";
-import { ChannelType } from "../generated/prisma/enums.js";
-import { prisma } from "../lib/prisma.js";
+
 import { notificationClient } from "../lib/redis.js";
 
 async function sendNotification() {
@@ -35,19 +34,6 @@ async function sendNotification() {
         const checkedAt = monitor.lastChecked;
         const channelType = monitor.channelType;
         const channelValue = monitor.channelValue;
-
-        console.log(
-          "channelType",
-          channelType,
-          "channelValue",
-          channelValue,
-          "monitorName ",
-          monitorName,
-          "monitorUrl",
-          monitorUrl,
-          "downSince",
-          checkedAt,
-        );
         if (
           monitorName &&
           monitorUrl &&

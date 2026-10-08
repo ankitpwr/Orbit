@@ -19,7 +19,6 @@ function getEscalationLevel(alertCount: number): number {
 
 //outbox poller worker
 async function emitNoticationEvent(downMonitors: DownMonitor[]) {
-  console.log("DownMonitor are ", downMonitors);
   const pipeline = outboxClient.pipeline();
   downMonitors.forEach((obj) => {
     const entries = Object.entries(obj).flatMap(([k, v]) => [
