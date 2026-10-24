@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import useIncidentStore from "../store/useIncidentStore";
-import { Navigate, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Spinner } from "../components/ui/spinner";
 import { AlertCircle, Ban, BellRing, LinkIcon } from "lucide-react";
 

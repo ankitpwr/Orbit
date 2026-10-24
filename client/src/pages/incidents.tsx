@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import useIncidentStore from "../store/useIncidentStore";
 import useAuthStore from "../store/useAuthStore";
-import { Spinner } from "../components/ui/spinner";
 import IncidentCard from "../components/incident-card";
 import { Skeleton } from "../components/ui/skeleton";
 

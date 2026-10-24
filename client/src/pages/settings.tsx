@@ -1,5 +1,5 @@
-import React, { useRef, useState, type JSX } from "react";
-import { Field, FieldDescription, FieldLabel } from "../components/ui/field";
+import { useRef, useState, type JSX } from "react";
+import { Field, FieldLabel } from "../components/ui/field";
 import { Input } from "../components/ui/input";
 import useAuthStore from "../store/useAuthStore";
 import { Button } from "../components/ui/button";
